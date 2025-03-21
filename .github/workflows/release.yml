@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -27,14 +27,14 @@ jobs:
       - name: Install Helm
         env:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
-        uses: azure/setup-helm@v3
+        uses: azure/setup-helm@v4
 
       - name: Change directories to where the charts are defined so the action can find the changed files properly
         run: |
           cd heimdall2
 
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.6.0
+        uses: helm/chart-releaser-action@v1.7.0
         with:
           charts_dir: "."
         env:

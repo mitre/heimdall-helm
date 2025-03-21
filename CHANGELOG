@@ -1,3 +1,6 @@
+# 3.1.10
+Add external interfaces variables, specifically variables for splunk and tenable urls @georgedias
+
 # 3.1.0
 Add an addiitonal values.yml section to provide cacerts
 Added a init container that will process the provided cacerts, and a volume to deliver them to the Heimdall container
