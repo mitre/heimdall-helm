@@ -16,8 +16,7 @@ adminPassword: saf-heimdall-test-local
 # registrationDisabled: default false
 # oneSessionPerUser: default false
 ## Generate the following via `openssl rand -hex 64` and set
-jwtSecret: 1190c375f331c3dc224a16fea45de50fc92db68354014cbc69c95cdfd5ff5ff62024781da16d70638246c43ba8f4435e26b5248e320c2fb53badee48dd2cfc7e
-
+jwtSecret: fd96e9f444df635dade991c8e9cdf7e3d7a1f54b06e71a2171fc0f0dbed2fe3197bc78013e63bf03216a6fb7f29e2782c20e49f895296618896852602504d0a6
 ## Set `1d` or `25m`
 # jwtExpireTime: 25m
 
