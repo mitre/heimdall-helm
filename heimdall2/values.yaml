@@ -155,23 +155,23 @@ heimdall:
                 name: heimdall
                 port:
                   number: 3000
-  gateway:
-    enabled: false
-    apiVersion: 
-    kind: VirtualService 
+  # gateway:
+  #   enabled: false
+  #   apiVersion: 
+  #   kind: VirtualService 
     
-    gateways:
-    - 
-    hosts:
-      - 
-      - 
-    http:
-      - name:
-        route:
-          - destination:
-              host:
-              port:
-                number: 3000
+  #   gateways:
+  #   - 
+  #   hosts:
+  #     - 
+  #     - 
+  #   http:
+  #     - name:
+  #       route:
+  #         - destination:
+  #             host:
+  #             port:
+  #               number: 3000
 
     # annotations:
     #   traefik.ingress.kubernetes.io/router.entrypoints: websecure
