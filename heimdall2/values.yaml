@@ -155,6 +155,20 @@ heimdall:
                 name: heimdall
                 port:
                   number: 3000
+
+    # annotations:
+    #   traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    #   traefik.ingress.kubernetes.io/router.tls: "true"
+    #   traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
+
+    # className: ingress class name
+
+    # tls:
+    #   - name: nginx
+    #     secretName: ingress-secret
+    #     hosts:
+    #       - heimdall.example.com
+  
   # gateway:
   #   enabled: false
   #   apiVersion: 
@@ -172,19 +186,6 @@ heimdall:
   #             host:
   #             port:
   #               number: 3000
-
-    # annotations:
-    #   traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    #   traefik.ingress.kubernetes.io/router.tls: "true"
-    #   traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
-
-    # className: ingress class name
-
-    # tls:
-    #   - name: nginx
-    #     secretName: ingress-secret
-    #     hosts:
-    #       - heimdall.example.com
 
   podAnnotations: {}
 
