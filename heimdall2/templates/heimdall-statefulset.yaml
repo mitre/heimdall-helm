@@ -41,6 +41,8 @@ spec:
           securityContext:
             {{- toYaml .Values.certs.securityContext | nindent 12 }}
           image: "{{ .Values.certs.image.repository }}:{{ .Values.certs.image.tag }}"
+          resources:
+            {{- toYaml .Values.certs.resources | nindent 12 }}
           imagePullPolicy: {{ .Values.certs.image.pullPolicy }}
           command: {{ .Values.certs.command }}
           volumeMounts:
@@ -256,21 +258,26 @@ spec:
                   name: {{ include "heimdall.fullname" . }}
                   key: ldapSslCa
           livenessProbe:
+            {{- with .Values.heimdall.livenessProbe }}
             httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 80
-            periodSeconds: 10
-            timeoutSeconds: 15
-            failureThreshold: 3
+              path: {{ .httpGet.path | default "/" }}
+              port: {{ .httpGet.port | default 3000 }}
+            initialDelaySeconds: {{ .initialDelaySeconds | default 80 }}
+            periodSeconds: {{ .periodSeconds | default 10 }}
+            timeoutSeconds: {{ .timeoutSeconds | default 15 }}
+            failureThreshold: {{ .failureThreshold | default 3 }}
+            {{- end }}
+
           readinessProbe:
+            {{- with .Values.heimdall.readinessProbe }}
             httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 80
-            periodSeconds: 10
-            timeoutSeconds: 15
-            failureThreshold: 3
+              path: {{ .httpGet.path | default "/" }}
+              port: {{ .httpGet.port | default 3000 }}
+            initialDelaySeconds: {{ .initialDelaySeconds | default 80 }}
+            periodSeconds: {{ .periodSeconds | default 10 }}
+            timeoutSeconds: {{ .timeoutSeconds | default 15 }}
+            failureThreshold: {{ .failureThreshold | default 3 }}
+            {{- end }}
       {{- with .Values.heimdall.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

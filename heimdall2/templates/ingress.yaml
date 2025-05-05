@@ -1,13 +1,9 @@
-{{- if .Values.heimdall.ingress.enabled -}}
 {{- $kubeVersion := .Capabilities.KubeVersion.GitVersion -}}
-{{- if semverCompare ">=1.14-0" $kubeVersion -}}
 {{- $fullName := include "heimdall.fullname" . -}}
-{{- if semverCompare ">=1.19-0" $kubeVersion -}}
-apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- end }}
-kind: Ingress
+{{- if or .Values.heimdall.ingress.enabled .Values.heimdall.gateway.enabled -}}
+apiVersion: {{ if .Values.heimdall.ingress.enabled }}{{ if semverCompare ">=1.19-0" $kubeVersion }}{{ .Values.heimdall.ingress.apiVersionUpper }}{{ else }}{{ .Values.heimdall.ingress.apiVersionLower }}{{ end }}
+{{ else if .Values.heimdall.gateway.enabled }}{{ .Values.heimdall.gateway.apiVersion }}{{ end }}
+kind: {{ if .Values.heimdall.ingress.enabled }}{{ .Values.heimdall.ingress.kind }}{{ else }}{{ .Values.heimdall.gateway.kind }}{{ end }}
 metadata:
   name: {{ $fullName }}
   labels:
@@ -17,7 +13,8 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{- if .Values.heimdall.ingress.tls }}
+  {{- if .Values.heimdall.ingress.enabled }}
+  {{- if .Values.heimdall.ingress.tls }}
   tls:
   {{- range .Values.heimdall.ingress.tls }}
     - hosts:
@@ -26,8 +23,8 @@ spec:
       {{- end }}
       secretName: {{ .secretName }}
   {{- end }}
-{{- end }}
-  {{- if and .Values.heimdall.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  {{- end }}
+  {{- if and .Values.heimdall.ingress.className (semverCompare ">=1.18-0" $kubeVersion) }}
   ingressClassName: {{ .Values.heimdall.ingress.className }}
   {{- end }}
   rules:
@@ -45,5 +42,25 @@ spec:
                   number: {{ .backend.service.port.number }}
         {{- end }}
   {{- end }}
-{{- end }}
+  {{- else if .Values.heimdall.gateway.enabled }}
+  gateways:
+    {{- range .Values.heimdall.gateway.gateways }}
+    - {{ . }}
+    {{- end }}
+  hosts:
+    {{- range .Values.heimdall.gateway.hosts }}
+    - {{ . }}
+    {{- end }}
+  http:
+    {{- range .Values.heimdall.gateway.http }}
+    - name: {{ .name }}
+      route:
+        {{- range .route }}
+        - destination:
+          host: {{ .destination.host }}
+          port:
+            number: {{ .destination.port.number }}
+        {{- end }}
+    {{- end }}
+  {{- end }}
 {{- end }}
