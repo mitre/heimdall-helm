@@ -31,7 +31,7 @@ nodeEnv: production
 databaseName: heimdall-database
 databaseUsername: postgres
 ## Set postgres user's password via `openssl rand -hex 33`
-#databasePassword: long-random-string-of-text
+# databasePassword: long-random-string-of-text
 # databaseSsl: default false
 # databaseSslInsecure: default false
 # databaseSslKey: path-or-raw-key
