@@ -16,7 +16,7 @@ nodeEnv: production
 # registrationDisabled: default false
 # oneSessionPerUser: default false
 ## Generate the following via `openssl rand -hex 64` and set
-#jwtSecret: long-random-string-of-text
+# jwtSecret: long-random-string-of-text
 ## Set `1d` or `25m`
 # jwtExpireTime: 25m
 
