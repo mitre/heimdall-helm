@@ -38,7 +38,7 @@ databaseUsername: postgres
 # databaseSslCert: path-or-raw-cert
 # databaseSslCa: path-or-raw-ca
 
-#externalUrl: 'public'/externally facing URL for your deployment (ex. for use in callback urls for auth integrations)
+# externalUrl: 'public'/externally facing URL for your deployment (ex. for use in callback urls for auth integrations)
 
 # splunkHostUrl: default empty string (ex. https://your.splunk.domain.com)
 # tenableHostUrl: default empty string (ex. https://your.tenable.domain.com)
