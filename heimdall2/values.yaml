@@ -34,52 +34,52 @@ databaseUsername: postgres
 # databasePassword: long-random-string-of-text
 # databaseSsl: default false
 # databaseSslInsecure: default false
-# databaseSslKey: path-or-raw-key
-# databaseSslCert: path-or-raw-cert
-# databaseSslCa: path-or-raw-ca
+# databaseSslKey: path-or-raw-key  # Must be set if using SSL
+# databaseSslCert: path-or-raw-cert  # Must be set if using SSL
+# databaseSslCa: path-or-raw-ca  # Must be set if using SSL
 
-# externalUrl: 'public'/externally facing URL for your deployment (ex. for use in callback urls for auth integrations)
+# externalUrl: 'public'/externally facing URL for your deployment (ex. for use in callback urls for auth integrations) # Must be set
 
 # splunkHostUrl: default empty string (ex. https://your.splunk.domain.com)
 # tenableHostUrl: default empty string (ex. https://your.tenable.domain.com)
 
 # ldapEnabled: default false
-# ldapHost: url
+# ldapHost: url  # Must be set if using LDAP 
 # ldapPort: default 389
-# ldapBindDn: Dn of user used for lookups
-# ldapPassword: user's password
-# ldapSearchBase: ex. "OU=Users, DC=<yourdomain>, DC=local"
-# ldapSearchFilter: ex. "sAMAccountName={{username}}"
+# ldapBindDn: Dn of user used for lookups  # Must be set if using LDAP
+# ldapPassword: user's password  # Must be set if using LDAP
+# ldapSearchBase: ex. "OU=Users, DC=<yourdomain>, DC=local"  # Must be set if using LDAP 
+# ldapSearchFilter: ex. "sAMAccountName={{username}}"  
 # ldapNameField: default name
 # ldapMailField: default mail
 # ldapSsl: default false
 # ldapSslInsecure: default false
 # ldapSslCa: path-or-raw-ca
 
-# googleClientId: value-from-google
-# googleClientSecret: value-from-google
+# googleClientId: value-from-google  # Must be set if using Google login
+# googleClientSecret: value-from-google  # Must be set if using Google login
 
-# githubClientId: value-from-github
-# githubClientSecret: value-from-github
+# githubClientId: value-from-github  # Must be set if using GitHub login
+# githubClientSecret: value-from-github  # Must be set if using GitHub login
 # githubEnterpriseInstanceBaseUrl: default https://github.com/
 # githubEnterpriseInstanceApiUrl: default https://api.github.com/
 
-# gitlabClientId: value-from-gitlab
-# gitlabClientSecret: value-from-gitlab
-# gitlabBaseUrl: default https://gitlab.com/
+# gitlabClientId: value-from-gitlab  # Must be set if using GitLab login
+# gitlabClientSecret: value-from-gitlab  # Must be set if using GitLab login
+# gitlabBaseUrl: default https://gitlab.com/  
 
-# oktaDomain: yourdomain.okta.com
-# oktaClientId: value-from-okta
-# oktaClientSecret: value-from-okta
+# oktaDomain: yourdomain.okta.com # Must be set if using Okta login    
+# oktaClientId: value-from-okta  # Must be set if using Okta login
+# oktaClientSecret: value-from-okta  # Must be set if using Okta login
 
-# oidcName: frontend-name
-# oidcIssuer: base url, ex. https://sample.us.auth0.com
-# oidcAuthorizationUrl: auth endpoint, ex. https://sample.us.autho0.com/authorize
-# oidcTokenUrl: token endpoint, ex. https://sample.us.auth0.com/token
-# oidcUserInfoUrl: info endpoint, ex. https://sample.us.autho0.com/userinfo
-# oidcClientId: value-from-oidc
-# oidcClientSecret: value-from-oidc
-# oidcExternalGroups: default false
+# oidcName: frontend-name  # Must be set if using OIDC login
+# oidcIssuer: base url, ex. https://sample.us.auth0.com  # Must be set if using OIDC login
+# oidcAuthorizationUrl: auth endpoint, ex. https://sample.us.autho0.com/authorize  # Must be set if using OIDC login
+# oidcTokenUrl: token endpoint, ex. https://sample.us.auth0.com/token  # Must be set if using OIDC login
+# oidcUserInfoUrl: info endpoint, ex. https://sample.us.autho0.com/userinfo  # Must be set if using OIDC login
+# oidcClientId: value-from-oidc  # Must be set if using OIDC login
+# oidcClientSecret: value-from-oidc  # Must be set if using OIDC login
+# oidcExternalGroups: default false  
 
 postgresql:
   enabled: true
