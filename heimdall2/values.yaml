@@ -124,8 +124,11 @@ certs:
   command: "['sh', '-c', 'update-ca-trust']" # RHEL style distros use the `update-ca-trust` command to update the system CA trust store
   injectedCertsMountPath: /etc/pki/ca-trust/source/anchors # the location that `update-ca-trust` looks inside for user supplied certs
   processedCertsMountPaths: [/etc/pki/ca-trust/extracted/openssl, /etc/pki/ca-trust/extracted/pem, /etc/pki/ca-trust/extracted/java, /etc/pki/ca-trust/extracted/edk2] # due to the chart using `emptyDir` (which supplies a completely blank dir) to specify the shared volumes between this container and Heimdall's, and due to `update-ca-trust` apparently requiring several subdirectories underneath /etc/pki/ca-trust/extracted to exist, we need to manually specify each subdirectory
-  securityContext: {}
-  resources: {}
+  # securityContext: {
+  # RunAsRoot: false
+  # }
+  # resources: {
+  # }
   certificates:
 
 heimdall:
@@ -138,12 +141,12 @@ heimdall:
     type: ClusterIP
     port: 3000
 
-  ingress:
-    enabled: true
+  #ingress:
+  #  enabled: default true
 
-    apiVersionUpper: networking.k8s.io/v1
-    apiVersionLower: networking.k8s.io/v1beta1
-    kind: Ingress 
+  #  apiVersionUpper: default networking.k8s.io/v1
+  #  apiVersionLower: default networking.k8s.io/v1beta1
+  #  kind: default Ingress 
 
     hosts:
       - host: localhost
@@ -201,22 +204,22 @@ heimdall:
 
   affinity: {}
 
-  livenessProbe:
-      httpGet:
-        path: /
-        port: 3000
-      initialDelaySeconds: 80
-      periodSeconds: 10
-      timeoutSeconds: 15
-      failureThreshold: 3
+#  livenessProbe:
+#      httpGet:
+#        path: /
+#        port: 3000
+#      initialDelaySeconds: 80
+#      periodSeconds: 10
+#      timeoutSeconds: 15
+#      failureThreshold: 3
 
-  readinessProbe:
-    httpGet:
-      path: /
-      port: 3000
-    initialDelaySeconds: 80
-    periodSeconds: 10
-    timeoutSeconds: 15
-    failureThreshold: 3
+#  readinessProbe:
+#    httpGet:
+#      path: /
+#      port: 3000
+#    initialDelaySeconds: 80
+#    periodSeconds: 10
+#    timeoutSeconds: 15
+#    failureThreshold: 3
 # imagePullSecrets:
 #   - name: your-secret-name
