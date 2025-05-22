@@ -141,12 +141,12 @@ heimdall:
     type: ClusterIP
     port: 3000
 
-  #ingress:
-  #  enabled: default true
+  ingress:
+    enabled: default true
 
-  #  apiVersionUpper: default networking.k8s.io/v1
-  #  apiVersionLower: default networking.k8s.io/v1beta1
-  #  kind: default Ingress 
+    apiVersionUpper: default networking.k8s.io/v1
+    apiVersionLower: default networking.k8s.io/v1beta1
+    kind: default Ingress 
 
     hosts:
       - host: localhost
