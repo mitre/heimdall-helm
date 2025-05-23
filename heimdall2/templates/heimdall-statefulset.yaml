@@ -176,10 +176,8 @@ spec:
             - name: REGISTRATION_DISABLED
               value: {{ .Values.registrationDisabled | quote }}
             {{- end }}
-            {{- if .Values.externalUrl }}
             - name: EXTERNAL_URL
               value: {{ .Values.externalUrl | quote }}
-            {{- end }}
             {{- if .Values.oneSessionPerUser }}
             - name: ONE_SESSION_PER_USER
               value: {{ .Values.oneSessionPerUser | quote }}
