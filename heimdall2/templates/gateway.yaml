@@ -25,9 +25,9 @@ spec:
       route:
         {{- range .route }}
         - destination:
-          host: {{ .destination.host }}
-          port:
-            number: {{ .destination.port.number }}
+            host: {{ .destination.host }}
+            port:
+              number: {{ .destination.port.number }}
         {{- end }}
     {{- end }}
 {{- end }}
