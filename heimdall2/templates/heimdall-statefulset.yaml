@@ -56,6 +56,8 @@ spec:
         - name: heimdall-front
           securityContext:
             {{- toYaml .Values.heimdall.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.heimdall.resources | nindent 12 }}            
           image: "{{ .Values.heimdall.image.repository }}:{{ .Values.heimdall.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.heimdall.image.pullPolicy }}
           ports:
