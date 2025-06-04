@@ -1,7 +1,7 @@
 {{- if (.Values.heimdall.ingress).enabled -}}
 {{- $kubeVersion := .Capabilities.KubeVersion.GitVersion -}}
 {{- $fullName := include "heimdall.fullname" . -}}
-apiVersion: {{ if semverCompare ">=1.19-0" $kubeVersion }}{{ .Values.heimdall.ingress.apiVersionUpper }}{{ else }}{{ .Values.heimdall.ingress.apiVersionLower }}{{ end }}
+apiVersion: {{.Values.heimdall.ingress.api_Version}}
 kind: {{ .Values.heimdall.ingress.kind }}
 metadata:
   name: {{ $fullName }}

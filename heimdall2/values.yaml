@@ -2,6 +2,12 @@
 # https://github.com/mitre/heimdall2/wiki/Environment-Variables-Configuration
 # apps/backend/.env-example
 
+# Heimdall2 Helm Chart Values File
+# This file is used to set the default values for the Heimdall2 Helm chart.
+# Any values that are not set will use the defaults specified in the chart.
+# The following values are required to be set in order for Heimdall2 to function properly:
+# NODE_ENV, JWT_SECRET, EXTERNAL_URL
+
 # classificationBannerText: default is no banner
 # classificationBannerTextColor: default white
 # classificationBannerColor: default red
@@ -101,19 +107,57 @@ postgresql:
     type: ClusterIP
     port: 5672
 
-  podAnnotations: {}
+  podAnnotations: {} 
+  # Attaches metadata to the Postgre pod
+  # Example:
+    # imageregistry: "https://example.docker.com"
 
-  podSecurityContext: {}
+  podSecurityContext: {} 
+  # Defines privilege and access control settings for the Postgre pod
+  # Example:
+    # runAsUser: 1000
+    # runAsGroup: 3000
+    # fsGroup: 2000
 
-  securityContext: {}
+  securityContext: {} 
+  # Defines privilege and access control settings for the Postgre container
+  # Example:
+    # runAsUser: 1000
+    # runAsGroup: 3000
+    # fsGroup: 2000
 
-  resources: {}
+  resources: {} 
+  # Specifies what resources are available to the Postgre container
+  # Example:
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # limits:
+    #   cpu: 200m
+    #   memory: 256Mi
 
-  nodeSelector: {}
+  nodeSelector: {} 
+  # Selects nodes with specific labels
+  # Example:
+    # kubernetes.io/example: linux
+    # kubernetes.io/example: amd64
 
-  tolerations: []
+  tolerations: [] 
+  # Tolerations allow the scheduler to schedule pods with matching taints
+  # Example:
+    # - key: "node-role.kubernetes.io/example"
+    #   operator: "Exists"
+    #   effect: "NoSchedule"
 
-  affinity: {}
+  affinity: {} 
+  # Attracts pods to nodes with specific labels
+  # Example:
+    # podAffinity:
+    #   requiredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #         matchExpressions:
+    #           - key: app
+    #             operator: In
 
 certs:
   name: heimdall-cacerts # name of the configmap that will include all the certs' file contents
@@ -130,6 +174,9 @@ certs:
   # resources: {
   # }
   certificates:
+    # - filename: name_of_cert.pem
+    #   contents: |
+    #     certificates file contents
 
 heimdall:
   image:
@@ -142,11 +189,9 @@ heimdall:
     port: 3000
 
   ingress:
-    enabled: default true
-
-    apiVersionUpper: default networking.k8s.io/v1
-    apiVersionLower: default networking.k8s.io/v1beta1
-    kind: default Ingress 
+    enabled: true  # Default: true
+    api_Version: networking.k8s.io/v1 # Default: networking.k8s.io/v1
+    kind: Ingress # Default: Ingress 
 
     hosts:
       - host: localhost
@@ -178,33 +223,71 @@ heimdall:
   #  kind: VirtualService 
     
     #gateways:
-      #- 
+      # List of gateways
       #hosts:
+        # List of hostsnames that the gateway handles traffic for
         #- 
-        #- 
-      #http:
-        #- name:
-          #route:
+      #http: Route Config
+        #- name: Name for the route group
+          #route: 
             #- destination:
-                #host:
-                #port:
+                #host: Service name within cluster
+                #port: Port number of service
                   #number: 3000
     #annotations:
-      #-
+      # Optional annotations for the gateway
 
   podAnnotations: {}
+  # Attaches metadata to the Postgre pod
+  # Example:
+    # imageregistry: "https://example.docker.com"
 
   podSecurityContext: {}
+  # Defines privilege and access control settings for the Postgre pod
+  # Example:
+    # runAsUser: 1000
+    # runAsGroup: 3000
+    # fsGroup: 2000
 
   securityContext: {}
+  # Defines privilege and access control settings for the Postgre container
+  # Example:
+    # runAsUser: 1000
+    # runAsGroup: 3000
+    # fsGroup: 2000
 
   resources: {}
+  # Specifies what resources are available to the Postgre container
+  # Example:
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # limits:
+    #   cpu: 200m
+    #   memory: 256Mi
 
   nodeSelector: {}
+  # Selects nodes with specific labels
+  # Example:
+    # kubernetes.io/example: linux
+    # kubernetes.io/example: amd64
 
   tolerations: []
+  # Tolerations allow the scheduler to schedule pods with matching taints
+  # Example:
+    # - key: "node-role.kubernetes.io/example"
+    #   operator: "Exists"
+    #   effect: "NoSchedule"
 
   affinity: {}
+  # Attracts pods to nodes with specific labels
+  # Example:
+    # podAffinity:
+    #   requiredDuringSchedulingIgnoredDuringExecution:
+    #     - weight: 1
+    #         matchExpressions:
+    #           - key: app
+    #             operator: In
 
 #  livenessProbe:
 #    httpGet:

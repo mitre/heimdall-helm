@@ -1,3 +1,6 @@
+# This file executes via the "gateway" value in the values.yaml file.
+# Introducing this tag utilizes the gateway API instead of the ingress API.
+# Both cannot be used at the same time.
 {{- if (.Values.heimdall.gateway).enabled -}}
 {{- $fullName := include "heimdall.fullname" . -}}
 apiVersion: {{ .Values.heimdall.gateway.apiVersion }}
