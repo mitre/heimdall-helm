@@ -204,6 +204,10 @@ spec:
             - name: TENABLE_HOST_URL
               value: {{ .Values.tenableHostUrl | quote }}
             {{- end }}
+            {{- if .Values.forceTenableFrontend }}
+            - name: FORCE_TENABLE_FRONTEND
+              value: {{ .Values.forceTenableFrontend | quote }}
+            {{- end }}
             {{- if .Values.githubClientId }}
             - name: GITHUB_CLIENTID
               valueFrom:
