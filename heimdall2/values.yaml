@@ -5,8 +5,6 @@
 # Heimdall2 Helm Chart Values File
 # This file is used to set the default values for the Heimdall2 Helm chart.
 # Any values that are not set will use the defaults specified in the chart.
-# The following values are required to be set in order for Heimdall2 to function properly:
-# NODE_ENV, JWT_SECRET, EXTERNAL_URL
 
 # classificationBannerText: default is no banner
 # classificationBannerTextColor: default white
@@ -77,6 +75,10 @@ databaseUsername: postgres
 # oktaDomain: yourdomain.okta.com # Must be set if using Okta login    
 # oktaClientId: value-from-okta  # Must be set if using Okta login
 # oktaClientSecret: value-from-okta  # Must be set if using Okta login
+# oktaIssuer:
+# oktaAuthorizationUrl:
+# oktaTokenUrl:
+# oktaUserInfoUrl:
 
 # oidcName: frontend-name  # Must be set if using OIDC login
 # oidcIssuer: base url, ex. https://sample.us.auth0.com  # Must be set if using OIDC login
@@ -85,7 +87,11 @@ databaseUsername: postgres
 # oidcUserInfoUrl: info endpoint, ex. https://sample.us.autho0.com/userinfo  # Must be set if using OIDC login
 # oidcClientId: value-from-oidc  # Must be set if using OIDC login
 # oidcClientSecret: value-from-oidc  # Must be set if using OIDC login
-# oidcExternalGroups: default false  
+# oidcExternalGroups: value-from-oidc # true or false, default false  # Synchronize user groups from external OIDC provider
+# oidcUsesPKCES256: value-from-oidc # true or false, default true  # Must be set if using PKCE, must not be set if using Plain login
+# oidcUsesPKCEPlain: value-from-oidc # true or false, default false  # Must be set if using Plain login, must not be set if using PKCE
+# oidcUseHttpsProxy: value-from-oidc # true or false, default false # Enables proxy support with the coded challenge method being plain
+# oidcHttpsProxy: value-from-oidc # Proxy to use for HTTPS connections
 
 postgresql:
   enabled: true
@@ -96,10 +102,10 @@ postgresql:
     tag: "13"
 
   persistence:
-    ## Volume used to store the Heimdall's data. Default is boolean `false`.
+    ## Volume used to store the Heimdall's data.
     enabled: false
     size: "100Mi"
-    ## Sets persistent volume claim's storageClassName. Defaults to `default`.
+    ## Sets persistent volume claim's storageClassName.
     storageClassName: "default"
     accessMode: "ReadWriteOnce"
 
@@ -108,56 +114,56 @@ postgresql:
     port: 5672
 
   podAnnotations: {} 
-  # Attaches metadata to the Postgre pod
-  # Example:
-    # imageregistry: "https://example.docker.com"
+#   Attaches metadata to the Postgres pod
+#   Example:
+#     imageregistry: "https://example.docker.com"
 
   podSecurityContext: {} 
-  # Defines privilege and access control settings for the Postgre pod
-  # Example:
-    # runAsUser: 1000
-    # runAsGroup: 3000
-    # fsGroup: 2000
+#   Defines privilege and access control settings for the Postgres pod
+#   Example:
+#     runAsUser: 1000
+#     runAsGroup: 3000
+#     fsGroup: 2000
 
   securityContext: {} 
-  # Defines privilege and access control settings for the Postgre container
-  # Example:
-    # runAsUser: 1000
-    # runAsGroup: 3000
-    # fsGroup: 2000
+#   Defines privilege and access control settings for the Postgres container
+#   Example:
+#     runAsUser: 1000
+#     runAsGroup: 3000
+#     fsGroup: 2000
 
   resources: {} 
-  # Specifies what resources are available to the Postgre container
-  # Example:
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # limits:
-    #   cpu: 200m
-    #   memory: 256Mi
+#   Specifies what resources are available to the Postgres container
+#   Example:
+#     requests:
+#       cpu: 100m
+#       memory: 128Mi
+#     limits:
+#       cpu: 200m
+#       memory: 256Mi
 
   nodeSelector: {} 
-  # Selects nodes with specific labels
-  # Example:
-    # kubernetes.io/example: linux
-    # kubernetes.io/example: amd64
+#   Selects nodes with specific labels
+#   Example:
+#     kubernetes.io/example: linux
+#     kubernetes.io/example: amd64
 
   tolerations: [] 
-  # Tolerations allow the scheduler to schedule pods with matching taints
-  # Example:
-    # - key: "node-role.kubernetes.io/example"
-    #   operator: "Exists"
-    #   effect: "NoSchedule"
+#   Tolerations allow the scheduler to schedule pods with matching taints
+#   Example:
+#     - key: "node-role.kubernetes.io/example"
+#       operator: "Exists"
+#       effect: "NoSchedule"
 
   affinity: {} 
-  # Attracts pods to nodes with specific labels
-  # Example:
-    # podAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     - weight: 1
-    #         matchExpressions:
-    #           - key: app
-    #             operator: In
+#   Attracts pods to nodes with specific labels
+#   Example:
+#     podAffinity:
+#       requiredDuringSchedulingIgnoredDuringExecution:
+#         - weight: 1
+#             matchExpressions:
+#               - key: app
+#                 operator: In
 
 certs:
   name: heimdall-cacerts # name of the configmap that will include all the certs' file contents
@@ -168,15 +174,84 @@ certs:
   command: "['sh', '-c', 'update-ca-trust']" # RHEL style distros use the `update-ca-trust` command to update the system CA trust store
   injectedCertsMountPath: /etc/pki/ca-trust/source/anchors # the location that `update-ca-trust` looks inside for user supplied certs
   processedCertsMountPaths: [/etc/pki/ca-trust/extracted/openssl, /etc/pki/ca-trust/extracted/pem, /etc/pki/ca-trust/extracted/java, /etc/pki/ca-trust/extracted/edk2] # due to the chart using `emptyDir` (which supplies a completely blank dir) to specify the shared volumes between this container and Heimdall's, and due to `update-ca-trust` apparently requiring several subdirectories underneath /etc/pki/ca-trust/extracted to exist, we need to manually specify each subdirectory
-  # securityContext: {
-  # RunAsRoot: false
-  # }
-  # resources: {
-  # }
+#   securityContext: {}
+#   runAsRoot: false
+#   resources: 
+#   
   certificates:
-    # - filename: name_of_cert.pem
-    #   contents: |
-    #     certificates file contents
+#       filename: name_of_cert.pem
+#       contents: |
+#         certificates file contents
+  configMap:
+    enabled: false
+    certificates:
+        name: "example.crt"
+        data: |
+          -----BEGIN CERTIFICATE-----
+          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
+          NKrk3ucpMoHF
+          -----END CERTIFICATE-----
+          -----BEGIN CERTIFICATE-----
+          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
+          -----END CERTIFICATE-----
 
 heimdall:
   image:
@@ -189,9 +264,9 @@ heimdall:
     port: 3000
 
   ingress:
-    enabled: true  # Default: true
-    api_Version: networking.k8s.io/v1 # Default: networking.k8s.io/v1
-    kind: Ingress # Default: Ingress 
+    enabled: true  
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
 
     hosts:
       - host: localhost
@@ -204,90 +279,87 @@ heimdall:
                 port:
                   number: 3000
 
-    # annotations:
-    #   traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    #   traefik.ingress.kubernetes.io/router.tls: "true"
-    #   traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
+#     annotations:
+#       traefik.ingress.kubernetes.io/router.entrypoints: websecure
+#       traefik.ingress.kubernetes.io/router.tls: "true"
+#       traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
 
-    # className: ingress class name
+#     className: ingress class name
 
-    # tls:
-    #   - name: nginx
-    #     secretName: ingress-secret
-    #     hosts:
-    #       - heimdall.example.com
+#     tls:
+#       - name: nginx
+#         secretName: ingress-secret
+#         hosts:
+#           - heimdall.example.com
   
-  #gateway:
-  #  enabled: false
-  #  apiVersion: 
-  #  kind: VirtualService 
+#  gateway:
+#    enabled: false
+#    apiVersion: 
+#    kind: VirtualService 
     
-    #gateways:
-      # List of gateways
-      #hosts:
-        # List of hostsnames that the gateway handles traffic for
-        #- 
-      #http: Route Config
-        #- name: Name for the route group
-          #route: 
-            #- destination:
-                #host: Service name within cluster
-                #port: Port number of service
-                  #number: 3000
-    #annotations:
-      # Optional annotations for the gateway
+#    gateways:
+#       List of gateways
+#      hosts:
+#         List of hostsnames that the gateway handles traffic for
+#        - 
+#      http: Route Config
+#        - name: Name for the route group
+#          route: 
+#            - destination:
+#                host: Service name within cluster
+#                port: Port number of service
+#                  number: 3000
+#    annotations:
+#       Optional annotations for the gateway
 
-  podAnnotations: {}
-  # Attaches metadata to the Postgre pod
-  # Example:
-    # imageregistry: "https://example.docker.com"
+#  podAnnotations: {}
+#   Attaches metadata to the Postgres pod
+#   Example:
+#     imageregistry: "https://example.docker.com"
 
-  podSecurityContext: {}
-  # Defines privilege and access control settings for the Postgre pod
-  # Example:
-    # runAsUser: 1000
-    # runAsGroup: 3000
-    # fsGroup: 2000
+#  podSecurityContext: {}
+#   Defines privilege and access control settings for the Postgres pod
+#   Example:
+#     runAsUser: 1000
+#     runAsGroup: 3000
+#     fsGroup: 2000
 
-  securityContext: {}
-  # Defines privilege and access control settings for the Postgre container
-  # Example:
-    # runAsUser: 1000
-    # runAsGroup: 3000
-    # fsGroup: 2000
+#  securityContext: {}
+#   Defines privilege and access control settings for the Postgres container
+#   Example:
+#    runAsUser: 1000
+#    runAsGroup: 3000
+#    fsGroup: 2000
 
-  resources: {}
-  # Specifies what resources are available to the Postgre container
-  # Example:
-    # requests:
-    #   cpu: 100m
-    #   memory: 128Mi
-    # limits:
-    #   cpu: 200m
-    #   memory: 256Mi
+#  resources: {}
+#    Specifies what resources are available to the Postgres container
+#    Example:
+#    requests:
+#      cpu: 100m
+#      memory: 128Mi
+#    limits:
+#      cpu: 200m
+#      memory: 256Mi
 
-  nodeSelector: {}
-  # Selects nodes with specific labels
-  # Example:
-    # kubernetes.io/example: linux
-    # kubernetes.io/example: amd64
+#  nodeSelector: {}
+#    Example:
+#    kubernetes.io/example: linux
+#    kubernetes.io/example: amd64
 
-  tolerations: []
-  # Tolerations allow the scheduler to schedule pods with matching taints
-  # Example:
-    # - key: "node-role.kubernetes.io/example"
-    #   operator: "Exists"
-    #   effect: "NoSchedule"
+#  tolerations: []
+#    Example:
+#    - key: "node-role.kubernetes.io/example"
+#      operator: "Exists"
+#      effect: "NoSchedule"
 
-  affinity: {}
-  # Attracts pods to nodes with specific labels
-  # Example:
-    # podAffinity:
-    #   requiredDuringSchedulingIgnoredDuringExecution:
-    #     - weight: 1
-    #         matchExpressions:
-    #           - key: app
-    #             operator: In
+#  affinity: {}
+#   Example:
+#    podAffinity:
+#      requiredDuringSchedulingIgnoredDuringExecution:
+#        - weight: 1
+#          matchExpressions:
+#            - key: app
+#              operator: In
 
 #  livenessProbe:
 #    httpGet:
@@ -303,8 +375,8 @@ heimdall:
 #      path: /
 #      port: 3000
 #    initialDelaySeconds: 80
-#    periodSeconds: 10
-#    timeoutSeconds: 15
-#    failureThreshold: 3
-#    imagePullSecrets:
-#      - name: your-secret-name
+#  periodSeconds: 10
+#  timeoutSeconds: 15
+#  failureThreshold: 3
+#  imagePullSecrets:
+#     - name: your-secret-name

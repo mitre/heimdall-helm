@@ -80,7 +80,7 @@ spec:
             - name: DATABASE_HOST
             {{- if .Values.postgresql.enabled }}
               value: {{ template "heimdall.fullname" . }}-postgresql
-            {{- else if .Values.databaseHost }}
+            {{- else }}
               value: {{ .Values.databaseHost | quote }}
             {{- end }}
             {{- end }}
@@ -276,6 +276,22 @@ spec:
                   name: {{ include "heimdall.fullname" . }}
                   key: oktaClientSecret
             {{- end }}
+            {{- if .Values.oktaIssuer }}
+            - name: OKTA_ISSUER
+              value: {{ .Values.oktaIssuer | quote }}
+            {{- end }}
+            {{- if .Values.oktaAuthorizationUrl }}
+            - name: OKTA_AUTHORIZATION_URL
+              value: {{ .Values.oktaAuthorizationUrl | quote }}
+            {{- end }}
+            {{- if .Values.oktaTokenUrl }}
+            - name: OKTA_TOKEN_URL
+              value: {{ .Values.oktaTokenUrl | quote }}
+            {{- end }}
+            {{- if .Values.oktaUserInfoUrl }}
+            - name: OKTA_USER_INFO_URL
+              value: {{ .Values.oktaUserInfoUrl | quote }}
+            {{- end }}
             {{- if .Values.oidcName }}
             - name: OIDC_NAME
               value: {{ .Values.oidcName | quote }}
@@ -313,6 +329,22 @@ spec:
             {{- if .Values.oidcExternalGroups }}
             - name: OIDC_EXTERNAL_GROUPS
               value: {{ .Values.oidcExternalGroups | quote }}
+            {{- end }}
+            {{- if .Values.oidcUsesPKCES256 }}
+            - name: OIDC_USES_PKCE_S256
+              value: {{ .Values.oidcUsesPKCES256 | quote }}
+            {{- end }}
+            {{- if .Values.oidcUsesPKCEPlain }}
+            - name: OIDC_USES_PKCE_PLAIN
+              value: {{ .Values.oidcUsesPKCEPlain | quote }}
+            {{- end }}
+            {{- if .Values.oidcUseHttpsProxy }}
+            - name: OIDC_USE_HTTPS_PROXY
+              value: {{ .Values.oidcUseHttpsProxy | quote }}
+            {{- end }}
+            {{- if .Values.oidcHttpsProxy }}
+            - name: OIDC_USE_HTTPS_PROXY
+              value: {{ .Values.oidcHttpsProxy | quote }}
             {{- end }}
             {{- if .Values.ldapEnabled }}
             - name: LDAP_ENABLED
@@ -374,23 +406,23 @@ spec:
           livenessProbe:
             {{- with .Values.heimdall.livenessProbe }}
             httpGet:
-              path: {{ .httpGet.path | default "/" }}
-              port: {{ .httpGet.port | default 3000 }}
-            initialDelaySeconds: {{ .initialDelaySeconds | default 80 }}
-            periodSeconds: {{ .periodSeconds | default 10 }}
-            timeoutSeconds: {{ .timeoutSeconds | default 15 }}
-            failureThreshold: {{ .failureThreshold | default 3 }}
+              path: {{ .httpGet.path}}
+              port: {{ .httpGet.port}}
+            initialDelaySeconds: {{ .initialDelaySeconds}}
+            periodSeconds: {{ .periodSeconds}}
+            timeoutSeconds: {{ .timeoutSeconds}}
+            failureThreshold: {{ .failureThreshold}}
             {{- end }}
 
           readinessProbe:
             {{- with .Values.heimdall.readinessProbe }}
             httpGet:
-              path: {{ .httpGet.path | default "/" }}
-              port: {{ .httpGet.port | default 3000 }}
-            initialDelaySeconds: {{ .initialDelaySeconds | default 80 }}
-            periodSeconds: {{ .periodSeconds | default 10 }}
-            timeoutSeconds: {{ .timeoutSeconds | default 15 }}
-            failureThreshold: {{ .failureThreshold | default 3 }}
+              path: {{ .httpGet.path}}
+              port: {{ .httpGet.port}}
+            initialDelaySeconds: {{ .initialDelaySeconds}}
+            periodSeconds: {{ .periodSeconds}}
+            timeoutSeconds: {{ .timeoutSeconds}}
+            failureThreshold: {{ .failureThreshold}}
             {{- end }}
       {{- with .Values.heimdall.nodeSelector }}
       nodeSelector:

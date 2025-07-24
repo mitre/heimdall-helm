@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.certs.configMap.certificates.name | indent 4 }}
+data:
+  cert: 
+    {{ .Values.certs.configMap.certificates.data | indent 4 }}
