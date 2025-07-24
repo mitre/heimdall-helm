@@ -152,6 +152,8 @@ spec:
               value: {{ .Values.splunkHostUrl | quote }}
             - name: TENABLE_HOST_URL
               value: {{ .Values.tenableHostUrl | quote }}
+            - name: FORCE_TENABLE_FRONTEND
+              value: {{ .Values.forceTenableFrontend | quote }}
             - name: GITHUB_CLIENTID
               valueFrom:
                 secretKeyRef:

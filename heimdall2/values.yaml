@@ -42,6 +42,7 @@ databaseUsername: postgres
 
 # splunkHostUrl: default empty string (ex. https://your.splunk.domain.com)
 # tenableHostUrl: default empty string (ex. https://your.tenable.domain.com)
+# forceTenableFrontend: default false (If true, the frontend will use Tenable.SC Lite features
 
 # ldapEnabled: default false
 # ldapHost: url
