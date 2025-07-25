@@ -305,8 +305,9 @@ heimdall:
 #      path: /
 #      port: 3000
 #    initialDelaySeconds: 80
-#  periodSeconds: 10
-#  timeoutSeconds: 15
-#  failureThreshold: 3
+#    periodSeconds: 10
+#    timeoutSeconds: 15
+#    failureThreshold: 3
+
 #  imagePullSecrets:
 #     - name: your-secret-name
