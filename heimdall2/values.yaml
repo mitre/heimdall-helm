@@ -70,7 +70,9 @@ databaseUsername: postgres
 
 # gitlabClientId: value-from-gitlab  # Must be set if using GitLab login
 # gitlabClientSecret: value-from-gitlab  # Must be set if using GitLab login
-# gitlabBaseUrl: default https://gitlab.com/  
+# gitlabBaseUrl: default https://gitlab.com/
+
+# httpsProxy:
 
 # oktaDomain: yourdomain.okta.com # Must be set if using Okta login    
 # oktaClientId: value-from-okta  # Must be set if using Okta login
@@ -79,6 +81,7 @@ databaseUsername: postgres
 # oktaAuthorizationUrl:
 # oktaTokenUrl:
 # oktaUserInfoUrl:
+# oktaUseHttpsProxy:
 
 # oidcName: frontend-name  # Must be set if using OIDC login
 # oidcIssuer: base url, ex. https://sample.us.auth0.com  # Must be set if using OIDC login
@@ -91,7 +94,6 @@ databaseUsername: postgres
 # oidcUsesPKCES256: value-from-oidc # true or false, default true  # Must be set if using PKCE, must not be set if using Plain login
 # oidcUsesPKCEPlain: value-from-oidc # true or false, default false  # Must be set if using Plain login, must not be set if using PKCE
 # oidcUseHttpsProxy: value-from-oidc # true or false, default false # Enables proxy support with the coded challenge method being plain
-# oidcHttpsProxy: value-from-oidc # Proxy to use for HTTPS connections
 
 postgresql:
   enabled: true

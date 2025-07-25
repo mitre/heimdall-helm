@@ -258,6 +258,10 @@ spec:
                   name: {{ include "heimdall.fullname" . }}
                   key: googleClientSecret
             {{- end }}
+            {{- if .Values.httpsProxy }}
+            -name: HTTPS_PROXY
+              value: {{ .Values.httpsProxy | quote }}
+            {{- end }}
             {{- if .Values.oktaDomain }}
             - name: OKTA_DOMAIN
               value: {{ .Values.oktaDomain | quote }}
@@ -292,6 +296,10 @@ spec:
             - name: OKTA_USER_INFO_URL
               value: {{ .Values.oktaUserInfoUrl | quote }}
             {{- end }}
+            {{- if .Values.oktaUseHttpsProxy }}
+            - name: OKTA_USE_HTTPS_PROXY
+              value: {{ .Values.oktaUseHttpsProxy | quote }}
+            {{- end}}
             {{- if .Values.oidcName }}
             - name: OIDC_NAME
               value: {{ .Values.oidcName | quote }}
@@ -341,10 +349,6 @@ spec:
             {{- if .Values.oidcUseHttpsProxy }}
             - name: OIDC_USE_HTTPS_PROXY
               value: {{ .Values.oidcUseHttpsProxy | quote }}
-            {{- end }}
-            {{- if .Values.oidcHttpsProxy }}
-            - name: OIDC_USE_HTTPS_PROXY
-              value: {{ .Values.oidcHttpsProxy | quote }}
             {{- end }}
             {{- if .Values.ldapEnabled }}
             - name: LDAP_ENABLED
