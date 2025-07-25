@@ -410,23 +410,23 @@ spec:
           livenessProbe:
             {{- with .Values.heimdall.livenessProbe }}
             httpGet:
-              path: {{ .httpGet.path}}
-              port: {{ .httpGet.port}}
-            initialDelaySeconds: {{ .initialDelaySeconds}}
-            periodSeconds: {{ .periodSeconds}}
-            timeoutSeconds: {{ .timeoutSeconds}}
-            failureThreshold: {{ .failureThreshold}}
+              path: {{ .httpGet.path }}
+              port: {{ .httpGet.port }}
+            initialDelaySeconds: {{ .initialDelaySeconds }}
+            periodSeconds: {{ .periodSeconds }}
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}
             {{- end }}
 
           readinessProbe:
             {{- with .Values.heimdall.readinessProbe }}
             httpGet:
-              path: {{ .httpGet.path}}
-              port: {{ .httpGet.port}}
-            initialDelaySeconds: {{ .initialDelaySeconds}}
-            periodSeconds: {{ .periodSeconds}}
-            timeoutSeconds: {{ .timeoutSeconds}}
-            failureThreshold: {{ .failureThreshold}}
+              path: {{ .httpGet.path }}
+              port: {{ .httpGet.port }}
+            initialDelaySeconds: {{ .initialDelaySeconds }}
+            periodSeconds: {{ .periodSeconds }}
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}
             {{- end }}
       {{- with .Values.heimdall.nodeSelector }}
       nodeSelector:
