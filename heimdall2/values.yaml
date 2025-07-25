@@ -72,28 +72,28 @@ databaseUsername: postgres
 # gitlabClientSecret: value-from-gitlab  # Must be set if using GitLab login
 # gitlabBaseUrl: default https://gitlab.com/
 
-# httpsProxy:
+# httpsProxy:  # example http://my.proxy.com:8000. (No default)
 
-# oktaDomain: yourdomain.okta.com # Must be set if using Okta login    
-# oktaClientId: value-from-okta  # Must be set if using Okta login
-# oktaClientSecret: value-from-okta  # Must be set if using Okta login
-# oktaIssuer:
-# oktaAuthorizationUrl:
-# oktaTokenUrl:
-# oktaUserInfoUrl:
-# oktaUseHttpsProxy:
+# oktaDomain: yourdomain.okta.com  # Your assigned Okta domain (No default, if using Okta login either this variable or OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, and OKTA_USER_INFO_URL must be set)
+# oktaClientId: value-from-okta  # No default, must be set if using Okta login
+# oktaClientSecret: value-from-okta  # Your application's client secret (No default, must be set if using Okta login)
+# oktaIssuer: okta-base-url  # example: https://domain.octa.com No default, if using Okta login either OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
+# oktaAuthorizationUrl: okta-authorization-endpoint  # example: https://domain.octa.com/oauth2/v1/authorize No default, if using Okta login either OKTA_ISSUER, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
+# oktaTokenUrl: okta-token-endpoint  # No default, if using Okta login either OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
+# oktaUserInfoUrl: value-from-okta  # No default, if using Okta login either OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, and this variable or OKTA_DOMAIN must be set
+# oktaUseHttpsProxy: default  # Default false, requires the `HTTPS_PROXY` envvar also being set
 
-# oidcName: frontend-name  # Must be set if using OIDC login
-# oidcIssuer: base url, ex. https://sample.us.auth0.com  # Must be set if using OIDC login
-# oidcAuthorizationUrl: auth endpoint, ex. https://sample.us.autho0.com/authorize  # Must be set if using OIDC login
-# oidcTokenUrl: token endpoint, ex. https://sample.us.auth0.com/token  # Must be set if using OIDC login
-# oidcUserInfoUrl: info endpoint, ex. https://sample.us.autho0.com/userinfo  # Must be set if using OIDC login
-# oidcClientId: value-from-oidc  # Must be set if using OIDC login
-# oidcClientSecret: value-from-oidc  # Must be set if using OIDC login
-# oidcExternalGroups: value-from-oidc # true or false, default false  # Synchronize user groups from external OIDC provider
-# oidcUsesPKCES256: value-from-oidc # true or false, default true  # Must be set if using PKCE, must not be set if using Plain login
-# oidcUsesPKCEPlain: value-from-oidc # true or false, default false  # Must be set if using Plain login, must not be set if using PKCE
-# oidcUseHttpsProxy: value-from-oidc # true or false, default false # Enables proxy support with the coded challenge method being plain
+# oidcName: frontend-name  # No default, must be set if using OIDC login
+# oidcIssuer: base-url  # example: https://sample.us.auth0.com No default, must be set if using OIDC login
+# oidcAuthorizationUrl: auth-endpoint  # example: https://sample.us.auth0.com/authorize No default, must be set if using OIDC login
+# oidcTokenUrl: token-endpoint  # example: https://sample.us.auth0.com/oauth/token No default, must be set if using OIDC login
+# oidcUserInfoUrl: info-endpoint  # example: https://sample.us.auth0.com/userinfo No default, must be set if using OIDC login
+# oidcClientId: value-from-oidc  # No default, must be set if using OIDC login
+# oidcClientSecret: value-from-oidc  # No default, must be set if using OIDC login
+# oidcExternalGroups: value-from-oidc # Default false
+# oidcUsesPKCES256: value-from-oidc # Default false, must be set if using PKCE, must not be set if you want to use the plain code challenge method
+# oidcUsesPKCEPlain: value-from-oidc # Default false, must be set if using PKCE, must not be set if you want to use the S256 code challenge method
+# oidcUseHttpsProxy: value-from-oidc # Default false, requires the HTTPS_PROXY envvar also being set
 
 postgresql:
   enabled: true
