@@ -133,7 +133,7 @@ postgresql:
 #     runAsUser: 1000
 #     runAsGroup: 3000
 #     fsGroup: 2000
-
+#     runAsNonRoot: true
   resources: {} 
 #   Specifies what resources are available to the Postgres container
 #   Example:
@@ -181,9 +181,9 @@ certs:
 #   resources: 
 #   
   certificates:
-#       filename: name_of_cert.pem
-#       contents: |
-#         certificates file contents
+#    - filename: name_of_cert.pem
+#      contents: |
+#        certificates file contents
 
 heimdall:
   image:
