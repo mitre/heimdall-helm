@@ -22,9 +22,6 @@ spec:
       secretName: {{ .secretName }}
   {{- end }}
   {{- end }}
-  {{- if and .Values.heimdall.ingress.className (semverCompare ">=1.18-0" $kubeVersion) }}
-  ingressClassName: {{ .Values.heimdall.ingress.className }}
-  {{- end }}
   rules:
   {{- range .Values.heimdall.ingress.hosts }}
     - host: {{ .host | quote }}
