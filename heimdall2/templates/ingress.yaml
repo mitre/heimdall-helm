@@ -1,5 +1,4 @@
 {{- if (.Values.heimdall.ingress).enabled -}}
-{{- $kubeVersion := .Capabilities.KubeVersion.GitVersion -}}
 {{- $fullName := include "heimdall.fullname" . -}}
 apiVersion: {{.Values.heimdall.ingress.apiVersion}}
 kind: {{ .Values.heimdall.ingress.kind }}
