@@ -2,10 +2,6 @@
 # https://github.com/mitre/heimdall2/wiki/Environment-Variables-Configuration
 # apps/backend/.env-example
 
-# Heimdall2 Helm Chart Values File
-# This file is used to set the default values for the Heimdall2 Helm chart.
-# Any values that are not set will use the defaults specified in the chart.
-
 # classificationBannerText: default is no banner
 # classificationBannerTextColor: default white
 # classificationBannerColor: default red
