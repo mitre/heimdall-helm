@@ -87,10 +87,10 @@ databaseUsername: postgres
 # oidcUserInfoUrl: info-endpoint  # example: https://sample.us.auth0.com/userinfo No default, must be set if using OIDC login
 # oidcClientId: value-from-oidc  # No default, must be set if using OIDC login
 # oidcClientSecret: value-from-oidc  # No default, must be set if using OIDC login
-# oidcExternalGroups: value-from-oidc # Default false
-# oidcUsesPKCES256: value-from-oidc # Default false, must be set if using PKCE, must not be set if you want to use the plain code challenge method
-# oidcUsesPKCEPlain: value-from-oidc # Default false, must be set if using PKCE, must not be set if you want to use the S256 code challenge method
-# oidcUseHttpsProxy: value-from-oidc # Default false, requires the HTTPS_PROXY envvar also being set
+# oidcExternalGroups: # Default false
+# oidcUsesPKCES256: # Default false, must be set if using PKCE, must not be set if you want to use the plain code challenge method
+# oidcUsesPKCEPlain: # Default false, must be set if using PKCE, must not be set if you want to use the S256 code challenge method
+# oidcUseHttpsProxy: # Default false, requires the HTTPS_PROXY envvar also being set
 
 postgresql:
   enabled: true
