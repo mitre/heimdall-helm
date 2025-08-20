@@ -294,23 +294,23 @@ heimdall:
 #            - key: app
 #              operator: In
 
-#  livenessProbe:
-#    httpGet:
-#      path: /
-#      port: 3000
-#    initialDelaySeconds: 80
-#    periodSeconds: 10
-#    timeoutSeconds: 15
-#    failureThreshold: 3
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 80
+    periodSeconds: 10
+    timeoutSeconds: 15
+    failureThreshold: 3
 
-#  readinessProbe:
-#    httpGet:
-#      path: /
-#      port: 3000
-#    initialDelaySeconds: 80
-#    periodSeconds: 10
-#    timeoutSeconds: 15
-#    failureThreshold: 3
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 80
+    periodSeconds: 10
+    timeoutSeconds: 15
+    failureThreshold: 3
 
-#  imagePullSecrets:
+  imagePullSecrets:
 #     - name: your-secret-name
