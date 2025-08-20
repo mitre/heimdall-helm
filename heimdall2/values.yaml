@@ -156,13 +156,6 @@ postgresql:
 
   affinity: {} 
 #   Attracts pods to nodes with specific labels
-#   Example:
-#     podAffinity:
-#       requiredDuringSchedulingIgnoredDuringExecution:
-#         - weight: 1
-#             matchExpressions:
-#               - key: app
-#                 operator: In
 
 certs:
   name: heimdall-cacerts # name of the configmap that will include all the certs' file contents
