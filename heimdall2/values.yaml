@@ -166,8 +166,11 @@ certs:
   processedCertsMountPaths: [/etc/pki/ca-trust/extracted/openssl, /etc/pki/ca-trust/extracted/pem, /etc/pki/ca-trust/extracted/java, /etc/pki/ca-trust/extracted/edk2] # due to the chart using `emptyDir` (which supplies a completely blank dir) to specify the shared volumes between this container and Heimdall's, and due to `update-ca-trust` apparently requiring several subdirectories underneath /etc/pki/ca-trust/extracted to exist, we need to manually specify each subdirectory
 #   securityContext: {}
 #   runAsRoot: false
-#   resources: 
-#   
+#   resources:
+#     limits:
+#       memory: "128Mi"
+#       cpu: "500m"
+
   certificates:
 #    - filename: name_of_cert.pem
 #      contents: |
