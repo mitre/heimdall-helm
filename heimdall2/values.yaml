@@ -208,7 +208,7 @@ heimdall:
 #         hosts:
 #           - heimdall.example.com
   
-#  gateway:
+  gateway:
 #    enabled: false
 #    apiVersion: 
 #    kind: VirtualService 
@@ -228,23 +228,23 @@ heimdall:
 #    annotations:
 #       Optional annotations for the gateway
 
-#  podAnnotations: {}
+  podAnnotations: {}
 #   Example:
 #     imageregistry: "https://example.docker.com"
 
-#  podSecurityContext: {}
+  podSecurityContext: {}
 #   Example:
 #     runAsUser: 1000
 #     runAsGroup: 3000
 #     fsGroup: 2000
 
-#  securityContext: {}
+  securityContext: {}
 #   Example:
 #    runAsUser: 1000
 #    runAsGroup: 3000
 #    fsGroup: 2000
 
-#  resources: {}
+  resources: {}
 #    Example:
 #    requests:
 #      cpu: 100m
@@ -253,18 +253,18 @@ heimdall:
 #      cpu: 200m
 #      memory: 256Mi
 
-#  nodeSelector: {}
+  nodeSelector: {}
 #    Example:
 #    kubernetes.io/example: linux
 #    kubernetes.io/example: amd64
 
-#  tolerations: []
+  tolerations: []
 #    Example:
 #    - key: "node-role.kubernetes.io/example"
 #      operator: "Exists"
 #      effect: "NoSchedule"
 
-#  affinity: {}
+  affinity: {}
 #   Example:
 #    podAffinity:
 #      requiredDuringSchedulingIgnoredDuringExecution:
