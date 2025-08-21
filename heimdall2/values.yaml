@@ -113,24 +113,20 @@ postgresql:
     port: 5672
 
   podAnnotations: {} 
-#   Attaches metadata to the Postgres pod
 #   Example:
 #     imageregistry: "https://example.docker.com"
 
   podSecurityContext: {} 
-#   Defines privilege and access control settings for the Postgres pod
 #   Example:
 #     runAsUser: 1000
 #     runAsGroup: 3000
 
   securityContext: {} 
-#   Defines privilege and access control settings for the Postgres container
 #   Example:
 #     runAsUser: 1000
 #     runAsGroup: 3000
 #     runAsNonRoot: true
   resources: {} 
-#   Specifies what resources are available to the Postgres container
 #   Example:
 #     requests:
 #       cpu: 100m
@@ -140,20 +136,17 @@ postgresql:
 #       memory: 256Mi
 
   nodeSelector: {} 
-#   Selects nodes with specific labels
 #   Example:
 #     kubernetes.io/example: linux
 #     kubernetes.io/example: amd64
 
   tolerations: [] 
-#   Tolerations allow the scheduler to schedule pods with matching taints
 #   Example:
 #     - key: "node-role.kubernetes.io/example"
 #       operator: "Exists"
 #       effect: "NoSchedule"
 
   affinity: {} 
-#   Attracts pods to nodes with specific labels
 
 certs:
   name: heimdall-cacerts # name of the configmap that will include all the certs' file contents
@@ -236,26 +229,22 @@ heimdall:
 #       Optional annotations for the gateway
 
 #  podAnnotations: {}
-#   Attaches metadata to the Postgres pod
 #   Example:
 #     imageregistry: "https://example.docker.com"
 
 #  podSecurityContext: {}
-#   Defines privilege and access control settings for the Postgres pod
 #   Example:
 #     runAsUser: 1000
 #     runAsGroup: 3000
 #     fsGroup: 2000
 
 #  securityContext: {}
-#   Defines privilege and access control settings for the Postgres container
 #   Example:
 #    runAsUser: 1000
 #    runAsGroup: 3000
 #    fsGroup: 2000
 
 #  resources: {}
-#    Specifies what resources are available to the Postgres container
 #    Example:
 #    requests:
 #      cpu: 100m
