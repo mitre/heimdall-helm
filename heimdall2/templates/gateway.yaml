@@ -1,0 +1,36 @@
+# This file executes via the "gateway" value in the values.yaml file.
+# Introducing this tag utilizes the gateway API instead of the ingress API.
+# Both cannot be used at the same time.
+{{- if (.Values.heimdall.gateway).enabled -}}
+{{- $fullName := include "heimdall.fullname" . -}}
+apiVersion: {{ .Values.heimdall.gateway.apiVersion }}
+kind: {{ .Values.heimdall.gateway.kind }}
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "heimdall.labels" . | nindent 4 }}
+  {{- with .Values.heimdall.gateway.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  gateways:
+    {{- range .Values.heimdall.gateway.gateways }}
+    - {{ . }}
+    {{- end }}
+  hosts:
+    {{- range .Values.heimdall.gateway.hosts }}
+    - {{ . }}
+    {{- end }}
+  http:
+    {{- range .Values.heimdall.gateway.http }}
+    - name: {{ .name }}
+      route:
+        {{- range .route }}
+        - destination:
+            host: {{ .destination.host }}
+            port:
+              number: {{ .destination.port.number }}
+        {{- end }}
+    {{- end }}
+{{- end }}

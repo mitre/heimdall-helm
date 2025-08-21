@@ -39,15 +39,19 @@ spec:
             - name: tcp-postgresql
               containerPort: 5432
           env:
+            {{- if .Values.databaseName }}
             - name: POSTGRES_DB
               value: {{ .Values.databaseName | quote }}
+            {{- end }}
             - name: PGDATA
               value: "/var/lib/postgresql/data/pgdata"
+            {{- if .Values.databaseUsername }}
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databaseUsername
+            {{- end }}
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:

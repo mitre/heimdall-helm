@@ -1,13 +1,7 @@
-{{- if .Values.heimdall.ingress.enabled -}}
-{{- $kubeVersion := .Capabilities.KubeVersion.GitVersion -}}
-{{- if semverCompare ">=1.14-0" $kubeVersion -}}
+{{- if (.Values.heimdall.ingress).enabled -}}
 {{- $fullName := include "heimdall.fullname" . -}}
-{{- if semverCompare ">=1.19-0" $kubeVersion -}}
-apiVersion: networking.k8s.io/v1
-{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
-apiVersion: networking.k8s.io/v1beta1
-{{- end }}
-kind: Ingress
+apiVersion: {{.Values.heimdall.ingress.apiVersion}}
+kind: {{ .Values.heimdall.ingress.kind }}
 metadata:
   name: {{ $fullName }}
   labels:
@@ -17,7 +11,7 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-{{- if .Values.heimdall.ingress.tls }}
+  {{- if .Values.heimdall.ingress.tls }}
   tls:
   {{- range .Values.heimdall.ingress.tls }}
     - hosts:
@@ -26,9 +20,6 @@ spec:
       {{- end }}
       secretName: {{ .secretName }}
   {{- end }}
-{{- end }}
-  {{- if and .Values.heimdall.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
-  ingressClassName: {{ .Values.heimdall.ingress.className }}
   {{- end }}
   rules:
   {{- range .Values.heimdall.ingress.hosts }}
@@ -45,5 +36,4 @@ spec:
                   number: {{ .backend.service.port.number }}
         {{- end }}
   {{- end }}
-{{- end }}
 {{- end }}

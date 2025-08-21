@@ -41,6 +41,8 @@ spec:
           securityContext:
             {{- toYaml .Values.certs.securityContext | nindent 12 }}
           image: "{{ .Values.certs.image.repository }}:{{ .Values.certs.image.tag }}"
+          resources:
+            {{- toYaml .Values.certs.resources | nindent 12 }}
           imagePullPolicy: {{ .Values.certs.image.pullPolicy }}
           command: {{ .Values.certs.command }}
           volumeMounts:
@@ -54,6 +56,8 @@ spec:
         - name: heimdall-front
           securityContext:
             {{- toYaml .Values.heimdall.securityContext | nindent 12 }}
+          resources:
+            {{- toYaml .Values.heimdall.resources | nindent 12 }}            
           image: "{{ .Values.heimdall.image.repository }}:{{ .Values.heimdall.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.heimdall.image.pullPolicy }}
           ports:
@@ -68,209 +72,366 @@ spec:
           env:
             - name: NODE_ENV
               value: {{ .Values.nodeEnv | quote }}
+            {{- if .Values.maxFileUploadSize }}
             - name: MAX_FILE_UPLOAD_SIZE
               value: {{ .Values.maxFileUploadSize | quote }}
+            {{- end }}
+            {{- if or .Values.postgresql.enabled .Values.databaseHost }}
             - name: DATABASE_HOST
             {{- if .Values.postgresql.enabled }}
               value: {{ template "heimdall.fullname" . }}-postgresql
             {{- else }}
-              value: {{.Values.databaseHost | quote }}
+              value: {{ .Values.databaseHost | quote }}
             {{- end }}
+            {{- end }}
+            {{- if or .Values.postgresql.enabled .Values.databasePort }}
             - name: DATABASE_PORT
             {{- if .Values.postgresql.enabled }}
               value: {{ .Values.postgresql.service.port | quote }}
             {{- else }}
-              value: {{.Values.databasePort | quote }}
+              value: {{ .Values.databasePort | quote }}
             {{- end }}
+            {{- end }}
+            {{- if .Values.databaseName }}
             - name: DATABASE_NAME
               value: {{ .Values.databaseName | quote }}
+            {{- end }}
+            {{- if .Values.databaseUsername }}
             - name: DATABASE_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databaseUsername
+            {{- end }}
+            {{- if .Values.databasePassword }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databasePassword
+            {{- end }}
+            {{- if .Values.databaseSsl }}
             - name: DATABASE_SSL
               value: {{ .Values.databaseSsl | quote }}
+            {{- end }}
+            {{- if .Values.databaseSslInsecure }}
             - name: DATABASE_SSL_INSECURE
               value: {{ .Values.databaseSslInsecure | quote }}
+            {{- end }}
+            {{- if .Values.databaseSslKey }}
             - name: DATABASE_SSL_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databaseSslKey
+            {{- end }}
+            {{- if .Values.databaseSslCert }}
             - name: DATABASE_SSL_CERT
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databaseSslCert
+            {{- end }}
+            {{- if .Values.databaseSslCa }}
             - name: DATABASE_SSL_CA
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databaseSslCa
+            {{- end }}
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: jwtSecret
+            {{- if .Values.jwtExpireTime }}
             - name: JWT_EXPIRE_TIME
               value: {{ .Values.jwtExpireTime | quote }}
+            {{- end }}
+            {{- if .Values.apiKeySecret }}
             - name: API_KEY_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: apiKeySecret
+            {{- end }}
+            {{- if .Values.adminEmail }}
             - name: ADMIN_EMAIL
               value: {{ .Values.adminEmail | quote }}
+            {{- end }}
+            {{- if .Values.adminUsesExternalAuth }}
             - name: ADMIN_USES_EXTERNAL_AUTH
               value: {{ .Values.adminUsesExternalAuth | quote }}
+            {{- end }}
+            {{- if .Values.adminPassword }}
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: adminPassword
+            {{- end }}
+            {{- if .Values.localLoginDisabled }}
             - name: LOCAL_LOGIN_DISABLED
               value: {{ .Values.localLoginDisabled | quote }}
+            {{- end }}
+            {{- if .Values.registrationDisabled }}
             - name: REGISTRATION_DISABLED
               value: {{ .Values.registrationDisabled | quote }}
+            {{- end }}
             - name: EXTERNAL_URL
               value: {{ .Values.externalUrl | quote }}
+            {{- if .Values.oneSessionPerUser }}
             - name: ONE_SESSION_PER_USER
               value: {{ .Values.oneSessionPerUser | quote }}
+            {{- end }}
+            {{- if .Values.classificationBannerText }}
             - name: CLASSIFICATION_BANNER_TEXT
               value: {{ .Values.classificationBannerText | quote }}
+            {{- end }}
+            {{- if .Values.classificationBannerTextColor }}
             - name: CLASSIFICATION_BANNER_TEXT_COLOR
               value: {{ .Values.classificationBannerTextColor | quote }}
+            {{- end }}
+            {{- if .Values.classificationBannerColor }}
             - name: CLASSIFICATION_BANNER_COLOR
               value: {{ .Values.classificationBannerColor | quote }}
+            {{- end }}
+            {{- if .Values.splunkHostUrl }}
             - name: SPLUNK_HOST_URL
               value: {{ .Values.splunkHostUrl | quote }}
+            {{- end }}
+            {{- if .Values.tenableHostUrl }}
             - name: TENABLE_HOST_URL
               value: {{ .Values.tenableHostUrl | quote }}
+            {{- end }}
+            {{- if .Values.forceTenableFrontend }}
+            - name: FORCE_TENABLE_FRONTEND
+              value: {{ .Values.forceTenableFrontend | quote }}
+            {{- end }}
+            {{- if .Values.githubClientId }}
             - name: GITHUB_CLIENTID
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: githubClientId
+            {{- end }}
+            {{- if .Values.githubClientSecret }}
             - name: GITHUB_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: githubClientSecret
+            {{- end }}
+            {{- if .Values.githubEnterpriseInstanceBaseUrl }}
             - name: GITHUB_ENTERPRISE_INSTANCE_BASE_URL
               value: {{ .Values.githubEnterpriseInstanceBaseUrl | quote }}
+            {{- end }}
+            {{- if .Values.githubEnterpriseInstanceApiUrl }}
             - name: GITHUB_ENTERPRISE_INSTANCE_API_URL
               value: {{ .Values.githubEnterpriseInstanceApiUrl | quote }}
+            {{- end }}
+            {{- if .Values.gitlabClientId }}
             - name: GITLAB_CLIENTID
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: gitlabClientId
+            {{- end }}
+            {{- if .Values.gitlabClientSecret }}
             - name: GITLAB_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: gitlabClientSecret
+            {{- end }}
+            {{- if .Values.gitlabBaseUrl }}
             - name: GITLAB_BASEURL
               value: {{ .Values.gitlabBaseUrl | quote }}
+            {{- end }}
+            {{- if .Values.googleClientId }}
             - name: GOOGLE_CLIENTID
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: googleClientId
+            {{- end }}
+            {{- if .Values.googleClientSecret }}
             - name: GOOGLE_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: googleClientSecret
+            {{- end }}
+            {{- if .Values.httpsProxy }}
+            -name: HTTPS_PROXY
+              value: {{ .Values.httpsProxy | quote }}
+            {{- end }}
+            {{- if .Values.oktaDomain }}
             - name: OKTA_DOMAIN
               value: {{ .Values.oktaDomain | quote }}
+            {{- end }}
+            {{- if .Values.oktaClientId }}
             - name: OKTA_CLIENTID
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: oktaClientId
+            {{- end }}
+            {{- if .Values.oktaClientSecret }}
             - name: OKTA_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: oktaClientSecret
+            {{- end }}
+            {{- if .Values.oktaIssuer }}
+            - name: OKTA_ISSUER
+              value: {{ .Values.oktaIssuer | quote }}
+            {{- end }}
+            {{- if .Values.oktaAuthorizationUrl }}
+            - name: OKTA_AUTHORIZATION_URL
+              value: {{ .Values.oktaAuthorizationUrl | quote }}
+            {{- end }}
+            {{- if .Values.oktaTokenUrl }}
+            - name: OKTA_TOKEN_URL
+              value: {{ .Values.oktaTokenUrl | quote }}
+            {{- end }}
+            {{- if .Values.oktaUserInfoUrl }}
+            - name: OKTA_USER_INFO_URL
+              value: {{ .Values.oktaUserInfoUrl | quote }}
+            {{- end }}
+            {{- if .Values.oktaUseHttpsProxy }}
+            - name: OKTA_USE_HTTPS_PROXY
+              value: {{ .Values.oktaUseHttpsProxy | quote }}
+            {{- end}}
+            {{- if .Values.oidcName }}
             - name: OIDC_NAME
               value: {{ .Values.oidcName | quote }}
+            {{- end }}
+            {{- if .Values.oidcIssuer }}
             - name: OIDC_ISSUER
               value: {{ .Values.oidcIssuer | quote }}
+            {{- end }}
+            {{- if .Values.oidcAuthorizationUrl }}
             - name: OIDC_AUTHORIZATION_URL
               value: {{ .Values.oidcAuthorizationUrl | quote }}
+            {{- end }}
+            {{- if .Values.oidcTokenUrl }}
             - name: OIDC_TOKEN_URL
               value: {{ .Values.oidcTokenUrl | quote }}
+            {{- end }}
+            {{- if .Values.oidcUserInfoUrl }}
             - name: OIDC_USER_INFO_URL
               value: {{ .Values.oidcUserInfoUrl | quote }}
+            {{- end }}
+            {{- if .Values.oidcClientId }}
             - name: OIDC_CLIENTID
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: oidcClientId
+            {{- end }}
+            {{- if .Values.oidcClientSecret }}
             - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: oidcClientSecret
+            {{- end }}
+            {{- if .Values.oidcExternalGroups }}
             - name: OIDC_EXTERNAL_GROUPS
               value: {{ .Values.oidcExternalGroups | quote }}
+            {{- end }}
+            {{- if .Values.oidcUsesPKCES256 }}
+            - name: OIDC_USES_PKCE_S256
+              value: {{ .Values.oidcUsesPKCES256 | quote }}
+            {{- end }}
+            {{- if .Values.oidcUsesPKCEPlain }}
+            - name: OIDC_USES_PKCE_PLAIN
+              value: {{ .Values.oidcUsesPKCEPlain | quote }}
+            {{- end }}
+            {{- if .Values.oidcUseHttpsProxy }}
+            - name: OIDC_USE_HTTPS_PROXY
+              value: {{ .Values.oidcUseHttpsProxy | quote }}
+            {{- end }}
+            {{- if .Values.ldapEnabled }}
             - name: LDAP_ENABLED
               value: {{ .Values.ldapEnabled | quote }}
+            {{- end }}
+            {{- if .Values.ldapHost }}
             - name: LDAP_HOST
               value: {{ .Values.ldapHost | quote }}
+            {{- end }}
+            {{- if .Values.ldapPort }}
             - name: LDAP_PORT
               value: {{ .Values.ldapPort | quote }}
+            {{- end }}
+            {{- if .Values.ldapBindDn }}
             - name: LDAP_BINDDN
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: ldapBindDn
+            {{- end }}
+            {{- if .Values.ldapPassword }}
             - name: LDAP_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: ldapPassword
+            {{- end }}
+            {{- if .Values.ldapSearchBase }}
             - name: LDAP_SEARCHBASE
               value: {{ .Values.ldapSearchBase | quote }}
+            {{- end }}
+            {{- if .Values.ldapSearchFilter }}
             - name: LDAP_SEARCHFILTER
               value: {{ .Values.ldapSearchFilter | quote }}
+            {{- end }}
+            {{- if .Values.ldapNameField }}
             - name: LDAP_NAMEFIELD
               value: {{ .Values.ldapNameField | quote }}
+            {{- end }}
+            {{- if .Values.ldapMailField }}
             - name: LDAP_MAILFIELD
               value: {{ .Values.ldapMailField | quote }}
+            {{- end }}
+            {{- if .Values.ldapSsl }}
             - name: LDAP_SSL
               value: {{ .Values.ldapSsl | quote }}
+            {{- end }}
+            {{- if .Values.ldapSslInsecure }}
             - name: LDAP_SSL_INSECURE
               value: {{ .Values.ldapSslInsecure | quote }}
+            {{- end }}
+            {{- if .Values.ldapSslCa }}
             - name: LDAP_SSL_CA
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: ldapSslCa
+            {{- end }}
           livenessProbe:
+            {{- with .Values.heimdall.livenessProbe }}
             httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 80
-            periodSeconds: 10
-            timeoutSeconds: 15
-            failureThreshold: 3
+              path: {{ .httpGet.path }}
+              port: {{ .httpGet.port }}
+            initialDelaySeconds: {{ .initialDelaySeconds }}
+            periodSeconds: {{ .periodSeconds }}
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}
+            {{- end }}
+
           readinessProbe:
+            {{- with .Values.heimdall.readinessProbe }}
             httpGet:
-              path: /
-              port: 3000
-            initialDelaySeconds: 80
-            periodSeconds: 10
-            timeoutSeconds: 15
-            failureThreshold: 3
+              path: {{ .httpGet.path }}
+              port: {{ .httpGet.port }}
+            initialDelaySeconds: {{ .initialDelaySeconds }}
+            periodSeconds: {{ .periodSeconds }}
+            timeoutSeconds: {{ .timeoutSeconds }}
+            failureThreshold: {{ .failureThreshold }}
+            {{- end }}
       {{- with .Values.heimdall.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

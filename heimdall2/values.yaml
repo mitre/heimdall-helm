@@ -25,61 +25,72 @@ nodeEnv: production
 # maxFileUploadSize: size-in-megabytes (default 50)
 
 ## Set FDQN for external database host or set `posgresql.enabled` equal to `true`
-#databaseHost: postgresql.example.com
+# databaseHost: postgresql.example.com
 ## Set external database port or set `postgresql.enabled` equal to `true`
-#databasePort: 5672
+# databasePort: 5672
 databaseName: heimdall-database
 databaseUsername: postgres
 ## Set postgres user's password via `openssl rand -hex 33`
 # databasePassword: long-random-string-of-text
 # databaseSsl: default false
 # databaseSslInsecure: default false
-# databaseSslKey: path-or-raw-key
-# databaseSslCert: path-or-raw-cert
-# databaseSslCa: path-or-raw-ca
+# databaseSslKey: path-or-raw-key # Must be set if using SSL
+# databaseSslCert: path-or-raw-cert # Must be set if using SSL
+# databaseSslCa: path-or-raw-ca # Must be set if using SSL
 
-# externalUrl: 'public'/externally facing URL for your deployment (ex. for use in callback urls for auth integrations)
+# externalUrl: 'public'/externally facing URL for your deployment (ex. for use in callback urls for auth integrations) # Must be set
 
 # splunkHostUrl: default empty string (ex. https://your.splunk.domain.com)
 # tenableHostUrl: default empty string (ex. https://your.tenable.domain.com)
+# forceTenableFrontend: default false (If true, the frontend will use Tenable.SC Lite features
 
 # ldapEnabled: default false
-# ldapHost: url
+# ldapHost: url # Must be set if using LDAP 
 # ldapPort: default 389
-# ldapBindDn: Dn of user used for lookups
-# ldapPassword: user's password
-# ldapSearchBase: ex. "OU=Users, DC=<yourdomain>, DC=local"
-# ldapSearchFilter: ex. "sAMAccountName={{username}}"
+# ldapBindDn: Dn of user used for lookups # Must be set if using LDAP
+# ldapPassword: user's password # Must be set if using LDAP
+# ldapSearchBase: ex. "OU=Users, DC=<yourdomain>, DC=local" # Must be set if using LDAP 
+# ldapSearchFilter: ex. "sAMAccountName={{username}}"  
 # ldapNameField: default name
 # ldapMailField: default mail
 # ldapSsl: default false
 # ldapSslInsecure: default false
 # ldapSslCa: path-or-raw-ca
 
-# googleClientId: value-from-google
-# googleClientSecret: value-from-google
+# googleClientId: value-from-google # Must be set if using Google login
+# googleClientSecret: value-from-google # Must be set if using Google login
 
-# githubClientId: value-from-github
-# githubClientSecret: value-from-github
+# githubClientId: value-from-github # Must be set if using GitHub login
+# githubClientSecret: value-from-github # Must be set if using GitHub login
 # githubEnterpriseInstanceBaseUrl: default https://github.com/
 # githubEnterpriseInstanceApiUrl: default https://api.github.com/
 
-# gitlabClientId: value-from-gitlab
-# gitlabClientSecret: value-from-gitlab
+# gitlabClientId: value-from-gitlab # Must be set if using GitLab login
+# gitlabClientSecret: value-from-gitlab # Must be set if using GitLab login
 # gitlabBaseUrl: default https://gitlab.com/
 
-# oktaDomain: yourdomain.okta.com
-# oktaClientId: value-from-okta
-# oktaClientSecret: value-from-okta
+# httpsProxy: # example http://my.proxy.com:8000. (No default)
 
-# oidcName: frontend-name
-# oidcIssuer: base url, ex. https://sample.us.auth0.com
-# oidcAuthorizationUrl: auth endpoint, ex. https://sample.us.autho0.com/authorize
-# oidcTokenUrl: token endpoint, ex. https://sample.us.auth0.com/token
-# oidcUserInfoUrl: info endpoint, ex. https://sample.us.autho0.com/userinfo
-# oidcClientId: value-from-oidc
-# oidcClientSecret: value-from-oidc
-# oidcExternalGroups: default false
+# oktaDomain: yourdomain.okta.com # Your assigned Okta domain (No default, if using Okta login either this variable or OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, and OKTA_USER_INFO_URL must be set)
+# oktaClientId: value-from-okta # No default, must be set if using Okta login
+# oktaClientSecret: value-from-okta # Your application's client secret (No default, must be set if using Okta login)
+# oktaIssuer: okta-base-url # example: https://domain.octa.com No default, if using Okta login either OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
+# oktaAuthorizationUrl: okta-authorization-endpoint # example: https://domain.octa.com/oauth2/v1/authorize No default, if using Okta login either OKTA_ISSUER, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
+# oktaTokenUrl: okta-token-endpoint # No default, if using Okta login either OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
+# oktaUserInfoUrl: value-from-okta # No default, if using Okta login either OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, and this variable or OKTA_DOMAIN must be set
+# oktaUseHttpsProxy: # Default false, requires the `HTTPS_PROXY` envvar also being set
+
+# oidcName: frontend-name # No default, must be set if using OIDC login
+# oidcIssuer: base-url # example: https://sample.us.auth0.com No default, must be set if using OIDC login
+# oidcAuthorizationUrl: auth-endpoint # example: https://sample.us.auth0.com/authorize No default, must be set if using OIDC login
+# oidcTokenUrl: token-endpoint # example: https://sample.us.auth0.com/oauth/token No default, must be set if using OIDC login
+# oidcUserInfoUrl: info-endpoint # example: https://sample.us.auth0.com/userinfo No default, must be set if using OIDC login
+# oidcClientId: value-from-oidc # No default, must be set if using OIDC login
+# oidcClientSecret: value-from-oidc # No default, must be set if using OIDC login
+# oidcExternalGroups: # Default false
+# oidcUsesPKCES256: # Default false, must be set if using PKCE, must not be set if you want to use the plain code challenge method
+# oidcUsesPKCEPlain: # Default false, must be set if using PKCE, must not be set if you want to use the S256 code challenge method
+# oidcUseHttpsProxy: # Default false, requires the HTTPS_PROXY envvar also being set
 
 postgresql:
   enabled: true
@@ -90,10 +101,10 @@ postgresql:
     tag: "13"
 
   persistence:
-    ## Volume used to store the Heimdall's data. Default is boolean `false`.
+  #   Volume used to store the Heimdall's data.
     enabled: false
     size: "100Mi"
-    ## Sets persistent volume claim's storageClassName. Defaults to `default`.
+  #   Sets persistent volume claim's storageClassName.
     storageClassName: "default"
     accessMode: "ReadWriteOnce"
 
@@ -101,19 +112,42 @@ postgresql:
     type: ClusterIP
     port: 5672
 
-  podAnnotations: {}
+  podAnnotations: {} 
+#   Example:
+#     imageregistry: "https://example.docker.com"
 
-  podSecurityContext: {}
+  podSecurityContext: {} 
+#   Example:
+#     runAsUser: 1000
+#     runAsGroup: 3000
 
-  securityContext: {}
+  securityContext: {} 
+#   Example:
+#     runAsUser: 1000
+#     runAsGroup: 3000
+#     runAsNonRoot: true
 
-  resources: {}
+  resources: {} 
+#   Example:
+#     requests:
+#       cpu: 100m
+#       memory: 128Mi
+#     limits:
+#       cpu: 200m
+#       memory: 256Mi
 
-  nodeSelector: {}
+  nodeSelector: {} 
+#   Example:
+#     kubernetes.io/example: linux
+#     kubernetes.io/example: amd64
 
-  tolerations: []
+  tolerations: [] 
+#   Example:
+#     - key: "node-role.kubernetes.io/example"
+#       operator: "Exists"
+#       effect: "NoSchedule"
 
-  affinity: {}
+  affinity: {} 
 
 certs:
   name: heimdall-cacerts # name of the configmap that will include all the certs' file contents
@@ -124,11 +158,17 @@ certs:
   command: "['sh', '-c', 'update-ca-trust']" # RHEL style distros use the `update-ca-trust` command to update the system CA trust store
   injectedCertsMountPath: /etc/pki/ca-trust/source/anchors # the location that `update-ca-trust` looks inside for user supplied certs
   processedCertsMountPaths: [/etc/pki/ca-trust/extracted/openssl, /etc/pki/ca-trust/extracted/pem, /etc/pki/ca-trust/extracted/java, /etc/pki/ca-trust/extracted/edk2] # due to the chart using `emptyDir` (which supplies a completely blank dir) to specify the shared volumes between this container and Heimdall's, and due to `update-ca-trust` apparently requiring several subdirectories underneath /etc/pki/ca-trust/extracted to exist, we need to manually specify each subdirectory
-  securityContext: {}
+#   securityContext: {}
+#   runAsRoot: false
+#   resources:
+#     limits:
+#       memory: "128Mi"
+#       cpu: "500m"
+
   certificates:
-    # - filename: name_of_cert.pem
-    #   contents: |
-    #     certificates file contents
+#    - filename: name_of_cert.pem
+#      contents: |
+#        certificates file contents
 
 heimdall:
   image:
@@ -141,7 +181,9 @@ heimdall:
     port: 3000
 
   ingress:
-    enabled: true
+    enabled: true  
+    apiVersion: networking.k8s.io/v1
+    kind: Ingress
 
     hosts:
       - host: localhost
@@ -154,32 +196,92 @@ heimdall:
                 port:
                   number: 3000
 
-    # annotations:
-    #   traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    #   traefik.ingress.kubernetes.io/router.tls: "true"
-    #   traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
+#     annotations:
+#       traefik.ingress.kubernetes.io/router.entrypoints: websecure
+#       traefik.ingress.kubernetes.io/router.tls: "true"
+#       traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
 
-    # className: ingress class name
+#     className: ingress class name
 
-    # tls:
-    #   - name: nginx
-    #     secretName: ingress-secret
-    #     hosts:
-    #       - heimdall.example.com
+#     tls:
+#       - name: nginx
+#         secretName: ingress-secret
+#         hosts:
+#           - heimdall.example.com
+  
+  gateway:
+    enabled: false
+#    apiVersion: 
+#    kind: VirtualService 
+    
+#    gateways:
+#       List of gateways
+#      hosts:
+#         List of hostsnames that the gateway handles traffic for
+#        - 
+#      http: Route Config
+#        - name: Name for the route group
+#          route: 
+#            - destination:
+#                host: Service name within cluster
+#                port: Port number of service
+#                  number: 3000
+#    annotations:
+#       Optional annotations for the gateway
 
   podAnnotations: {}
+#   Example:
+#     imageregistry: "https://example.docker.com"
 
   podSecurityContext: {}
+#   Example:
+#     runAsUser: 1000
+#     runAsGroup: 3000
 
   securityContext: {}
+#   Example:
+#    runAsUser: 1000
+#    runAsGroup: 3000
 
   resources: {}
+#    Example:
+#    requests:
+#      cpu: 100m
+#      memory: 128Mi
+#    limits:
+#      cpu: 200m
+#      memory: 256Mi
 
   nodeSelector: {}
+#    Example:
+#    kubernetes.io/example: linux
+#    kubernetes.io/example: amd64
 
   tolerations: []
+#    Example:
+#    - key: "node-role.kubernetes.io/example"
+#      operator: "Exists"
+#      effect: "NoSchedule"
 
   affinity: {}
 
-# imagePullSecrets:
-#   - name: your-secret-name
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 80
+    periodSeconds: 10
+    timeoutSeconds: 15
+    failureThreshold: 3
+
+  readinessProbe:
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 80
+    periodSeconds: 10
+    timeoutSeconds: 15
+    failureThreshold: 3
+
+  imagePullSecrets:
+#     - name: your-secret-name
