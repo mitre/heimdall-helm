@@ -34,9 +34,9 @@ databaseUsername: postgres
 # databasePassword: long-random-string-of-text
 # databaseSsl: default false
 # databaseSslInsecure: default false
-# databaseSslKey: path-or-raw-key  # Must be set if using SSL
-# databaseSslCert: path-or-raw-cert  # Must be set if using SSL
-# databaseSslCa: path-or-raw-ca  # Must be set if using SSL
+# databaseSslKey: path-or-raw-key # Must be set if using SSL
+# databaseSslCert: path-or-raw-cert # Must be set if using SSL
+# databaseSslCa: path-or-raw-ca # Must be set if using SSL
 
 # externalUrl: 'public'/externally facing URL for your deployment (ex. for use in callback urls for auth integrations) # Must be set
 
@@ -45,11 +45,11 @@ databaseUsername: postgres
 # forceTenableFrontend: default false (If true, the frontend will use Tenable.SC Lite features
 
 # ldapEnabled: default false
-# ldapHost: url  # Must be set if using LDAP 
+# ldapHost: url # Must be set if using LDAP 
 # ldapPort: default 389
-# ldapBindDn: Dn of user used for lookups  # Must be set if using LDAP
-# ldapPassword: user's password  # Must be set if using LDAP
-# ldapSearchBase: ex. "OU=Users, DC=<yourdomain>, DC=local"  # Must be set if using LDAP 
+# ldapBindDn: Dn of user used for lookups # Must be set if using LDAP
+# ldapPassword: user's password # Must be set if using LDAP
+# ldapSearchBase: ex. "OU=Users, DC=<yourdomain>, DC=local" # Must be set if using LDAP 
 # ldapSearchFilter: ex. "sAMAccountName={{username}}"  
 # ldapNameField: default name
 # ldapMailField: default mail
@@ -57,36 +57,36 @@ databaseUsername: postgres
 # ldapSslInsecure: default false
 # ldapSslCa: path-or-raw-ca
 
-# googleClientId: value-from-google  # Must be set if using Google login
-# googleClientSecret: value-from-google  # Must be set if using Google login
+# googleClientId: value-from-google # Must be set if using Google login
+# googleClientSecret: value-from-google # Must be set if using Google login
 
-# githubClientId: value-from-github  # Must be set if using GitHub login
-# githubClientSecret: value-from-github  # Must be set if using GitHub login
+# githubClientId: value-from-github # Must be set if using GitHub login
+# githubClientSecret: value-from-github # Must be set if using GitHub login
 # githubEnterpriseInstanceBaseUrl: default https://github.com/
 # githubEnterpriseInstanceApiUrl: default https://api.github.com/
 
-# gitlabClientId: value-from-gitlab  # Must be set if using GitLab login
-# gitlabClientSecret: value-from-gitlab  # Must be set if using GitLab login
+# gitlabClientId: value-from-gitlab # Must be set if using GitLab login
+# gitlabClientSecret: value-from-gitlab # Must be set if using GitLab login
 # gitlabBaseUrl: default https://gitlab.com/
 
-# httpsProxy:  # example http://my.proxy.com:8000. (No default)
+# httpsProxy: # example http://my.proxy.com:8000. (No default)
 
-# oktaDomain: yourdomain.okta.com  # Your assigned Okta domain (No default, if using Okta login either this variable or OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, and OKTA_USER_INFO_URL must be set)
-# oktaClientId: value-from-okta  # No default, must be set if using Okta login
-# oktaClientSecret: value-from-okta  # Your application's client secret (No default, must be set if using Okta login)
-# oktaIssuer: okta-base-url  # example: https://domain.octa.com No default, if using Okta login either OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
-# oktaAuthorizationUrl: okta-authorization-endpoint  # example: https://domain.octa.com/oauth2/v1/authorize No default, if using Okta login either OKTA_ISSUER, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
-# oktaTokenUrl: okta-token-endpoint  # No default, if using Okta login either OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
-# oktaUserInfoUrl: value-from-okta  # No default, if using Okta login either OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, and this variable or OKTA_DOMAIN must be set
-# oktaUseHttpsProxy: default  # Default false, requires the `HTTPS_PROXY` envvar also being set
+# oktaDomain: yourdomain.okta.com # Your assigned Okta domain (No default, if using Okta login either this variable or OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, and OKTA_USER_INFO_URL must be set)
+# oktaClientId: value-from-okta # No default, must be set if using Okta login
+# oktaClientSecret: value-from-okta # Your application's client secret (No default, must be set if using Okta login)
+# oktaIssuer: okta-base-url # example: https://domain.octa.com No default, if using Okta login either OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
+# oktaAuthorizationUrl: okta-authorization-endpoint # example: https://domain.octa.com/oauth2/v1/authorize No default, if using Okta login either OKTA_ISSUER, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
+# oktaTokenUrl: okta-token-endpoint # No default, if using Okta login either OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
+# oktaUserInfoUrl: value-from-okta # No default, if using Okta login either OKTA_ISSUER, OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, and this variable or OKTA_DOMAIN must be set
+# oktaUseHttpsProxy: # Default false, requires the `HTTPS_PROXY` envvar also being set
 
-# oidcName: frontend-name  # No default, must be set if using OIDC login
-# oidcIssuer: base-url  # example: https://sample.us.auth0.com No default, must be set if using OIDC login
-# oidcAuthorizationUrl: auth-endpoint  # example: https://sample.us.auth0.com/authorize No default, must be set if using OIDC login
-# oidcTokenUrl: token-endpoint  # example: https://sample.us.auth0.com/oauth/token No default, must be set if using OIDC login
-# oidcUserInfoUrl: info-endpoint  # example: https://sample.us.auth0.com/userinfo No default, must be set if using OIDC login
-# oidcClientId: value-from-oidc  # No default, must be set if using OIDC login
-# oidcClientSecret: value-from-oidc  # No default, must be set if using OIDC login
+# oidcName: frontend-name # No default, must be set if using OIDC login
+# oidcIssuer: base-url # example: https://sample.us.auth0.com No default, must be set if using OIDC login
+# oidcAuthorizationUrl: auth-endpoint # example: https://sample.us.auth0.com/authorize No default, must be set if using OIDC login
+# oidcTokenUrl: token-endpoint # example: https://sample.us.auth0.com/oauth/token No default, must be set if using OIDC login
+# oidcUserInfoUrl: info-endpoint # example: https://sample.us.auth0.com/userinfo No default, must be set if using OIDC login
+# oidcClientId: value-from-oidc # No default, must be set if using OIDC login
+# oidcClientSecret: value-from-oidc # No default, must be set if using OIDC login
 # oidcExternalGroups: # Default false
 # oidcUsesPKCES256: # Default false, must be set if using PKCE, must not be set if you want to use the plain code challenge method
 # oidcUsesPKCEPlain: # Default false, must be set if using PKCE, must not be set if you want to use the S256 code challenge method
@@ -101,10 +101,10 @@ postgresql:
     tag: "13"
 
   persistence:
-    ## Volume used to store the Heimdall's data.
+  #   Volume used to store the Heimdall's data.
     enabled: false
     size: "100Mi"
-    ## Sets persistent volume claim's storageClassName.
+  #   Sets persistent volume claim's storageClassName.
     storageClassName: "default"
     accessMode: "ReadWriteOnce"
 
@@ -126,6 +126,7 @@ postgresql:
 #     runAsUser: 1000
 #     runAsGroup: 3000
 #     runAsNonRoot: true
+
   resources: {} 
 #   Example:
 #     requests:
@@ -209,7 +210,7 @@ heimdall:
 #           - heimdall.example.com
   
   gateway:
-#    enabled: false
+    enabled: false
 #    apiVersion: 
 #    kind: VirtualService 
     
@@ -236,13 +237,11 @@ heimdall:
 #   Example:
 #     runAsUser: 1000
 #     runAsGroup: 3000
-#     fsGroup: 2000
 
   securityContext: {}
 #   Example:
 #    runAsUser: 1000
 #    runAsGroup: 3000
-#    fsGroup: 2000
 
   resources: {}
 #    Example:
@@ -265,13 +264,6 @@ heimdall:
 #      effect: "NoSchedule"
 
   affinity: {}
-#   Example:
-#    podAffinity:
-#      requiredDuringSchedulingIgnoredDuringExecution:
-#        - weight: 1
-#          matchExpressions:
-#            - key: app
-#              operator: In
 
   livenessProbe:
     httpGet:
