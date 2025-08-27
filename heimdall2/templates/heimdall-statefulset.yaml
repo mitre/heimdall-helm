@@ -57,7 +57,7 @@ spec:
           securityContext:
             {{- toYaml .Values.heimdall.securityContext | nindent 12 }}
           resources:
-            {{- toYaml .Values.heimdall.resources | nindent 12 }}            
+            {{- toYaml .Values.heimdall.resources | nindent 12 }}
           image: "{{ .Values.heimdall.image.repository }}:{{ .Values.heimdall.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.heimdall.image.pullPolicy }}
           ports:
@@ -80,7 +80,7 @@ spec:
             - name: DATABASE_HOST
             {{- if .Values.postgresql.enabled }}
               value: {{ template "heimdall.fullname" . }}-postgresql
-            {{- else }}
+            {{- else if .Values.databaseHost }}
               value: {{ .Values.databaseHost | quote }}
             {{- end }}
             {{- end }}
@@ -96,14 +96,14 @@ spec:
             - name: DATABASE_NAME
               value: {{ .Values.databaseName | quote }}
             {{- end }}
-            {{- if .Values.databaseUsername }}
+            {{- if or .Values.databaseUsername (and .Values.sops.enabled (has "DATABASE_USERNAME" .Values.sops.secrets)) }}
             - name: DATABASE_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databaseUsername
             {{- end }}
-            {{- if .Values.databasePassword }}
+            {{- if or .Values.databasePassword (and .Values.sops.enabled (has "DATABASE_PASSWORD" .Values.sops.secrets)) }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -148,7 +148,7 @@ spec:
             - name: JWT_EXPIRE_TIME
               value: {{ .Values.jwtExpireTime | quote }}
             {{- end }}
-            {{- if .Values.apiKeySecret }}
+            {{- if or .Values.apiKeySecret (and .Values.sops.enabled (has "API_KEY_SECRET" .Values.sops.secrets)) }}
             - name: API_KEY_SECRET
               valueFrom:
                 secretKeyRef:
@@ -163,7 +163,7 @@ spec:
             - name: ADMIN_USES_EXTERNAL_AUTH
               value: {{ .Values.adminUsesExternalAuth | quote }}
             {{- end }}
-            {{- if .Values.adminPassword }}
+            {{- if or .Values.adminPassword (and .Values.sops.enabled (has "ADMIN_PASSWORD" .Values.sops.secrets)) }}
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -263,7 +263,7 @@ spec:
                   key: googleClientSecret
             {{- end }}
             {{- if .Values.httpsProxy }}
-            -name: HTTPS_PROXY
+            - name: HTTPS_PROXY
               value: {{ .Values.httpsProxy | quote }}
             {{- end }}
             {{- if .Values.oktaDomain }}
