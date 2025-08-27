@@ -24,7 +24,7 @@ nodeEnv: production
 # apiKeySecret: different-long-random-string-of-text
 # maxFileUploadSize: size-in-megabytes (default 50)
 
-## Set FDQN for external database host or set `posgresql.enabled` equal to `true`
+## Set FDQN for external database host or set `postgresql.enabled` equal to `true`
 # databaseHost: postgresql.example.com
 ## Set external database port or set `postgresql.enabled` equal to `true`
 # databasePort: 5672
@@ -219,6 +219,8 @@ heimdall:
 #         hosts:
 #           - heimdall.example.com
   
+# Introducing this tag utilizes the gateway API instead of the ingress API.
+# Both cannot be used at the same time. 
   gateway:
     enabled: false
 #    apiVersion: 
