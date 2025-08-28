@@ -92,9 +92,11 @@ databaseUsername: postgres
 # oidcUsesPKCEPlain: # Default false, must be set if using PKCE, must not be set if you want to use the S256 code challenge method
 # oidcUseHttpsProxy: # Default false, requires the HTTPS_PROXY envvar also being set
 
+# In order to use sops, set enable to true, make sure the name of the external secret is the same as the internal secret, default: heimdall2
 sops:
   enabled: false
   secrets: []
+    # Populate this array with with all secrets you want encrypted in the SOPS pod
     # Example
     # - DATABASE_PASSWORD
     # - DATABASE_USERNAME
