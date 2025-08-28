@@ -222,7 +222,7 @@ heimdall:
 #           - heimdall.example.com
   
 # Introducing this tag utilizes the gateway API instead of the ingress API.
-# Both cannot be used at the same time. 
+# Both cannot be used at the same time.
   gateway:
     enabled: false
 #    apiVersion: 
