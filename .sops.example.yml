@@ -1,0 +1,5 @@
+# Rename .sops.example.yml to .sops.yml after encryption type is determined
+# Use key with desired encryption method. For example, you could use an AWS KMS key specified by an arn as the key itself
+creation_rules:
+- path_regex: ./sops/.*
+  # kms: arn:
