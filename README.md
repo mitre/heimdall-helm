@@ -72,14 +72,38 @@ heimdall:
           -  "/"
     tls: []
 ```
-You have the choice of secret handling within this repo, either internally or using SOPS encryption.
-Using SOPS the secrets are encrypted in a seperate pod.
-If you do not wish to use SOPS encryption the secrets can be kept in plain text in the secrets.yaml file.
-If you are using the internal secrets you must turn off SOPS, if you are using SOPS you must turn off internal secrets. You cannot have both on. 
 
 This example uses Traefik to expose the ingress.  Configuring Traefik is out of scope of this 
 readme.
 
+## SOPS
+You have the choice of secret handling within this repo, either internally or using SOPS encryption.
+Using SOPS, the secrets are encrypted and are exposed via a Secret resource in a separate pod.
+If you do not wish to use SOPS encryption, the secrets can be kept in plain text in the values.yml file where they will be injected into the internally defined Secret resource.
+There should only be the one Secret resource. Please ensure that if you are enabling SOPS, that the SOPS Secret has the equivalent name as the template for "heimdall.fullname" (which by default is "heimdall2") and it is in the same namespace as the Heimdall application.
+
+## How to use SOPS
+### Install Kustomize
+https://github.com/kubernetes-sigs/kustomize
+
+### Install the SOPS application
+https://github.com/getsops/sops?tab=readme-ov-file#usage
+
+### Create SOPS config (AWS KMS Example) 
+cat <<EOF > .sops.yaml
+creation_rules:
+- path_regex: ./sops/.*
+  kms: arn:
+EOF
+
+### Create the sops file using your default editor.
+sops sops/sops-secrets.enc.yaml
+
+### Specify the secrets you want encrypted
+adminPassword: <your-password>
+... other secrets ...
+
+### Modify the secrets-generator.yml to have the correct Secret name and namespace
 
 ## License
 
