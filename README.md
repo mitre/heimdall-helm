@@ -72,6 +72,10 @@ heimdall:
           -  "/"
     tls: []
 ```
+You have the choice of secret handling within this repo, either internally or using SOPS encryption.
+Using SOPS the secrets are encrypted in a seperate pod.
+If you do not wish to use SOPS encryption the secrets can be kept in plain text in the secrets.yaml file.
+If you are using the internal secrets you must turn off SOPS, if you are using SOPS you must turn off internal secrets. You cannot have both on. 
 
 This example uses Traefik to expose the ingress.  Configuring Traefik is out of scope of this 
 readme.
