@@ -45,18 +45,20 @@ spec:
             {{- end }}
             - name: PGDATA
               value: "/var/lib/postgresql/data/pgdata"
-            {{- if .Values.databaseUsername }}
+            {{- if or .Values.databaseUsername (and .Values.sops.enabled (has "DATABASE_USERNAME" .Values.sops.secrets)) }}
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databaseUsername
             {{- end }}
+            {{- if or .Values.databasePassword (and .Values.sops.enabled (has "DATABASE_PASSWORD" .Values.sops.secrets)) }}
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databasePassword
+            {{- end }}
           volumeMounts:
             - mountPath: "/var/lib/postgresql/data"
               name: postgresql-data

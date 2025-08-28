@@ -24,7 +24,7 @@ nodeEnv: production
 # apiKeySecret: different-long-random-string-of-text
 # maxFileUploadSize: size-in-megabytes (default 50)
 
-## Set FDQN for external database host or set `posgresql.enabled` equal to `true`
+## Set FDQN for external database host or set `postgresql.enabled` equal to `true`
 # databaseHost: postgresql.example.com
 ## Set external database port or set `postgresql.enabled` equal to `true`
 # databasePort: 5672
@@ -91,6 +91,18 @@ databaseUsername: postgres
 # oidcUsesPKCES256: # Default false, must be set if using PKCE, must not be set if you want to use the plain code challenge method
 # oidcUsesPKCEPlain: # Default false, must be set if using PKCE, must not be set if you want to use the S256 code challenge method
 # oidcUseHttpsProxy: # Default false, requires the HTTPS_PROXY envvar also being set
+
+# In order to use sops, set enable to true, make sure the name of the external secret is the same as the internal secret, default: heimdall2
+sops:
+  enabled: false
+  secrets: []
+    # Populate this array with with all secrets you want encrypted in the SOPS pod
+    # Example
+    # - DATABASE_PASSWORD
+    # - DATABASE_USERNAME
+    # - ADMIN_PASSWORD
+    # - JWT_SECRET
+    # - API_KEY_SECRET
 
 postgresql:
   enabled: true
@@ -209,6 +221,8 @@ heimdall:
 #         hosts:
 #           - heimdall.example.com
   
+# Introducing this tag utilizes the gateway API instead of the ingress API.
+# Both cannot be used at the same time. 
   gateway:
     enabled: false
 #    apiVersion: 

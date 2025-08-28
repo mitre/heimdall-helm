@@ -57,7 +57,7 @@ spec:
           securityContext:
             {{- toYaml .Values.heimdall.securityContext | nindent 12 }}
           resources:
-            {{- toYaml .Values.heimdall.resources | nindent 12 }}            
+            {{- toYaml .Values.heimdall.resources | nindent 12 }}
           image: "{{ .Values.heimdall.image.repository }}:{{ .Values.heimdall.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.heimdall.image.pullPolicy }}
           ports:
@@ -80,7 +80,7 @@ spec:
             - name: DATABASE_HOST
             {{- if .Values.postgresql.enabled }}
               value: {{ template "heimdall.fullname" . }}-postgresql
-            {{- else }}
+            {{- else if .Values.databaseHost }}
               value: {{ .Values.databaseHost | quote }}
             {{- end }}
             {{- end }}
@@ -96,14 +96,14 @@ spec:
             - name: DATABASE_NAME
               value: {{ .Values.databaseName | quote }}
             {{- end }}
-            {{- if .Values.databaseUsername }}
+            {{- if or .Values.databaseUsername (and .Values.sops.enabled (has "DATABASE_USERNAME" .Values.sops.secrets)) }}
             - name: DATABASE_USERNAME
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databaseUsername
             {{- end }}
-            {{- if .Values.databasePassword }}
+            {{- if or .Values.databasePassword (and .Values.sops.enabled (has "DATABASE_PASSWORD" .Values.sops.secrets)) }}
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -118,21 +118,21 @@ spec:
             - name: DATABASE_SSL_INSECURE
               value: {{ .Values.databaseSslInsecure | quote }}
             {{- end }}
-            {{- if .Values.databaseSslKey }}
+            {{- if or .Values.databaseSslKey (and .Values.sops.enabled (has "DATABASE_SSL_KEY" .Values.sops.secrets)) }}
             - name: DATABASE_SSL_KEY
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databaseSslKey
             {{- end }}
-            {{- if .Values.databaseSslCert }}
+            {{- if or .Values.databaseSslCert (and .Values.sops.enabled (has "DATABASE_SSL_CERT" .Values.sops.secrets)) }}
             - name: DATABASE_SSL_CERT
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databaseSslCert
             {{- end }}
-            {{- if .Values.databaseSslCa }}
+            {{- if or .Values.databaseSslCa (and .Values.sops.enabled (has "DATABASE_SSL_CA" .Values.sops.secrets)) }}
             - name: DATABASE_SSL_CA
               valueFrom:
                 secretKeyRef:
@@ -148,7 +148,7 @@ spec:
             - name: JWT_EXPIRE_TIME
               value: {{ .Values.jwtExpireTime | quote }}
             {{- end }}
-            {{- if .Values.apiKeySecret }}
+            {{- if or .Values.apiKeySecret (and .Values.sops.enabled (has "API_KEY_SECRET" .Values.sops.secrets)) }}
             - name: API_KEY_SECRET
               valueFrom:
                 secretKeyRef:
@@ -163,7 +163,7 @@ spec:
             - name: ADMIN_USES_EXTERNAL_AUTH
               value: {{ .Values.adminUsesExternalAuth | quote }}
             {{- end }}
-            {{- if .Values.adminPassword }}
+            {{- if or .Values.adminPassword (and .Values.sops.enabled (has "ADMIN_PASSWORD" .Values.sops.secrets)) }}
             - name: ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -208,14 +208,14 @@ spec:
             - name: FORCE_TENABLE_FRONTEND
               value: {{ .Values.forceTenableFrontend | quote }}
             {{- end }}
-            {{- if .Values.githubClientId }}
+            {{- if or .Values.githubClientId (and .Values.sops.enabled (has "GITHUB_CLIENTID" .Values.sops.secrets)) }}
             - name: GITHUB_CLIENTID
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: githubClientId
             {{- end }}
-            {{- if .Values.githubClientSecret }}
+            {{- if or .Values.githubClientId (and .Values.sops.enabled (has "GITHUB_CLIENTSECRET" .Values.sops.secrets)) }}
             - name: GITHUB_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
@@ -230,14 +230,14 @@ spec:
             - name: GITHUB_ENTERPRISE_INSTANCE_API_URL
               value: {{ .Values.githubEnterpriseInstanceApiUrl | quote }}
             {{- end }}
-            {{- if .Values.gitlabClientId }}
+            {{- if or .Values.gitlabClientId (and .Values.sops.enabled (has "GITLAB_CLIENTID" .Values.sops.secrets)) }}
             - name: GITLAB_CLIENTID
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: gitlabClientId
             {{- end }}
-            {{- if .Values.gitlabClientSecret }}
+            {{- if or .Values.gitlabClientSecret (and .Values.sops.enabled (has "GITLAB_CLIENTSECRET" .Values.sops.secrets)) }}
             - name: GITLAB_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
@@ -263,21 +263,21 @@ spec:
                   key: googleClientSecret
             {{- end }}
             {{- if .Values.httpsProxy }}
-            -name: HTTPS_PROXY
+            - name: HTTPS_PROXY
               value: {{ .Values.httpsProxy | quote }}
             {{- end }}
             {{- if .Values.oktaDomain }}
             - name: OKTA_DOMAIN
               value: {{ .Values.oktaDomain | quote }}
             {{- end }}
-            {{- if .Values.oktaClientId }}
+            {{- if or .Values.oktaClientId (and .Values.sops.enabled (has "OKTA_CLIENTID" .Values.sops.secrets)) }}
             - name: OKTA_CLIENTID
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: oktaClientId
             {{- end }}
-            {{- if .Values.oktaClientSecret }}
+            {{- if or .Values.oktaClientSecret (and .Values.sops.enabled (has "OKTA_CLIENTSECRET" .Values.sops.secrets)) }}
             - name: OKTA_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
@@ -324,14 +324,14 @@ spec:
             - name: OIDC_USER_INFO_URL
               value: {{ .Values.oidcUserInfoUrl | quote }}
             {{- end }}
-            {{- if .Values.oidcClientId }}
+            {{- if or .Values.oidcClientId (and .Values.sops.enabled (has "OIDC_CLIENTID" .Values.sops.secrets)) }}
             - name: OIDC_CLIENTID
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: oidcClientId
             {{- end }}
-            {{- if .Values.oidcClientSecret }}
+            {{- if or .Values.oidcClientSecret (and .Values.sops.enabled (has "OIDC_CLIENT_SECRET" .Values.sops.secrets)) }}
             - name: OIDC_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
@@ -366,14 +366,14 @@ spec:
             - name: LDAP_PORT
               value: {{ .Values.ldapPort | quote }}
             {{- end }}
-            {{- if .Values.ldapBindDn }}
+            {{- if or .Values.ldapBindDn (and .Values.sops.enabled (has "LDAP_BINDDN" .Values.sops.secrets)) }}
             - name: LDAP_BINDDN
               valueFrom:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: ldapBindDn
             {{- end }}
-            {{- if .Values.ldapPassword }}
+            {{- if or .Values.ldapPassword (and .Values.sops.enabled (has "LDAP_PASSWORD" .Values.sops.secrets)) }}
             - name: LDAP_PASSWORD
               valueFrom:
                 secretKeyRef:
@@ -404,7 +404,7 @@ spec:
             - name: LDAP_SSL_INSECURE
               value: {{ .Values.ldapSslInsecure | quote }}
             {{- end }}
-            {{- if .Values.ldapSslCa }}
+            {{- if or .Values.ldapSslCa (and .Values.sops.enabled (has "LDAP_SSL_CA" .Values.sops.secrets)) }}
             - name: LDAP_SSL_CA
               valueFrom:
                 secretKeyRef:
