@@ -32,26 +32,30 @@ spec:
         - name: injected-certs
           configMap:
             name: {{ .Values.certs.name }}
-        {{- range $index, $path := .Values.certs.processedCertsMountPaths }}
+        {{if .Values.certs.systemCertsApproach.enabled}}    
+        {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
         - name: "processed-certs-{{ $index }}"
           emptyDir:
         {{- end }}
+        {{- end }}
+      {{- if .Values.certs.systemCertsApproach.enabled }}
       initContainers:
         - name: setup-certs
           securityContext:
-            {{- toYaml .Values.certs.securityContext | nindent 12 }}
-          image: "{{ .Values.certs.image.repository }}:{{ .Values.certs.image.tag }}"
+            {{- toYaml .Values.certs.systemCertsApproach.securityContext | nindent 12 }}
+          image: "{{ .Values.certs.systemCertsApproach.image.repository }}:{{ .Values.certs.systemCertsApproach.image.tag }}"
           resources:
-            {{- toYaml .Values.certs.resources | nindent 12 }}
-          imagePullPolicy: {{ .Values.certs.image.pullPolicy }}
-          command: {{ .Values.certs.command }}
+            {{- toYaml .Values.certs.systemCertsApproach.resources | nindent 12 }}
+          imagePullPolicy: {{ .Values.certs.systemCertsApproach.image.pullPolicy }}
+          command: {{ .Values.certs.systemCertsApproach.command }}
           volumeMounts:
             - name: injected-certs
-              mountPath: {{ .Values.certs.injectedCertsMountPath }}
-            {{- range $index, $path := .Values.certs.processedCertsMountPaths }}
+              mountPath: {{ .Values.certs.systemCertsApproach.injectedCertsMountPath }}
+            {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
             - name: "processed-certs-{{ $index }}"
               mountPath: {{ $path }}
             {{- end }}
+      {{- end }}
       containers:
         - name: heimdall-front
           securityContext:
@@ -64,12 +68,23 @@ spec:
             - name: http
               containerPort: 3000
           volumeMounts:
-            {{- range $index, $path := .Values.certs.processedCertsMountPaths }}
+            {{- if .Values.certs.systemCertsApproach.enabled }}
+            {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
             - name: "processed-certs-{{ $index }}"
               mountPath: {{ $path }}
               readOnly: true
+            {{- else }}
+            - name: "user-cert"
+              mountPath: /home/node/certs  
+            {{- end }}            
             {{- end }}
           env:
+            {{- if .Values.certs.systemCertsApproach.enabled}}          
+            - name: NODE_EXTRA_CA_CERTS
+              value: /home/node/certs
+            - name: SSL_CERT_FILE
+              value: /home/node/certs
+            {{- end }}
             - name: NODE_ENV
               value: {{ .Values.nodeEnv | quote }}
             {{- if .Values.maxFileUploadSize }}
