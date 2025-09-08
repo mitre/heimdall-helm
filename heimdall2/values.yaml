@@ -162,7 +162,7 @@ postgresql:
   affinity: {} 
 
 certs:
-  enabled: true
+  enabled: false
   systemCertsApproach:
     enabled: false
     image: # which image with root/sufficient privileges will be used to take the injected certs and process them into the locations that the system will be looking for
@@ -178,13 +178,13 @@ certs:
 #       limits:
 #         memory: "128Mi"
 #         cpu: "500m"
-
   name: heimdall-cacerts # name of the configmap that will include all the certs' file contents
-  certificates:
-    - filename: test.pem
+  certificates: 
+    # if systemsCertsApproach is enabled, you can provide an array of certificates, otherwise, you must put all certificates into a single .pem file
+    # an example way to combine the certificates is `cat cert1.crt cert2.crt > certs.pem`
+    - filename: certs.pem
       contents: |
-        test |
-        test line 2
+        replace with certificates
 
 heimdall:
   image:
