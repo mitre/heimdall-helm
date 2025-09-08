@@ -184,7 +184,7 @@ certs:
     # an example way to combine the certificates is `cat cert1.crt cert2.crt > certs.pem`
     - filename: certs.pem
       contents: |
-        replace with certificates
+        replace with certificate file contents 
 
 heimdall:
   image:
