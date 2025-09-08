@@ -173,7 +173,7 @@ certs:
     injectedCertsMountPath: /etc/pki/ca-trust/source/anchors # the location that `update-ca-trust` looks inside for user supplied certs
     processedCertsMountPaths: [/etc/pki/ca-trust/extracted/openssl, /etc/pki/ca-trust/extracted/pem, /etc/pki/ca-trust/extracted/java, /etc/pki/ca-trust/extracted/edk2] # due to the chart using `emptyDir` (which supplies a completely blank dir) to specify the shared volumes between this container and Heimdall's, and due to `update-ca-trust` apparently requiring several subdirectories underneath /etc/pki/ca-trust/extracted to exist, we need to manually specify each subdirectory
 #     securityContext: {}
-#     runAsRoot: false
+#       runAsRoot: true
 #     resources:
 #       limits:
 #         memory: "128Mi"
