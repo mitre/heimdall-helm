@@ -29,6 +29,7 @@ spec:
       securityContext:
         {{- toYaml .Values.heimdall.podSecurityContext | nindent 8 }}
       volumes:
+        {{ if .Values.certs.enabled -}}
         - name: injected-certs
           configMap:
             name: {{ .Values.certs.name }}
@@ -36,6 +37,7 @@ spec:
         {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
         - name: "processed-certs-{{ $index }}"
           emptyDir:
+        {{- end }}
         {{- end }}
         {{- end }}
       {{- if .Values.certs.systemCertsApproach.enabled }}
@@ -68,6 +70,7 @@ spec:
             - name: http
               containerPort: 3000
           volumeMounts:
+            {{- if .Values.certs.enabled}}
             {{- if .Values.certs.systemCertsApproach.enabled }}
             {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
             - name: "processed-certs-{{ $index }}"
@@ -78,8 +81,9 @@ spec:
               mountPath: /home/node/certs  
             {{- end }}            
             {{- end }}
+            {{- end }}
           env:
-            {{- if .Values.certs.systemCertsApproach.enabled}}          
+            {{- if not .Values.certs.systemCertsApproach.enabled}}          
             - name: NODE_EXTRA_CA_CERTS
               value: /home/node/certs
             - name: SSL_CERT_FILE
