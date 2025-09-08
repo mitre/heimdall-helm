@@ -70,16 +70,16 @@ spec:
             - name: http
               containerPort: 3000
           volumeMounts:
-            {{- if .Values.certs.enabled}}
+            {{- if .Values.certs.enabled }}
             {{- if .Values.certs.systemCertsApproach.enabled }}
             {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
             - name: "processed-certs-{{ $index }}"
               mountPath: {{ $path }}
               readOnly: true
+            {{- end }}    
             {{- else }}
             - name: "user-cert"
-              mountPath: /home/node/certs  
-            {{- end }}            
+              mountPath: /home/node/certs 
             {{- end }}
             {{- end }}
           env:

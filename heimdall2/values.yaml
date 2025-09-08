@@ -162,7 +162,7 @@ postgresql:
   affinity: {} 
 
 certs:
-  enabled: false
+  enabled: true
   systemCertsApproach:
     enabled: false
     image: # which image with root/sufficient privileges will be used to take the injected certs and process them into the locations that the system will be looking for
