@@ -37,9 +37,9 @@ spec:
         {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
         - name: "processed-certs-{{ $index }}"
           emptyDir:
+        {{- end }}
+        {{- end }}
       {{- end }}
-        {{- end }}
-        {{- end }}
       {{- if .Values.certs.systemCertsApproach.enabled }}
       initContainers:
         - name: setup-certs
