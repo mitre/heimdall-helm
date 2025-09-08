@@ -78,7 +78,7 @@ spec:
               readOnly: true
             {{- end }}    
             {{- else }}
-            - name: "user-cert"
+            - name: "unprocessed-cert"
               mountPath: /home/node/certs 
             {{- end }}
             {{- end }}
