@@ -183,7 +183,7 @@ certs:
   certificates:
     - filename: test.pem
       contents: |
-        test
+        test |
         test line 2
 
 heimdall:
