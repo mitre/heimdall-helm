@@ -172,12 +172,25 @@ certs:
     command: "['sh', '-c', 'update-ca-trust']" # RHEL style distros use the `update-ca-trust` command to update the system CA trust store
     injectedCertsMountPath: /etc/pki/ca-trust/source/anchors # the location that `update-ca-trust` looks inside for user supplied certs
     processedCertsMountPaths: [/etc/pki/ca-trust/extracted/openssl, /etc/pki/ca-trust/extracted/pem, /etc/pki/ca-trust/extracted/java, /etc/pki/ca-trust/extracted/edk2] # due to the chart using `emptyDir` (which supplies a completely blank dir) to specify the shared volumes between this container and Heimdall's, and due to `update-ca-trust` apparently requiring several subdirectories underneath /etc/pki/ca-trust/extracted to exist, we need to manually specify each subdirectory
-#     securityContext: {}
-#       runAsRoot: true
-#     resources:
-#       limits:
-#         memory: "128Mi"
-#         cpu: "500m"
+#    securityContext: 
+#      runAsNonRoot: true
+#      runAsGroup: 1001
+#      runAsUser: 1001
+#      readOnlyRootFileSystem: false
+#    resources:
+#      limits:
+#        cpu: 1000m
+#        memory: 8Gi
+#      requests:
+#        cpu: 1000m
+#        memory: 8Gi
+#  securityContext:
+#    runAsRoot: true
+#  resources:
+#    limits:
+#      memory: "128Mi"
+#      cpu: "500m"
+
   name: heimdall-cacerts # name of the configmap that will include all the certs' file contents
   certificates: 
     # if systemsCertsApproach is enabled, you can provide an array of certificates, otherwise, you must put all certificates into a single .pem file
