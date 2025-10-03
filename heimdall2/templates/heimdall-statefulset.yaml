@@ -28,8 +28,12 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.heimdall.podSecurityContext | nindent 8 }}
-      {{ if .Values.certs.enabled -}}  
       volumes:
+        - name: yarn-cache
+          emptyDir: {}
+        - name: yarn-tmp
+          emptyDir: {}
+        {{ if .Values.certs.enabled -}}        
         - name: injected-certs
           configMap:
             name: {{ .Values.certs.name }}
@@ -39,7 +43,7 @@ spec:
           emptyDir:
         {{- end }}
         {{- end }}
-      {{- end }}
+        {{- end }}
       {{- if and .Values.certs.systemCertsApproach.enabled .Values.certs.enabled }}
       initContainers:
         - name: setup-certs
@@ -70,6 +74,10 @@ spec:
             - name: http
               containerPort: 3000
           volumeMounts:
+            - name: yarn-cache
+              mountPath: /home/node/.cache
+            - name: yarn-tmp
+              mountPath: /tmp
             {{- if .Values.certs.enabled }}
             {{- if .Values.certs.systemCertsApproach.enabled }}
             {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
@@ -78,16 +86,16 @@ spec:
               readOnly: true
             {{- end }}    
             {{- else }}
-            - name: "unprocessed-cert"
-              mountPath: /home/node/certs 
+            - name: "injected-certs"
+              mountPath: /home/node/certs
             {{- end }}
             {{- end }}
           env:
             {{- if and (not .Values.certs.systemCertsApproach.enabled) .Values.certs.enabled }}          
             - name: NODE_EXTRA_CA_CERTS
-              value: /home/node/certs
+              value: /home/node/certs/certs.pem
             - name: SSL_CERT_FILE
-              value: /home/node/certs
+              value: /home/node/certs/certs.pem
             {{- end }}
             - name: NODE_ENV
               value: {{ .Values.nodeEnv | quote }}
