@@ -162,7 +162,7 @@ postgresql:
   affinity: {} 
 
 certs:
-  enabled: false
+  enabled: false # Using this allows you to override the pre-baked system certs on the heimdall container.
   systemCertsApproach:
     enabled: false # If enabled, this system-certificates approach will generate a new set of system certificates with your provided certificates injected inside within an init container. Those system certificates will be overlaid on top of the Heimdall container's system certificates. If this is disabled, then the certificate that is provided will be injected into a location within the Heimdall container and will have the NODE_EXTRA_CA_CERTS and SSL_CERT_FILE environment variables pointed at it. Please note this non-system-certificates approach requires all certificates to be placed in a single .pem file. 
     image: # which image with root/sufficient privileges will be used to take the injected certs and process them into the locations that the system will be looking for
