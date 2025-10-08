@@ -1,6 +1,6 @@
 # heimdall2-helm
 
-A helm chart for Heimdall2 project found at [https://github.com/mitre/heimdall2](https://github.com/mitre/heimdall2).
+A Helm chart for the [MITRE SAF Heimdall application](https://github.com/mitre/heimdall2).
 
 ## Requirements
 
