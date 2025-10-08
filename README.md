@@ -107,5 +107,5 @@ adminPassword: <your-password>
 
 ## Author Information
 
-Michael Joseph Walsh <mjwalsh@nemonik.com>
-MITRE SAF team <saf@groups.mitre.org>
+* Michael Joseph Walsh <mjwalsh@nemonik.com>
+* MITRE SAF team <saf@mitre.org>
