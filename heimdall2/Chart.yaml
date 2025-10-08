@@ -1,6 +1,6 @@
 apiVersion: v2
 name: heimdall
-description: Heimdall2 lets you view, store, and compare automated security control scan results.
+description: Heimdall is a security results visualization tool that lets you view, store, and compare security scan results.
 
 type: application
 version: 3.3.1
@@ -16,7 +16,7 @@ annotations:
       url: https://saf.mitre.org
   artifacthub.io/maintainers: |
     - name: MITRE SAF Team
-      email: saf@groups.mitre.org
+      email: saf@mitre.org
   artifacthub.io/prerelease: "false"
   artifacthub.io/screenshots: |
     - title: Heimdall Security Data Visualization
