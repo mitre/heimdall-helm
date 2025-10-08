@@ -3,6 +3,6 @@
 repositoryID: 0302e088-8ee2-47f8-907f-e32d98cf5b87
 owners: # (optional, used to claim repository ownership)
   - name: MITRE SAF Team
-    email: saf@groups.mitre.org
+    email: saf@mitre.org
   - name: Will Dower
     email: will@dower.dev
