@@ -105,10 +105,6 @@ adminPassword: <your-password>
 
 ### Modify the secrets-generator.yml to have the correct Secret name and namespace
 
-## License
-
-3-Clause BSD License
-
 ## Author Information
 
 Michael Joseph Walsh <mjwalsh@nemonik.com>
