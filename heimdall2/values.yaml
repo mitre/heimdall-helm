@@ -85,6 +85,7 @@ databaseUsername: postgres
 # oidcAuthorizationUrl: auth-endpoint # example: https://sample.us.auth0.com/authorize No default, must be set if using OIDC login
 # oidcTokenUrl: token-endpoint # example: https://sample.us.auth0.com/oauth/token No default, must be set if using OIDC login
 # oidcUserInfoUrl: info-endpoint # example: https://sample.us.auth0.com/userinfo No default, must be set if using OIDC login
+# oidcUsesVerifiedEmail: # Default is set to 'true', must be set to 'false' if email verification is not required
 # oidcClientId: value-from-oidc # No default, must be set if using OIDC login
 # oidcClientSecret: value-from-oidc # No default, must be set if using OIDC login
 # oidcExternalGroups: # Default false

@@ -33,5 +33,6 @@ helm install heimdall heimdall2-helm/heimdall \
     --set   oidcAuthorizationUrl=$OIDC_AUTHORIZATION_URL \
     --set   oidcTokenUrl=$OIDC_TOKEN_URL \
     --set   oidcUserInfoUrl=$OIDC_USER_INFO_URL \
+    --set   oidcUsesVerifiedEmail=$OIDC_USES_VERIFIED_EMAIL \
     --set   oidcClientId=$OIDC_CLIENTID \
     --set   oidcClientSecret=$OIDC_CLIENT_SECRET

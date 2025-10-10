@@ -351,6 +351,10 @@ spec:
             - name: OIDC_USER_INFO_URL
               value: {{ .Values.oidcUserInfoUrl | quote }}
             {{- end }}
+            {{- if not .Values.oidcUsesVerifiedEmail}}
+            - name: OIDC_USES_VERIFIED_EMAIL
+              value: {{ .Values.oidcUsesVerifiedEmail | quote }}
+            {{- end }}
             {{- if or .Values.oidcClientId (and .Values.sops.enabled (has "OIDC_CLIENTID" .Values.sops.secrets)) }}
             - name: OIDC_CLIENTID
               valueFrom:

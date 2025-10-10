@@ -3,7 +3,7 @@ name: heimdall
 description: Heimdall is a security results visualization tool that lets you view, store, and compare security scan results.
 
 type: application
-version: 3.3.1
+version: 3.3.2
 appVersion: "release-latest"
 
 annotations:
