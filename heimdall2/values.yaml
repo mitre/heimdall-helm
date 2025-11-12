@@ -111,7 +111,7 @@ postgresql:
   image:
     repository: postgres
     pullPolicy: Always
-    tag: "13"
+    tag: "17"
 
   persistence:
   #   Volume used to store the Heimdall's data.
