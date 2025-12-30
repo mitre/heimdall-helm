@@ -68,7 +68,7 @@ git checkout -b phase-1-foundation develop
 ```
 
 ### Phase 1 Tasks
-1. Rename `heimdall2/` → `heimdall/` directory
+1. ✅ Rename `heimdall2/` → `heimdall/` directory (COMPLETED)
 2. Create `values.schema.json`
 3. Enhance `_helpers.tpl` with database helpers
 4. Implement three secrets approaches
@@ -82,7 +82,7 @@ git checkout -b phase-1-foundation develop
 heimdall-helm/
 ├── .beads/                     # Task tracking database
 ├── .github/workflows/          # CI/CD (to be created)
-├── heimdall2/                  # Chart directory (to rename → heimdall/)
+├── heimdall/                   # Chart directory ✅ RENAMED
 │   ├── Chart.yaml
 │   ├── values.yaml
 │   └── templates/

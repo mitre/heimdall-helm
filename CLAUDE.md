@@ -19,7 +19,7 @@ This is a Helm chart for deploying MITRE SAF Heimdall to Kubernetes. Heimdall is
 **Repository Renamed**: `heimdall2-helm` → `heimdall-helm` (December 2025)
 - GitHub automatically redirects all old URLs
 - Chart name changes from `heimdall2` to `heimdall` in v1.0.0
-- Directory currently `heimdall2/` will be renamed to `heimdall/`
+- Chart directory: `heimdall/` (renamed from `heimdall2/`)
 
 ## Chart Repository
 
@@ -105,7 +105,7 @@ Located at: `/Users/alippold/github/mitre/vulcan-helm`
 
 ```
 heimdall-helm/
-├── heimdall2/                  # Will rename to heimdall/
+├── heimdall/                   # Chart directory (renamed 2025-12-30)
 │   ├── Chart.yaml
 │   ├── values.yaml
 │   └── templates/
@@ -612,11 +612,11 @@ bd init
 
 ```bash
 # Template rendering errors
-helm template heimdall ./heimdall2 --debug
+helm template heimdall ./heimdall --debug
 
 # Dependency issues
-rm -rf heimdall2/charts/ heimdall2/Chart.lock
-helm dependency update ./heimdall2
+rm -rf heimdall/charts/ heimdall/Chart.lock
+helm dependency update ./heimdall
 
 # Installation failures
 kubectl get events -n heimdall --sort-by='.lastTimestamp'

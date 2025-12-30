@@ -14,8 +14,8 @@ You can clone this repo, enter the repository folder and then execute something 
 ./start_heimdall2.sh
 ```
 
-The script will spin up Heimdall2 using the example [values.yaml](heimdall2/values.yaml) values file.  You will need
-to provide your own if you want to configure other settings, and ingress, etc.  Look at the [values.yaml](heimdall2/values.yaml)
+The script will spin up Heimdall using the example [values.yaml](heimdall/values.yaml) values file.  You will need
+to provide your own if you want to configure other settings, and ingress, etc.  Look at the [values.yaml](heimdall/values.yaml)
 file for what to place in your own.
 
 To generate the postgres user's password consider using

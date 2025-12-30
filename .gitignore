@@ -82,8 +82,10 @@ kubeconfig
 *.kubeconfig
 
 # ===========================
-# Session and Context Files
+# Session and Context Files (Internal Only)
 # ===========================
 session.md
+SESSION-*.md
 recovery-prompt.md
 pr-summary.md
+*-prompt.md
