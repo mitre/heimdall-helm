@@ -238,6 +238,23 @@ heimdall:
   secret:
     name: heimdall-secrets
 
+  # ===========================================================================
+  # Environment Configuration Overrides (Optional)
+  # ===========================================================================
+  # Override non-sensitive environment variables from env/heimdallconfig.yaml
+  # Example:
+  #   config:
+  #     NODE_ENV: "production"
+  #     MAX_FILE_UPLOAD_SIZE: "100"
+  #     CLASSIFICATION_BANNER_TEXT: "UNCLASSIFIED"
+  #     LDAP_ENABLED: "true"
+  #     LDAP_HOST: "ldap.example.com"
+  config: {}
+
+  # ConfigMap resource name
+  configmap:
+    name: heimdall-config
+
   service:
     type: ClusterIP
     port: 3000

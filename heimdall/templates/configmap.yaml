@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "heimdall.fullname" . }}-config
+  labels:
+    {{- include "heimdall.labels" . | nindent 4 }}
+data:
+  # =============================================================================
+  # Database Configuration (Connection Details)
+  # =============================================================================
+  # Database credentials (PASSWORD) are in secrets, not here
+  DATABASE_HOST: {{ include "heimdall.databaseHost" . | quote }}
+  DATABASE_PORT: {{ include "heimdall.databasePort" . | quote }}
+  DATABASE_NAME: {{ include "heimdall.databaseName" . | quote }}
+  DATABASE_USERNAME: {{ include "heimdall.databaseUsername" . | quote }}
+
+  # =============================================================================
+  # Load Non-Sensitive Environment Variables from File
+  # =============================================================================
+  # env/heimdallconfig.yaml contains default non-sensitive configuration
+{{ range .Files.Lines "env/heimdallconfig.yaml" }}
+  {{ . }}
+{{ end }}
+
+  # =============================================================================
+  # Override with Inline Config from values.yaml (if provided)
+  # =============================================================================
+  # Allows overriding file-based config via values.yaml or --set flags
+  {{- if .Values.heimdall.config }}
+  {{- range $key, $val := .Values.heimdall.config }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end }}
+  {{- end }}
+
+  # =============================================================================
+  # Auto-construct External URL from Ingress (if enabled)
+  # =============================================================================
+  # Used for OAuth/OIDC callback URLs
+  {{- if and .Values.heimdall.ingress.enabled (index .Values.heimdall.ingress.hosts 0) }}
+  {{- $host := (index .Values.heimdall.ingress.hosts 0).host }}
+  {{- $scheme := "https" }}
+  {{- if not (and .Values.heimdall.config (hasKey .Values.heimdall.config "EXTERNAL_URL")) }}
+  EXTERNAL_URL: {{ printf "%s://%s" $scheme $host | quote }}
+  {{- end }}
+  {{- else if and .Values.heimdall.config (hasKey .Values.heimdall.config "EXTERNAL_URL") }}
+  EXTERNAL_URL: {{ .Values.heimdall.config.EXTERNAL_URL | quote }}
+  {{- else }}
+  # WARNING: EXTERNAL_URL not set - OAuth/OIDC callbacks may not work
+  # Set heimdall.config.EXTERNAL_URL or enable ingress with hostname
+  EXTERNAL_URL: ""
+  {{- end }}
