@@ -1,4 +1,89 @@
-.env
+# ===========================
+# Helm Chart Release Artifacts
+# ===========================
 .cr-release-packages/
 .cr-index/
+*.tgz
+*.lock
+
+# ===========================
+# Secrets (NEVER COMMIT!)
+# ===========================
+.env
+heimdall2/env/heimdall-secrets.yaml
+heimdall/env/heimdall-secrets.yaml
+**/secrets.yaml
+**/*-secrets.yaml
+*.secret
+*.key
+*.pem
+*.crt
+
+# ===========================
+# macOS
+# ===========================
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# ===========================
+# IDEs and Editors
+# ===========================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+*.tmproj
+
+# ===========================
+# Backup Files
+# ===========================
+*.bak
+*.tmp
+*.orig
+.dump
+
+# ===========================
+# Helm Dependencies
+# ===========================
+charts/*.tgz
+heimdall2/charts/*.tgz
+heimdall/charts/*.tgz
+
+# ===========================
+# Testing and Development
+# ===========================
+rendered-manifests.yaml
+test-values.yaml
+*.test.yaml
+debug-*.yaml
+
+# ===========================
+# Documentation Build Artifacts
+# ===========================
+docs/.nuxt/
+docs/dist/
+docs/node_modules/
+docs/.output/
+
+# ===========================
+# Kubernetes Testing
+# ===========================
+kubectl
+kubeconfig
+*.kubeconfig
+
+# ===========================
+# Session and Context Files
+# ===========================
+session.md
+recovery-prompt.md
+pr-summary.md

@@ -1,0 +1,81 @@
+# ===========================
+# .helmignore
+# Patterns to ignore when building Helm chart packages
+# ===========================
+
+# ===========================
+# Development and Testing Files
+# ===========================
+*.md
+OWNERS
+.gitignore
+.git/
+.gitattributes
+
+# ===========================
+# CI/CD and GitHub
+# ===========================
+.github/
+.circleci/
+.travis.yml
+.gitlab-ci.yml
+
+# ===========================
+# Documentation
+# ===========================
+docs/
+examples/
+*.txt
+
+# ===========================
+# Secrets and Environment Files
+# ===========================
+env/heimdall-secrets.yaml
+env/*secrets*.yaml
+.env
+*.secret
+
+# ===========================
+# Scripts and Tools
+# ===========================
+scripts/
+tools/
+bin/
+generate-*.sh
+*.sh
+
+# ===========================
+# IDE and Editor Files
+# ===========================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ===========================
+# Testing
+# ===========================
+test/
+tests/
+*.test.yaml
+*_test.yaml
+ci/
+
+# ===========================
+# Backup and Temporary Files
+# ===========================
+*.bak
+*.tmp
+*.orig
+.dump
+*~
+
+# ===========================
+# Chart Development Files
+# ===========================
+rendered-manifests.yaml
+debug-*.yaml
+test-values.yaml
+*-local.yaml
