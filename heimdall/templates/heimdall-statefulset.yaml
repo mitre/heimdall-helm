@@ -103,26 +103,12 @@ spec:
             - name: MAX_FILE_UPLOAD_SIZE
               value: {{ .Values.maxFileUploadSize | quote }}
             {{- end }}
-            {{- if or .Values.postgresql.enabled .Values.databaseHost }}
             - name: DATABASE_HOST
-            {{- if .Values.postgresql.enabled }}
-              value: {{ template "heimdall.fullname" . }}-postgresql
-            {{- else if .Values.databaseHost }}
-              value: {{ .Values.databaseHost | quote }}
-            {{- end }}
-            {{- end }}
-            {{- if or .Values.postgresql.enabled .Values.databasePort }}
+              value: {{ include "heimdall.databaseHost" . | quote }}
             - name: DATABASE_PORT
-            {{- if .Values.postgresql.enabled }}
-              value: {{ .Values.postgresql.service.port | quote }}
-            {{- else }}
-              value: {{ .Values.databasePort | quote }}
-            {{- end }}
-            {{- end }}
-            {{- if .Values.databaseName }}
+              value: {{ include "heimdall.databasePort" . | quote }}
             - name: DATABASE_NAME
-              value: {{ .Values.databaseName | quote }}
-            {{- end }}
+              value: {{ include "heimdall.databaseName" . | quote }}
             {{- if or .Values.databaseUsername (and .Values.sops.enabled (has "DATABASE_USERNAME" .Values.sops.secrets)) }}
             - name: DATABASE_USERNAME
               valueFrom:

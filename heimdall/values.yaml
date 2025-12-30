@@ -315,5 +315,5 @@ heimdall:
     timeoutSeconds: 15
     failureThreshold: 3
 
-  imagePullSecrets:
+  imagePullSecrets: []
 #     - name: your-secret-name
