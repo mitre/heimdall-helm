@@ -73,6 +73,8 @@ docs/.nuxt/
 docs/dist/
 docs/node_modules/
 docs/.output/
+docs/.data/
+docs/pnpm-lock.yaml
 
 # ===========================
 # Kubernetes Testing
