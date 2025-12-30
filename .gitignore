@@ -12,8 +12,10 @@
 .env
 heimdall2/env/heimdall-secrets.yaml
 heimdall/env/heimdall-secrets.yaml
-**/secrets.yaml
-**/*-secrets.yaml
+heimdall2/env/vulcan-secrets.yaml
+heimdall/env/vulcan-secrets.yaml
+# Note: Templates in templates/ directory are NOT ignored
+# Only env/*-secrets.yaml files are ignored
 *.secret
 *.key
 *.pem

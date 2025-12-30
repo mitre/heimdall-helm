@@ -206,6 +206,38 @@ heimdall:
     pullPolicy: Always
     tag: "release-latest"
 
+  # ===========================================================================
+  # Secrets Management (Three Approaches - Following Vulcan Pattern)
+  # ===========================================================================
+  # Priority: existingSecret > secrets > secretsFiles
+  #
+  # Approach 1: Use existing secret (Production - Recommended)
+  # Use with External Secrets Operator, Sealed Secrets, or Vault
+  # Example:
+  #   existingSecret: "heimdall-production-secrets"
+  # Required secret keys: JWT_SECRET, DATABASE_PASSWORD, ADMIN_PASSWORD
+  existingSecret: ""
+
+  # Approach 2: File-based secrets (Development - Default)
+  # Loads secrets from local files (gitignored)
+  # Generate with: ./generate-heimdall-secrets.sh
+  # Example:
+  #   secretsFiles: ["env/heimdall-secrets.yaml"]
+  secretsFiles: ["env/heimdall-secrets.yaml"]
+
+  # Approach 3: Inline secrets (CI/CD)
+  # Provide secrets directly in values (use --set or environment variables)
+  # Example:
+  #   secrets:
+  #     JWT_SECRET: "your-secret-key-128-chars"
+  #     DATABASE_PASSWORD: "your-db-password"
+  #     ADMIN_PASSWORD: "your-admin-password"
+  secrets: {}
+
+  # Secret resource name (only used if existingSecret is not set)
+  secret:
+    name: heimdall-secrets
+
   service:
     type: ClusterIP
     port: 3000
