@@ -90,30 +90,38 @@ Returns: PostgreSQL service name (if postgresql.enabled=true) or external host
 
 {{/*
 Get the database port
-Returns: PostgreSQL service port (if postgresql.enabled=true) or external port
+Returns: PostgreSQL port from values (default 5432)
 */}}
 {{- define "heimdall.databasePort" -}}
 {{- if .Values.postgresql.enabled }}
-{{- .Values.postgresql.service.port | default 5432 }}
+{{- .Values.postgresql.primary.service.ports.postgresql | default 5432 }}
 {{- else }}
-{{- .Values.databasePort | default 5432 }}
+{{- .Values.externalDatabase.port | default 5432 }}
 {{- end }}
 {{- end }}
 
 {{/*
 Get the database name
-Returns: Database name from values
+Returns: Database name from Bitnami subchart or external database
 */}}
 {{- define "heimdall.databaseName" -}}
-{{- .Values.databaseName | default "heimdall-database" }}
+{{- if .Values.postgresql.enabled }}
+{{- .Values.postgresql.auth.database }}
+{{- else }}
+{{- .Values.externalDatabase.database }}
+{{- end }}
 {{- end }}
 
 {{/*
 Get the database username
-Returns: Database username from values
+Returns: Database username from values (default postgres)
 */}}
 {{- define "heimdall.databaseUsername" -}}
-{{- .Values.databaseUsername | default "postgres" }}
+{{- if .Values.postgresql.enabled }}
+{{- .Values.postgresql.auth.username | default "postgres" }}
+{{- else }}
+{{- .Values.externalDatabase.username }}
+{{- end }}
 {{- end }}
 
 {{/*

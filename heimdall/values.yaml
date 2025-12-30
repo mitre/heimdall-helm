@@ -105,62 +105,76 @@ sops:
     # - JWT_SECRET
     # - API_KEY_SECRET
 
+# ===========================================================================
+# PostgreSQL Database (Bitnami Subchart)
+# ===========================================================================
+# Deploy PostgreSQL using Bitnami subchart or use external database
+# Set postgresql.enabled=false to use external database (see externalDatabase below)
 postgresql:
+  # -- Deploy PostgreSQL using Bitnami subchart (set false to use external database)
   enabled: true
 
+  ## Image configuration
   image:
-    repository: postgres
-    pullPolicy: Always
-    tag: "17"
+    # -- PostgreSQL image tag (Bitnami uses 'latest' for free tier)
+    tag: "latest"
 
-  persistence:
-  #   Volume used to store the Heimdall's data.
-    enabled: false
-    size: "100Mi"
-  #   Sets persistent volume claim's storageClassName.
-    storageClassName: "default"
-    accessMode: "ReadWriteOnce"
+  ## Authentication parameters
+  auth:
+    # -- PostgreSQL database name
+    database: heimdall
+    # -- PostgreSQL username (default: postgres)
+    username: postgres
+    # -- PostgreSQL password (leave empty for auto-generated, recommended)
+    # To retrieve auto-generated password: kubectl get secret -n <namespace> <release>-postgresql -o jsonpath="{.data.postgres-password}" | base64 -d
+    # Note: Do NOT use existingSecret - it has known issues with Bitnami chart
+    password: ""
 
-  service:
-    type: ClusterIP
-    port: 5672
+  ## Primary database configuration
+  primary:
+    ## Service configuration
+    service:
+      # -- PostgreSQL service port
+      ports:
+        postgresql: 5432
 
-  podAnnotations: {} 
-#   Example:
-#     imageregistry: "https://example.docker.com"
+    ## Persistence configuration
+    persistence:
+      # -- Enable persistent storage for PostgreSQL data
+      enabled: true
+      # -- Size of persistent volume claim
+      size: 10Gi
+      # -- Storage class for PVC (leave empty for default)
+      storageClass: ""
 
-  podSecurityContext: {} 
-#   Example:
-#     runAsUser: 1000
-#     runAsGroup: 3000
+    ## Resource limits and requests
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 256Mi
 
-  securityContext: {} 
-#   Example:
-#     runAsUser: 1000
-#     runAsGroup: 3000
-#     runAsNonRoot: true
-
-  resources: {} 
-#   Example:
-#     requests:
-#       cpu: 100m
-#       memory: 128Mi
-#     limits:
-#       cpu: 200m
-#       memory: 256Mi
-
-  nodeSelector: {} 
-#   Example:
-#     kubernetes.io/example: linux
-#     kubernetes.io/example: amd64
-
-  tolerations: [] 
-#   Example:
-#     - key: "node-role.kubernetes.io/example"
-#       operator: "Exists"
-#       effect: "NoSchedule"
-
-  affinity: {} 
+# ===========================================================================
+# External Database Configuration
+# ===========================================================================
+# Use when postgresql.enabled=false
+# Supports AWS RDS, Google Cloud SQL, Azure Database, or self-hosted PostgreSQL
+externalDatabase:
+  # -- External PostgreSQL hostname (e.g., heimdall-db.abc123.us-east-1.rds.amazonaws.com)
+  host: ""
+  # -- External PostgreSQL port
+  port: 5432
+  # -- External database name
+  database: heimdall
+  # -- External database username
+  username: postgres
+  # -- Existing secret containing database password
+  # Secret must have key matching existingSecretPasswordKey
+  existingSecret: ""
+  # -- Key in existingSecret that contains the password
+  existingSecretPasswordKey: "password" 
 
 certs:
   enabled: false # Using this allows you to override the pre-baked system certs on the heimdall container.

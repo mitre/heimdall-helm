@@ -3,15 +3,35 @@ name: heimdall
 description: Heimdall is a security results visualization tool that lets you view, store, and compare security scan results.
 
 type: application
-version: 3.3.3
+version: 1.0.0
 appVersion: "release-latest"
+
+home: https://github.com/mitre/heimdall-helm
+icon: https://github.com/mitre/heimdall2/raw/master/apps/frontend/public/favicon-32x32.png
+keywords:
+  - security
+  - compliance
+  - inspec
+  - mitre
+  - kubernetes
+  - nodejs
+
+maintainers:
+  - name: MITRE SAF
+    email: saf@mitre.org
+
+dependencies:
+  - name: postgresql
+    version: "~18.2.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
 
 annotations:
   artifacthub.io/category: security
   artifacthub.io/license: Apache-2.0
   artifacthub.io/links: |
     - name: support
-      url: https://github.com/mitre/heimdall2-helm/issues
+      url: https://github.com/mitre/heimdall-helm/issues
     - name: Additional Security Automation Framework Resources
       url: https://saf.mitre.org
   artifacthub.io/maintainers: |
