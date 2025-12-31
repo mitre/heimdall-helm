@@ -1,3 +1,55 @@
+# 1.0.0 (unreleased)
+
+**BREAKING CHANGE**: Removed database migration job (db-migrate-job.yaml)
+
+## Migration Strategy Change
+
+The Heimdall Helm chart no longer includes a separate Helm hook Job for running database migrations. This change aligns the chart with Heimdall's application architecture and Node.js/Sequelize ecosystem best practices.
+
+### What Changed
+
+- **Removed**: `heimdall/templates/db-migrate-job.yaml`
+- **Removed**: `heimdall.dbMigrate.*` configuration section from `values.yaml`
+- **Added**: Documentation explaining migration strategy (`docs/content/4.helm-chart/database-migrations.md`)
+
+### Why This Change?
+
+Heimdall's container entrypoint (`cmd.sh`) **already runs migrations on startup**:
+
+```bash
+#!/bin/sh
+set -e
+yarn backend sequelize-cli db:migrate   # Runs on every pod start
+yarn backend sequelize-cli db:seed:all
+yarn backend start
+```
+
+Running a separate migration job created:
+- Race conditions (job and pods both running migrations)
+- PVC persistence issues causing password mismatches
+- Unnecessary complexity (extra ServiceAccount, hook management)
+
+Sequelize's migration tracking (`SequelizeMeta` table) makes repeated migration runs safe and idempotent.
+
+### Migration Path
+
+**No action required for existing deployments.**
+
+Migrations continue to run automatically on every pod startup, as they always have. The separate job was redundant with this built-in behavior.
+
+### Similar Applications
+
+This approach matches other Node.js/Sequelize applications in the Helm ecosystem:
+- Ghost CMS
+- Directus
+- Strapi
+
+For detailed information, see:
+- `docs/content/4.helm-chart/database-migrations.md` - User documentation
+- `MIGRATION-JOB-RESEARCH.md` - Research and design decision rationale
+
+---
+
 # 3.1.10
 Add external interfaces variables, specifically variables for splunk and tenable urls @georgedias
 
