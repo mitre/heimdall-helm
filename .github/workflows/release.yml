@@ -29,10 +29,6 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
         uses: azure/setup-helm@v4
 
-      - name: Change directories to where the charts are defined so the action can find the changed files properly
-        run: |
-          cd heimdall2
-
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.7.0
         with:

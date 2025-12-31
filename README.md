@@ -1,5 +1,7 @@
 # heimdall2-helm
 
+[![Test Helm Chart](https://github.com/mitre/heimdall-helm/actions/workflows/test.yml/badge.svg)](https://github.com/mitre/heimdall-helm/actions/workflows/test.yml)
+
 A Helm chart for the [MITRE SAF Heimdall application](https://github.com/mitre/heimdall2).
 
 ## Requirements

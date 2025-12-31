@@ -1,0 +1,172 @@
+name: Test Helm Chart
+
+on:
+  pull_request:
+    paths:
+      - 'heimdall/**'
+      - '.github/workflows/test.yml'
+  push:
+    branches:
+      - main
+      - develop
+    paths:
+      - 'heimdall/**'
+      - '.github/workflows/test.yml'
+
+jobs:
+  # Stage 1: Lint (< 10s)
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Lint chart with helm lint --strict
+        run: helm lint ./heimdall --strict
+
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint YAML files
+        run: yamllint -d relaxed heimdall/
+
+  # Stage 2: Unit Tests (< 60s)
+  unit-test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Install helm-unittest plugin
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest
+
+      - name: Run unit tests
+        run: helm unittest ./heimdall
+
+  # Stage 3: Schema Validation (< 5s)
+  schema-validation:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Validate values.schema.json
+        run: |
+          helm template heimdall ./heimdall --validate
+
+      - name: Test invalid values are rejected
+        run: |
+          # Test that invalid nodeEnv is rejected
+          if helm template heimdall ./heimdall --set nodeEnv=invalid 2>&1 | grep -q "values don't meet the specifications"; then
+            echo "✓ Schema validation working - rejected invalid nodeEnv"
+          else
+            echo "✗ Schema validation failed - should reject invalid nodeEnv"
+            exit 1
+          fi
+
+  # Stage 4: Integration Tests (2-5 min)
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: [unit-test, schema-validation]
+    strategy:
+      matrix:
+        k8s-version:
+          - v1.28.0
+          - v1.29.0
+          - v1.30.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.7.0
+
+      - name: Create kind cluster (Kubernetes ${{ matrix.k8s-version }})
+        uses: helm/kind-action@v1.10.0
+        with:
+          node_image: kindest/node:${{ matrix.k8s-version }}
+          cluster_name: heimdall-test
+          wait: 120s
+
+      - name: List changed charts
+        id: list-changed
+        run: |
+          changed=$(ct list-changed --config .github/ct.yaml --target-branch ${{ github.event.repository.default_branch }})
+          if [[ -n "$changed" ]]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run chart-testing (install)
+        if: steps.list-changed.outputs.changed == 'true'
+        run: ct install --config .github/ct.yaml
+
+  # Stage 5: Template Rendering Tests
+  template-test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Update chart dependencies
+        run: helm dependency update ./heimdall
+
+      - name: Test template rendering (embedded PostgreSQL)
+        run: |
+          helm template heimdall ./heimdall > /tmp/heimdall-embedded.yaml
+          echo "✓ Template rendered successfully with embedded PostgreSQL"
+
+      - name: Test template rendering (external database)
+        run: |
+          helm template heimdall ./heimdall \
+            --set postgresql.enabled=false \
+            --set externalDatabase.host=db.example.com \
+            --set externalDatabase.database=heimdall_prod \
+            --set externalDatabase.username=heimdall_user \
+            > /tmp/heimdall-external.yaml
+          echo "✓ Template rendered successfully with external database"
+
+      - name: Test template rendering (with ingress)
+        run: |
+          helm template heimdall ./heimdall \
+            --set heimdall.ingress.enabled=true \
+            --set 'heimdall.ingress.hosts[0].host=heimdall.example.com' \
+            --set 'heimdall.ingress.hosts[0].paths[0].path=/' \
+            > /tmp/heimdall-ingress.yaml
+          echo "✓ Template rendered successfully with ingress enabled"
+
+      - name: Verify kubectl dry-run
+        run: |
+          kubectl apply --dry-run=client -f /tmp/heimdall-embedded.yaml
+          echo "✓ Manifests are valid Kubernetes resources"

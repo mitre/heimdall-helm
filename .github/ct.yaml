@@ -1,0 +1,40 @@
+# chart-testing (ct) configuration
+# https://github.com/helm/chart-testing
+
+# Target branches for detecting changed charts
+target-branch: main
+remote: origin
+
+# Chart directories to process
+chart-dirs:
+  - .
+
+# Charts to exclude from testing
+excluded-charts: []
+
+# Helm version to use
+helm-version: v3.14.0
+
+# Enable chart schema validation
+validate-chart-schema: true
+
+# Enable values schema validation (values.schema.json)
+validate-maintainers: false
+
+# Check version increments
+check-version-increment: true
+
+# Upgrade testing
+upgrade: false  # Will enable in separate upgrade test job
+
+# Additional Helm install arguments
+helm-extra-args: --timeout 600s
+
+# Namespace for chart installation
+namespace: heimdall-test
+
+# Create namespace if it doesn't exist
+create-namespace: true
+
+# Release name
+release-label: app.kubernetes.io/instance
