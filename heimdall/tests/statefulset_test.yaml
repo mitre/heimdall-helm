@@ -61,11 +61,11 @@ tests:
           path: spec.template.spec.containers[0].name
           value: heimdall-front
 
-  - it: should use default image heimdall-app:arm64-test
+  - it: should use default image mitre/heimdall2:release-latest
     asserts:
       - equal:
           path: spec.template.spec.containers[0].image
-          value: "heimdall-app:arm64-test"
+          value: "mitre/heimdall2:release-latest"
 
   #
   # Test 6: Health Probes
