@@ -45,12 +45,12 @@ databaseUsername: postgres
 # forceTenableFrontend: default false (If true, the frontend will use Tenable.SC Lite features
 
 # ldapEnabled: default false
-# ldapHost: url # Must be set if using LDAP 
+# ldapHost: url # Must be set if using LDAP
 # ldapPort: default 389
 # ldapBindDn: Dn of user used for lookups # Must be set if using LDAP
 # ldapPassword: user's password # Must be set if using LDAP
-# ldapSearchBase: ex. "OU=Users, DC=<yourdomain>, DC=local" # Must be set if using LDAP 
-# ldapSearchFilter: ex. "sAMAccountName={{username}}"  
+# ldapSearchBase: ex. "OU=Users, DC=<yourdomain>, DC=local" # Must be set if using LDAP
+# ldapSearchFilter: ex. "sAMAccountName={{username}}"
 # ldapNameField: default name
 # ldapMailField: default mail
 # ldapSsl: default false
@@ -174,7 +174,7 @@ externalDatabase:
   # Secret must have key matching existingSecretPasswordKey
   existingSecret: ""
   # -- Key in existingSecret that contains the password
-  existingSecretPasswordKey: "password" 
+  existingSecretPasswordKey: "password"
 
 # ===========================================================================
 # Custom CA Certificates (Optional)
@@ -214,7 +214,7 @@ extraCertificates:
     # corporate-intermediate.pem: |
     #   -----BEGIN CERTIFICATE-----
     #   MIIEFzCCAv+gAwIBAgIQB/L...
-    #   -----END CERTIFICATE----- 
+    #   -----END CERTIFICATE-----
 
 heimdall:
   image:
@@ -339,22 +339,22 @@ heimdall:
       # - secretName: heimdall-tls
       #   hosts:
       #     - heimdall.example.com
-  
+
 # Introducing this tag utilizes the gateway API instead of the ingress API.
 # Both cannot be used at the same time.
   gateway:
     enabled: false
-#    apiVersion: 
-#    kind: VirtualService 
-    
+#    apiVersion:
+#    kind: VirtualService
+
 #    gateways:
 #       List of gateways
 #      hosts:
 #         List of hostsnames that the gateway handles traffic for
-#        - 
+#        -
 #      http: Route Config
 #        - name: Name for the route group
-#          route: 
+#          route:
 #            - destination:
 #                host: Service name within cluster
 #                port: Port number of service
