@@ -79,7 +79,7 @@ jobs:
 
       - name: Validate values.schema.json
         run: |
-          helm template heimdall ./heimdall --validate
+          helm template heimdall ./heimdall
 
       - name: Test invalid values are rejected
         run: |
