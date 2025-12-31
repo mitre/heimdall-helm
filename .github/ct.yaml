@@ -28,7 +28,7 @@ check-version-increment: true
 upgrade: false  # Will enable in separate upgrade test job
 
 # Additional Helm install arguments
-helm-extra-args: --timeout 600s
+helm-extra-args: --timeout 600s --create-namespace
 
 # Namespace for chart installation
 namespace: heimdall-test

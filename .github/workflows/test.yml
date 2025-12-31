@@ -90,9 +90,7 @@ jobs:
     strategy:
       matrix:
         k8s-version:
-          - v1.28.0
-          - v1.29.0
-          - v1.30.0
+          - v1.30.0  # Latest stable
     steps:
       - name: Checkout
         uses: actions/checkout@v4

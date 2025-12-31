@@ -332,7 +332,7 @@ Contributions welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guideli
 
 ## License
 
-Apache 2.0
+See [LICENSE.md](LICENSE.md)
 
 ## Maintainers
 

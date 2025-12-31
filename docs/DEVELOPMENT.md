@@ -72,6 +72,25 @@ brew install steveyegge/beads/bd
 # Download from https://github.com/steveyegge/beads/releases
 ```
 
+### Testing Tools (Required for Development)
+
+```bash
+# helm-unittest - Unit testing for Helm charts
+helm plugin install https://github.com/helm-unittest/helm-unittest
+
+# chart-testing (ct) - Integration testing
+brew install chart-testing  # macOS
+# Or download from https://github.com/helm/chart-testing/releases
+
+# yamllint - YAML linting (required by ct)
+brew install yamllint  # macOS
+pip install yamllint   # Linux/Windows
+
+# kind - Kubernetes in Docker (for integration tests)
+brew install kind  # macOS
+# Or download from https://kind.sigs.k8s.io/docs/user/quick-start/#installation
+```
+
 ### Optional Tools
 
 ```bash
@@ -85,10 +104,6 @@ brew install k9s  # macOS
 
 # kubectx/kubens (context switching)
 brew install kubectx  # macOS
-
-# yamllint (YAML validation)
-brew install yamllint  # macOS
-pip install yamllint   # Linux/Windows
 ```
 
 ## Local Kubernetes Cluster Setup
