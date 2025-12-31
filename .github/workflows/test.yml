@@ -5,6 +5,7 @@ on:
     paths:
       - 'heimdall/**'
       - '.github/workflows/test.yml'
+      - '.github/ct.yaml'
   push:
     branches:
       - main
@@ -12,6 +13,7 @@ on:
     paths:
       - 'heimdall/**'
       - '.github/workflows/test.yml'
+      - '.github/ct.yaml'
 
 jobs:
   # Stage 1: Lint (< 10s)
