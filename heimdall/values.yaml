@@ -398,22 +398,41 @@ heimdall:
 
   affinity: {}
 
+  # ===========================================================================
+  # Health Probes
+  # ===========================================================================
+  # Startup probe: Handles slow initial startup (database migrations)
+  # Liveness probe: Detects if application is stuck/deadlocked
+  # Readiness probe: Determines if pod can receive traffic
+
+  startupProbe:
+    enabled: true
+    httpGet:
+      path: /
+      port: 3000
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 5
+    # Allow up to 6 minutes for startup (36 checks * 10s = 360s)
+    # Heimdall runs Sequelize migrations on startup which can take time
+    failureThreshold: 36
+
   livenessProbe:
     httpGet:
       path: /
       port: 3000
-    initialDelaySeconds: 80
+    initialDelaySeconds: 0  # Startup probe handles initial delay
     periodSeconds: 10
-    timeoutSeconds: 15
+    timeoutSeconds: 5
     failureThreshold: 3
 
   readinessProbe:
     httpGet:
       path: /
       port: 3000
-    initialDelaySeconds: 80
+    initialDelaySeconds: 0  # Startup probe handles initial delay
     periodSeconds: 10
-    timeoutSeconds: 15
+    timeoutSeconds: 5
     failureThreshold: 3
 
   imagePullSecrets: []

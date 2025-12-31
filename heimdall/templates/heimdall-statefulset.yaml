@@ -28,8 +28,21 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.heimdall.podSecurityContext | nindent 8 }}
-      {{- if .Values.extraCertificates.enabled }}
       initContainers:
+        # Wait for PostgreSQL to be ready before starting Heimdall
+        - name: wait-for-db
+          image: postgres:16-alpine
+          command:
+            - sh
+            - -c
+            - |
+              until pg_isready -h {{ include "heimdall.databaseHost" . }} -p {{ include "heimdall.databasePort" . }} -U {{ include "heimdall.databaseUsername" . }}; do
+                echo "Waiting for PostgreSQL at {{ include "heimdall.databaseHost" . }}:{{ include "heimdall.databasePort" . }}..."
+                sleep 5
+              done
+              echo "PostgreSQL is ready!"
+        {{- if .Values.extraCertificates.enabled }}
+        # Concatenate CA certificates into single bundle
         - name: concat-ca-certs
           image: busybox:latest
           command:
@@ -110,6 +123,17 @@ spec:
                 key: {{ .Values.externalDatabase.existingSecretPasswordKey | default "password" }}
           {{- end }}
           # Pattern 3: External DB without existing secret - comes from envFrom heimdall-secrets above
+          {{- if .Values.heimdall.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.heimdall.startupProbe.httpGet.path }}
+              port: {{ .Values.heimdall.startupProbe.httpGet.port }}
+            initialDelaySeconds: {{ .Values.heimdall.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.heimdall.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.heimdall.startupProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.heimdall.startupProbe.failureThreshold }}
+          {{- end }}
+
           livenessProbe:
             {{- with .Values.heimdall.livenessProbe }}
             httpGet:
