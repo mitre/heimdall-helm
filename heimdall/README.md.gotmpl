@@ -1,0 +1,146 @@
+{{ template "chart.header" . }}
+
+{{ template "chart.badgesSection" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.homepageLine" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+## Quick Start
+
+### Prerequisites
+
+- Kubernetes 1.28+
+- Helm 3.x or 4.x
+- PostgreSQL 16+ (embedded via Bitnami subchart or external)
+
+### Installation
+
+```bash
+# Add MITRE Helm repository
+helm repo add mitre https://mitre.github.io/heimdall-helm
+helm repo update
+
+# Install with default values (embedded PostgreSQL)
+helm install heimdall mitre/heimdall -n heimdall --create-namespace
+
+# Install with external database
+helm install heimdall mitre/heimdall -n heimdall --create-namespace \
+  --set postgresql.enabled=false \
+  --set externalDatabase.host=db.example.com \
+  --set externalDatabase.database=heimdall_production \
+  --set externalDatabase.username=heimdall_user \
+  --set externalDatabase.password=secure_password
+```
+
+### Accessing Heimdall
+
+```bash
+# Port forward for local access
+kubectl port-forward -n heimdall svc/heimdall 3000:3000
+
+# Visit http://localhost:3000
+```
+
+## Configuration Examples
+
+### Enable Ingress with TLS
+
+```yaml
+heimdall:
+  ingress:
+    enabled: true
+    className: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    hosts:
+      - host: heimdall.example.com
+        paths:
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: heimdall-tls
+        hosts:
+          - heimdall.example.com
+```
+
+### External Database
+
+```yaml
+postgresql:
+  enabled: false
+
+externalDatabase:
+  host: db.example.com
+  port: 5432
+  database: heimdall_production
+  username: heimdall_user
+  password: secure_password
+```
+
+### Custom CA Certificates
+
+```yaml
+extraCertificates:
+  enabled: true
+  certificates:
+    corporate-ca.crt: |
+      -----BEGIN CERTIFICATE-----
+      ... your CA certificate ...
+      -----END CERTIFICATE-----
+```
+
+### High Availability
+
+```yaml
+heimdall:
+  replicaCount: 3
+  
+  podDisruptionBudget:
+    enabled: true
+    minAvailable: 2
+  
+  autoscaling:
+    enabled: true
+    minReplicas: 3
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+```
+
+## Documentation
+
+For comprehensive documentation, see:
+- **Getting Started**: https://mitre.github.io/heimdall-helm/getting-started
+- **Configuration Guide**: https://mitre.github.io/heimdall-helm/helm-chart/configuration
+- **Ingress & TLS**: https://mitre.github.io/heimdall-helm/helm-chart/ingress-tls
+- **High Availability**: https://mitre.github.io/heimdall-helm/helm-chart/high-availability
+
+## Testing
+
+```bash
+# Lint the chart
+helm lint ./heimdall --strict
+
+# Unit tests (requires helm-unittest plugin)
+helm unittest ./heimdall
+
+# Install and test
+helm install heimdall ./heimdall -n heimdall-test --create-namespace
+helm test heimdall -n heimdall-test
+```
+
+{{ template "chart.valuesSection" . }}
+
+## License
+
+Apache 2.0 - See LICENSE.md for details
+
+---
+
+Generated with [helm-docs](https://github.com/norwoodj/helm-docs)
