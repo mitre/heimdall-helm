@@ -28,40 +28,36 @@ spec:
       {{- end }}
       securityContext:
         {{- toYaml .Values.heimdall.podSecurityContext | nindent 8 }}
+      {{- if .Values.extraCertificates.enabled }}
+      initContainers:
+        - name: concat-ca-certs
+          image: busybox:latest
+          command:
+            - sh
+            - -c
+            - |
+              # Concatenate all CA certificates from ConfigMap into single bundle file
+              cat /tmp/ca-source/*.crt /tmp/ca-source/*.pem > /tmp/ca-certs/ca-bundle.pem 2>/dev/null || true
+              echo "CA bundle created with $(grep -c 'BEGIN CERTIFICATE' /tmp/ca-certs/ca-bundle.pem 2>/dev/null || echo 0) certificate(s)"
+          volumeMounts:
+            - name: ca-certificates-source
+              mountPath: /tmp/ca-source
+              readOnly: true
+            - name: ca-certificates
+              mountPath: /tmp/ca-certs
+      {{- end }}
       volumes:
         - name: yarn-cache
           emptyDir: {}
         - name: yarn-tmp
           emptyDir: {}
-        {{ if .Values.certs.enabled -}}        
-        - name: injected-certs
+        {{- if .Values.extraCertificates.enabled }}
+        - name: ca-certificates-source
           configMap:
-            name: {{ .Values.certs.name }}
-        {{- if .Values.certs.systemCertsApproach.enabled}}    
-        {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
-        - name: "processed-certs-{{ $index }}"
-          emptyDir:
+            name: {{ .Values.extraCertificates.configMapName | default (printf "%s-ca-certs" (include "heimdall.fullname" .)) }}
+        - name: ca-certificates
+          emptyDir: {}
         {{- end }}
-        {{- end }}
-        {{- end }}
-      {{- if and .Values.certs.systemCertsApproach.enabled .Values.certs.enabled }}
-      initContainers:
-        - name: setup-certs
-          securityContext:
-            {{- toYaml .Values.certs.systemCertsApproach.securityContext | nindent 12 }}
-          image: "{{ .Values.certs.systemCertsApproach.image.repository }}:{{ .Values.certs.systemCertsApproach.image.tag }}"
-          resources:
-            {{- toYaml .Values.certs.systemCertsApproach.resources | nindent 12 }}
-          imagePullPolicy: {{ .Values.certs.systemCertsApproach.image.pullPolicy }}
-          command: {{ .Values.certs.systemCertsApproach.command }}
-          volumeMounts:
-            - name: injected-certs
-              mountPath: {{ .Values.certs.systemCertsApproach.injectedCertsMountPath }}
-            {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
-            - name: "processed-certs-{{ $index }}"
-              mountPath: {{ $path }}
-            {{- end }}
-      {{- end }}
       containers:
         - name: heimdall-front
           securityContext:
@@ -78,17 +74,10 @@ spec:
               mountPath: /home/node/.cache
             - name: yarn-tmp
               mountPath: /tmp
-            {{- if .Values.certs.enabled }}
-            {{- if .Values.certs.systemCertsApproach.enabled }}
-            {{- range $index, $path := .Values.certs.systemCertsApproach.processedCertsMountPaths }}
-            - name: "processed-certs-{{ $index }}"
-              mountPath: {{ $path }}
+            {{- if .Values.extraCertificates.enabled }}
+            - name: ca-certificates
+              mountPath: /usr/local/share/ca-certificates
               readOnly: true
-            {{- end }}    
-            {{- else }}
-            - name: "injected-certs"
-              mountPath: /home/node/certs
-            {{- end }}
             {{- end }}
           # ===================================================================
           # Environment Variables - Load from ConfigMap and Secret
@@ -100,11 +89,9 @@ spec:
           - secretRef:
               name: {{ ternary .Values.heimdall.existingSecret (printf "%s-secrets" (include "heimdall.fullname" .)) (not (empty .Values.heimdall.existingSecret)) }}
           env:
-          {{- if and (not .Values.certs.systemCertsApproach.enabled) .Values.certs.enabled }}
+          {{- if .Values.extraCertificates.enabled }}
           - name: NODE_EXTRA_CA_CERTS
-            value: /home/node/certs/certs.pem
-          - name: SSL_CERT_FILE
-            value: /home/node/certs/certs.pem
+            value: /usr/local/share/ca-certificates/ca-bundle.pem
           {{- end }}
           # DATABASE_PASSWORD injection based on deployment pattern
           # Pattern 1: Embedded PostgreSQL - reference Bitnami's secret

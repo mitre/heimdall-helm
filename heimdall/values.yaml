@@ -176,43 +176,45 @@ externalDatabase:
   # -- Key in existingSecret that contains the password
   existingSecretPasswordKey: "password" 
 
-certs:
-  enabled: false # Using this allows you to override the pre-baked system certs on the heimdall container.
-  systemCertsApproach:
-    enabled: false # If enabled, this system-certificates approach will generate a new set of system certificates with your provided certificates injected inside within an init container. Those system certificates will be overlaid on top of the Heimdall container's system certificates. If this is disabled, then the certificate that is provided will be injected into a location within the Heimdall container and will have the NODE_EXTRA_CA_CERTS and SSL_CERT_FILE environment variables pointed at it. Please note this non-system-certificates approach requires all certificates to be placed in a single .pem file. 
-    image: # which image with root/sufficient privileges will be used to take the injected certs and process them into the locations that the system will be looking for
-      repository: registry.access.redhat.com/ubi8/ubi # the default Heimdall image is currently built on UBI 8
-      pullPolicy: Always
-      tag: "latest"
-    command: "['sh', '-c', 'update-ca-trust']" # RHEL style distros use the `update-ca-trust` command to update the system CA trust store
-    injectedCertsMountPath: /etc/pki/ca-trust/source/anchors # the location that `update-ca-trust` looks inside for user supplied certs
-    processedCertsMountPaths: [/etc/pki/ca-trust/extracted/openssl, /etc/pki/ca-trust/extracted/pem, /etc/pki/ca-trust/extracted/java, /etc/pki/ca-trust/extracted/edk2] # due to the chart using `emptyDir` (which supplies a completely blank dir) to specify the shared volumes between this container and Heimdall's, and due to `update-ca-trust` apparently requiring several subdirectories underneath /etc/pki/ca-trust/extracted to exist, we need to manually specify each subdirectory
-#    securityContext: 
-#      runAsNonRoot: true
-#      runAsGroup: 1001
-#      runAsUser: 1001
-#      readOnlyRootFileSystem: false
-#    resources:
-#      limits:
-#        cpu: 1000m
-#        memory: 8Gi
-#      requests:
-#        cpu: 1000m
-#        memory: 8Gi
-#  securityContext:
-#    runAsRoot: true
-#  resources:
-#    limits:
-#      memory: "128Mi"
-#      cpu: "500m"
+# ===========================================================================
+# Custom CA Certificates (Optional)
+# ===========================================================================
+# For corporate MITM proxies, internal APIs with custom CA, private registries
+#
+# How it works:
+#   1. Certificates stored in ConfigMap (individual .crt or .pem files)
+#   2. Init container concatenates all certificates into single ca-bundle.pem
+#   3. NODE_EXTRA_CA_CERTS points to the concatenated bundle file
+#
+# This approach supports multiple certificates while working with Node.js's
+# requirement that NODE_EXTRA_CA_CERTS must point to a single file.
+extraCertificates:
+  # -- Enable custom CA certificate injection
+  enabled: false
 
-  name: heimdall-cacerts # name of the configmap that will include all the certs' file contents
-  certificates: 
-    # if systemsCertsApproach is enabled, you can provide an array of certificates, otherwise, you must put all certificates into a single .pem file
-    # an example way to combine the certificates is `cat cert1.crt cert2.crt > certs.pem`
-    - filename: certs.pem
-      contents: |
-        replace with certificate file contents 
+  # -- Name of existing ConfigMap containing CA certificates (.crt or .pem files)
+  # The ConfigMap should be created in the same namespace as Heimdall
+  # Example: kubectl create configmap custom-ca-certs --from-file=mitre-ca.crt -n heimdall
+  # All certificates will be concatenated into a single bundle file at runtime
+  configMapName: ""
+
+  # -- Or provide certificates directly (chart will create ConfigMap)
+  # Supports multiple certificates with any filename (.crt or .pem extensions)
+  # All certificates will be automatically concatenated into ca-bundle.pem
+  certificates: {}
+    # Example:
+    # mitre-ca.crt: |
+    #   -----BEGIN CERTIFICATE-----
+    #   MIIDXTCCAkWgAwIBAgIJAKJ...
+    #   -----END CERTIFICATE-----
+    # dod-root.crt: |
+    #   -----BEGIN CERTIFICATE-----
+    #   MIIEFzCCAv+gAwIBAgIQB/L...
+    #   -----END CERTIFICATE-----
+    # corporate-intermediate.pem: |
+    #   -----BEGIN CERTIFICATE-----
+    #   MIIEFzCCAv+gAwIBAgIQB/L...
+    #   -----END CERTIFICATE----- 
 
 heimdall:
   image:

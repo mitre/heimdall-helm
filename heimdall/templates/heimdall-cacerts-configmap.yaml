@@ -1,11 +1,13 @@
-{{- if .Values.certs.enabled }}
+{{- if and .Values.extraCertificates.enabled (not .Values.extraCertificates.configMapName) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  creationTimestamp: null
-  name: {{ .Values.certs.name }}
+  name: {{ include "heimdall.fullname" . }}-ca-certs
+  labels:
+    {{- include "heimdall.labels" . | nindent 4 }}
 data:
-  {{- range .Values.certs.certificates }}
-  {{ .filename }}: {{ .contents | toYaml | indent 2 }}
+  {{- range $filename, $content := .Values.extraCertificates.certificates }}
+  {{ $filename }}: |
+{{ $content | indent 4 }}
   {{- end }}
 {{- end }}
