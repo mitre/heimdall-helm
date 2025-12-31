@@ -71,6 +71,9 @@ jobs:
         with:
           version: v3.14.0
 
+      - name: Add Bitnami Helm repository
+        run: helm repo add bitnami https://charts.bitnami.com/bitnami
+
       - name: Build chart dependencies
         run: helm dependency build ./heimdall
 
@@ -141,6 +144,9 @@ jobs:
         uses: azure/setup-helm@v4
         with:
           version: v3.14.0
+
+      - name: Add Bitnami Helm repository
+        run: helm repo add bitnami https://charts.bitnami.com/bitnami
 
       - name: Update chart dependencies
         run: helm dependency update ./heimdall
