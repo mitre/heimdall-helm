@@ -435,5 +435,29 @@ heimdall:
     timeoutSeconds: 5
     failureThreshold: 3
 
+  # ===========================================================================
+  # PodDisruptionBudget (High Availability)
+  # ===========================================================================
+  # Prevents disruptions during voluntary events (node drains, upgrades)
+  # Only relevant when running multiple replicas (replicaCount > 1)
+  podDisruptionBudget:
+    enabled: false
+    # Ensure at least 1 pod is available during disruptions
+    minAvailable: 1
+    # Or use maxUnavailable instead (cannot use both)
+    # maxUnavailable: 1
+
+  # ===========================================================================
+  # HorizontalPodAutoscaler (Auto-scaling)
+  # ===========================================================================
+  # Automatically scales pods based on CPU/memory usage
+  # Requires metrics-server to be installed in the cluster
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 3
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
   imagePullSecrets: []
 #     - name: your-secret-name

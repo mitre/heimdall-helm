@@ -1,0 +1,19 @@
+{{- if .Values.heimdall.podDisruptionBudget.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "heimdall.fullname" . }}
+  labels:
+    {{- include "heimdall.labels" . | nindent 4 }}
+spec:
+  {{- if .Values.heimdall.podDisruptionBudget.minAvailable }}
+  minAvailable: {{ .Values.heimdall.podDisruptionBudget.minAvailable }}
+  {{- end }}
+  {{- if .Values.heimdall.podDisruptionBudget.maxUnavailable }}
+  maxUnavailable: {{ .Values.heimdall.podDisruptionBudget.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "heimdall.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: heimdall
+{{- end }}
