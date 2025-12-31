@@ -1,128 +1,346 @@
-# heimdall2-helm
+# Heimdall Helm Chart
 
 [![Test Helm Chart](https://github.com/mitre/heimdall-helm/actions/workflows/test.yml/badge.svg)](https://github.com/mitre/heimdall-helm/actions/workflows/test.yml)
 
-A Helm chart for the [MITRE SAF Heimdall application](https://github.com/mitre/heimdall2).
+A Helm chart for deploying the [MITRE SAF Heimdall](https://github.com/mitre/heimdall2) security results visualization application to Kubernetes.
 
-## Requirements
+**Chart Version**: 1.0.0
+**App Version**: release-latest
+**Kubernetes**: 1.28+ (tested on 1.28, 1.29, 1.30)
+**Helm**: 3.14+
 
-Written for Helm 3.
+## Quick Start
 
-## Example use
-
-You can clone this repo, enter the repository folder and then execute something like the [start_heimdall2.sh](start_heimdall2.sh):
-
-```
-./start_heimdall2.sh
-```
-
-The script will spin up Heimdall using the example [values.yaml](heimdall/values.yaml) values file.  You will need
-to provide your own if you want to configure other settings, and ingress, etc.  Look at the [values.yaml](heimdall/values.yaml)
-file for what to place in your own.
-
-To generate the postgres user's password consider using
+### Install from Helm Repository
 
 ```bash
-openssl rand -hex 33
-```
-
-And to to generate a value for JWS_SECRET consider using
-
-```bash
-openssl rand -hex 64
-```
-
-The start_heimdall.sh script generates some of these values for you, and demonstrates how to pass in values from the cli instead of using the values.yaml file via the `--set` flag.
-
-## To install via MITRE chart repository
-
-```
-helm repo add heimdall2-helm https://mitre.github.io/heimdall2-helm/
+# Add the Heimdall Helm repository
+helm repo add heimdall https://mitre.github.io/heimdall-helm/
 helm repo update
-helm search repo heimdall2
-wget https://raw.githubusercontent.com/mitre/heimdall2-helm/main/values.yaml
-vi values.yaml # configure values.yaml for your organization
-helm install heimdall heimdall2-helm/heimdall --namespace heimdall --create-namespace -f values.yaml
-watch -n 15 kubectl get pods -n heimdall
+
+# Search for available versions
+helm search repo heimdall
+
+# Install with default values (embedded PostgreSQL)
+helm install heimdall heimdall/heimdall \
+  --namespace heimdall \
+  --create-namespace
+
+# Watch pods starting up
+kubectl get pods -n heimdall -w
 ```
 
-Give it time for Heimdall2 to come fully up.  It has to "migrate" data, and the frontend site needs to build. It takes a few minutes.
+**Note**: Heimdall takes 2-3 minutes to start fully as it runs database migrations and builds the frontend.
 
-## Accessing Heimdall2
+### Install from Source
 
-If you've spun up Heimdall2 using the [start_heimdall2.sh](start_heimdall2.sh) script, you can access it in your
-browser via exposing via `kubectl port-forward` like so
+```bash
+# Clone the repository
+git clone https://github.com/mitre/heimdall-helm.git
+cd heimdall-helm
 
+# Generate secrets (required)
+./generate-heimdall-secrets.sh
+
+# Install the chart
+helm install heimdall ./heimdall \
+  --namespace heimdall \
+  --create-namespace \
+  --values heimdall/env/heimdall-secrets.yaml
+
+# Check deployment status
+kubectl get pods -n heimdall -w
 ```
-kubectl port-forward -n heimdall service/heimdall 8081:3000
+
+## Accessing Heimdall
+
+### Port Forward (Development/Testing)
+
+```bash
+kubectl port-forward -n heimdall service/heimdall 3000:3000
 ```
 
-then open in your browser [http://localhost:8081](http://localhost:8081)
+Then open [http://localhost:3000](http://localhost:3000) in your browser.
 
-Or configure an ingress via your values file by adding an `ingress` configuration under
-`heimdall` in your values file likes so:
+### Ingress (Production)
 
-```
+Configure ingress in your `values.yaml`:
+
+```yaml
 heimdall:
   ingress:
     enabled: true
-    annotations:
-      traefik.ingress.kubernetes.io/router.entrypoints: web
+    className: nginx  # or traefik, etc.
     hosts:
       - host: heimdall.example.com
         paths:
-          -  "/"
-    tls: []
+          - path: /
+            pathType: Prefix
+    tls:
+      - secretName: heimdall-tls
+        hosts:
+          - heimdall.example.com
 ```
 
-This example uses Traefik to expose the ingress.  Configuring Traefik is out of scope of this 
-readme.
+Apply the configuration:
 
-## SOPS
-You have the choice of secret handling within this repo, either internally or using SOPS encryption.
-
-Using SOPS, the secrets are encrypted and are exposed via a Secret resource in a separate pod.
-
-If you do not wish to use SOPS encryption, the secrets can be kept in plain text in the values.yml file where they will be injected into the internally defined Secret resource.
-
-There should only be the one Secret resource. Please ensure that if you are enabling SOPS, that the SOPS Secret has the equivalent name as the template for "heimdall.fullname" (which by default is "heimdall2") and it is in the same namespace as the Heimdall application.
-
-## How to use SOPS
-
-### Install Kustomize
-
-https://github.com/kubernetes-sigs/kustomize
-
-### Install the SOPS application
-
-https://github.com/getsops/sops?tab=readme-ov-file#usage
-
-### Create SOPS config (AWS KMS Example)
-
-```
-cat <<EOF > .sops.yaml
-creation_rules:
-- path_regex: ./sops/.*
-  kms: arn:
-EOF
+```bash
+helm upgrade heimdall ./heimdall \
+  --namespace heimdall \
+  --values values.yaml
 ```
 
-### Create the sops file using your default editor.
+See [Ingress Documentation](docs/content/4.helm-chart/8.ingress.md) for detailed configuration options.
 
+## Configuration
+
+### Secrets Management
+
+This chart provides three approaches for managing secrets (in priority order):
+
+1. **Existing Secret** (Production - Recommended)
+   ```yaml
+   heimdall:
+     existingSecret: heimdall-secrets  # Managed externally
+   ```
+
+2. **File-Based Secrets** (Development)
+   ```bash
+   ./generate-heimdall-secrets.sh  # Creates heimdall/env/heimdall-secrets.yaml
+   helm install heimdall ./heimdall --values heimdall/env/heimdall-secrets.yaml
+   ```
+
+3. **Inline Secrets** (CI/CD)
+   ```bash
+   helm install heimdall ./heimdall \
+     --set heimdall.secrets.JWT_SECRET="$(openssl rand -hex 64)" \
+     --set heimdall.secrets.DATABASE_PASSWORD="$(openssl rand -hex 33)"
+   ```
+
+**Required Secrets:**
+- `JWT_SECRET` - Session token signing (128+ chars recommended)
+- `DATABASE_PASSWORD` - PostgreSQL password
+- `ADMIN_PASSWORD` - Initial admin user password
+
+See [Secrets Documentation](docs/content/4.helm-chart/2.secrets.md) for complete details.
+
+### Database Options
+
+#### Embedded PostgreSQL (Default)
+
+Uses Bitnami PostgreSQL subchart - production-ready with built-in HA support:
+
+```yaml
+postgresql:
+  enabled: true
+  auth:
+    database: heimdall
+    username: postgres
 ```
-sops sops/sops-secrets.enc.yaml
+
+#### External Database
+
+```yaml
+postgresql:
+  enabled: false
+
+externalDatabase:
+  host: postgres.example.com
+  port: 5432
+  database: heimdall_production
+  username: heimdall_app
+  # Password from secrets
 ```
 
-### Specify the secrets you want encrypted
+See [Database Documentation](docs/content/4.helm-chart/6.database.md) for HA configurations and backup strategies.
 
+### Values Schema Validation
+
+This chart includes JSON Schema validation (`values.schema.json`) that validates 95+ configuration parameters:
+
+```bash
+# This will be rejected:
+helm install heimdall ./heimdall --set nodeEnv=invalid
+# Error: value must be one of 'production', 'development', 'test'
 ```
-adminPassword: <your-password>
-... other secrets ...
+
+See [Values Schema Documentation](docs/content/4.helm-chart/4.values-schema.md).
+
+## Example Scripts
+
+### Quick Install Script
+
+The `start-heimdall.sh` script demonstrates installation with generated secrets:
+
+```bash
+./start-heimdall.sh
 ```
 
-### Modify the secrets-generator.yml to have the correct Secret name and namespace
+**Note**: This script uses legacy parameter names. For new deployments, use `generate-heimdall-secrets.sh` instead.
 
-## Author Information
+### Secret Generation
 
-* Michael Joseph Walsh <mjwalsh@nemonik.com>
-* MITRE SAF team <saf@mitre.org>
+Generate random secrets for production use:
+
+```bash
+# JWT secret (128 characters)
+openssl rand -hex 64
+
+# Database password (66 characters)
+openssl rand -hex 33
+
+# API key secret (66 characters)
+openssl rand -hex 33
+```
+
+Or use the provided script:
+
+```bash
+./generate-heimdall-secrets.sh
+# Creates: heimdall/env/heimdall-secrets.yaml (gitignored)
+```
+
+## Advanced Configuration
+
+### SOPS Encrypted Secrets
+
+The chart supports SOPS for encrypted secrets management:
+
+1. Install [SOPS](https://github.com/getsops/sops) and [Kustomize](https://github.com/kubernetes-sigs/kustomize)
+
+2. Create SOPS config (AWS KMS example):
+
+   ```yaml
+   # .sops.yaml
+   creation_rules:
+     - path_regex: ./sops/.*
+       kms: arn:aws:kms:us-east-1:123456789:key/your-kms-key-id
+   ```
+
+3. Create encrypted secrets:
+
+   ```bash
+   sops sops/secrets/heimdall-secrets.enc.yaml
+   ```
+
+4. Modify `sops/secrets-generator.yml` to match your Secret name and namespace
+
+5. Deploy with Kustomize:
+
+   ```bash
+   kustomize build sops/ | kubectl apply -f -
+   ```
+
+**Important**: The SOPS-generated Secret must have the same name as the Helm release (default: `heimdall`) and be in the same namespace.
+
+### Custom CA Certificates
+
+For environments with custom certificate authorities:
+
+```yaml
+extraCertificates:
+  enabled: true
+  certificates:
+    - |
+      -----BEGIN CERTIFICATE-----
+      your-ca-certificate-here
+      -----END CERTIFICATE-----
+```
+
+See [Custom CA Certificates Documentation](docs/content/4.helm-chart/10.custom-ca-certificates.md).
+
+### OAuth/OIDC Authentication
+
+Configure external authentication providers:
+
+```yaml
+heimdall:
+  config:
+    OAUTH_GITHUB_CLIENT_ID: "your-client-id"
+    # Add secrets to heimdall.secrets:
+  secrets:
+    OAUTH_GITHUB_CLIENT_SECRET: "your-client-secret"
+```
+
+Supported providers: GitHub, GitLab, Google, Okta OIDC, LDAP
+
+See [Configuration Documentation](docs/content/4.helm-chart/3.configuration.md) for all available options.
+
+## Testing
+
+This chart includes comprehensive testing:
+
+- **Unit Tests**: 92 tests with helm-unittest (100% template coverage)
+- **Schema Validation**: values.schema.json enforcement
+- **Integration Tests**: chart-testing with KIND (K8s 1.28/1.29/1.30)
+- **Template Validation**: Embedded/external DB, ingress scenarios
+
+### Run Tests Locally
+
+```bash
+# Install helm-unittest
+helm plugin install https://github.com/helm-unittest/helm-unittest
+
+# Run unit tests
+helm unittest ./heimdall
+
+# Lint chart
+helm lint ./heimdall --strict
+
+# Template validation
+helm template heimdall ./heimdall | kubectl apply --dry-run=client -f -
+```
+
+See [Testing Documentation](docs/content/4.helm-chart/12.testing.md) for complete testing guide.
+
+## Documentation
+
+Comprehensive documentation is available in the `docs/` directory:
+
+- **[Getting Started](docs/content/4.helm-chart/1.index.md)** - Chart overview and quick start
+- **[Secrets Management](docs/content/4.helm-chart/2.secrets.md)** - Three secrets approaches
+- **[Configuration](docs/content/4.helm-chart/3.configuration.md)** - Complete configuration reference
+- **[Database](docs/content/4.helm-chart/6.database.md)** - Embedded vs external, HA setup
+- **[Ingress & TLS](docs/content/4.helm-chart/8.ingress.md)** - Ingress controllers, TLS, cert-manager
+- **[Health & Availability](docs/content/4.helm-chart/11.health-and-availability.md)** - Probes, HPA, PDB
+- **[Testing](docs/content/4.helm-chart/12.testing.md)** - Unit, integration, E2E testing
+- **[Architecture](docs/content/4.helm-chart/7.architecture.md)** - Design decisions and patterns
+
+Or view online: [https://mitre.github.io/heimdall-helm/](https://mitre.github.io/heimdall-helm/)
+
+## Requirements
+
+- Kubernetes 1.28+
+- Helm 3.14+
+- PersistentVolume provisioner (if using embedded PostgreSQL with persistence)
+
+## Upgrading
+
+### From v0.x to v1.0.0
+
+**Breaking Changes:**
+- Chart name changed: `heimdall2` → `heimdall`
+- Directory renamed: `heimdall2/` → `heimdall/`
+- Secrets structure modernized (three-approach pattern)
+- Bitnami PostgreSQL subchart (replaces standalone PostgreSQL)
+
+See [CHANGELOG.md](CHANGELOG.md) for migration guide.
+
+## Contributing
+
+Contributions welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## License
+
+Apache 2.0
+
+## Maintainers
+
+- **MITRE SAF Team** - <saf@mitre.org>
+- **Michael Joseph Walsh** - <mjwalsh@nemonik.com>
+
+## Support
+
+- **Issues**: [GitHub Issues](https://github.com/mitre/heimdall-helm/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/mitre/heimdall-helm/discussions)
+- **MITRE SAF Resources**: [https://saf.mitre.org](https://saf.mitre.org)
