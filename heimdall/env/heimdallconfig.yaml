@@ -8,19 +8,17 @@
 # =============================================================================
 # Node.js Environment
 # =============================================================================
-NODE_ENV: "production"
+# NODE_ENV is managed by configmap.yaml template (set via values.nodeEnv)
+# Do NOT add NODE_ENV here - it will create duplicate keys
 
 # =============================================================================
-# Database Configuration (Connection Details Only)
+# Database Configuration (SSL/TLS Settings Only)
 # =============================================================================
-# Database credentials (PASSWORD) are in secrets, not here
-DATABASE_NAME: "heimdall"
-DATABASE_USERNAME: "postgres"
-DATABASE_PORT: "5432"
+# Database connection details (HOST, PORT, NAME, USERNAME) are set by template
+# helpers in configmap.yaml to handle embedded vs external PostgreSQL properly.
+# Database credentials (PASSWORD) are in secrets, not here.
 DATABASE_SSL: "false"
 DATABASE_SSL_INSECURE: "false"
-# DATABASE_HOST is set via template helpers (embedded vs external PostgreSQL)
-# DATABASE_PASSWORD is in heimdall-secrets.yaml
 
 # =============================================================================
 # JWT Configuration

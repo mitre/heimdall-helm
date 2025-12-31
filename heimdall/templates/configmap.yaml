@@ -6,36 +6,20 @@ metadata:
     {{- include "heimdall.labels" . | nindent 4 }}
 data:
   # =============================================================================
-  # Database Configuration (Connection Details)
+  # Templated Configuration (Template helpers and values.yaml)
   # =============================================================================
-  # Database credentials (PASSWORD) are in secrets, not here
+  # These values are managed by template logic and take precedence over file
+
+  # Database Connection (from helpers - handles embedded vs external)
   DATABASE_HOST: {{ include "heimdall.databaseHost" . | quote }}
   DATABASE_PORT: {{ include "heimdall.databasePort" . | quote }}
   DATABASE_NAME: {{ include "heimdall.databaseName" . | quote }}
   DATABASE_USERNAME: {{ include "heimdall.databaseUsername" . | quote }}
 
-  # =============================================================================
-  # Load Non-Sensitive Environment Variables from File
-  # =============================================================================
-  # env/heimdallconfig.yaml contains default non-sensitive configuration
-{{ range .Files.Lines "env/heimdallconfig.yaml" }}
-  {{ . }}
-{{ end }}
+  # Node Environment (from values.yaml)
+  NODE_ENV: {{ .Values.nodeEnv | quote }}
 
-  # =============================================================================
-  # Override with Inline Config from values.yaml (if provided)
-  # =============================================================================
-  # Allows overriding file-based config via values.yaml or --set flags
-  {{- if .Values.heimdall.config }}
-  {{- range $key, $val := .Values.heimdall.config }}
-  {{ $key }}: {{ $val | quote }}
-  {{- end }}
-  {{- end }}
-
-  # =============================================================================
-  # Auto-construct External URL from Ingress (if enabled)
-  # =============================================================================
-  # Used for OAuth/OIDC callback URLs
+  # External URL (auto-constructed from ingress or explicit config)
   {{- if and .Values.heimdall.ingress.enabled (index .Values.heimdall.ingress.hosts 0) }}
   {{- $host := (index .Values.heimdall.ingress.hosts 0).host }}
   {{- $scheme := "https" }}
@@ -45,7 +29,27 @@ data:
   {{- else if and .Values.heimdall.config (hasKey .Values.heimdall.config "EXTERNAL_URL") }}
   EXTERNAL_URL: {{ .Values.heimdall.config.EXTERNAL_URL | quote }}
   {{- else }}
-  # WARNING: EXTERNAL_URL not set - OAuth/OIDC callbacks may not work
-  # Set heimdall.config.EXTERNAL_URL or enable ingress with hostname
   EXTERNAL_URL: ""
+  {{- end }}
+
+  # =============================================================================
+  # Load Additional Non-Sensitive Environment Variables from File
+  # =============================================================================
+  # env/heimdallconfig.yaml contains default non-sensitive configuration
+  # NOTE: NODE_ENV, DATABASE_*, and EXTERNAL_URL are NOT in file (managed above)
+{{ range .Files.Lines "env/heimdallconfig.yaml" }}
+  {{ . }}
+{{ end }}
+
+  # =============================================================================
+  # Override with Inline Config from values.yaml (if provided)
+  # =============================================================================
+  # Allows overriding file-based config via values.yaml or --set flags
+  # NOTE: EXTERNAL_URL is managed above (skip it here to avoid duplicates)
+  {{- if .Values.heimdall.config }}
+  {{- range $key, $val := .Values.heimdall.config }}
+  {{- if ne $key "EXTERNAL_URL" }}
+  {{ $key }}: {{ $val | quote }}
+  {{- end }}
+  {{- end }}
   {{- end }}

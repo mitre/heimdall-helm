@@ -84,7 +84,7 @@ Returns: PostgreSQL service name (if postgresql.enabled=true) or external host
 {{- if .Values.postgresql.enabled }}
 {{- include "heimdall.postgresql.fullname" . }}
 {{- else }}
-{{- required "externalDatabase.host is required when postgresql.enabled=false" .Values.databaseHost }}
+{{- required "externalDatabase.host is required when postgresql.enabled=false" .Values.externalDatabase.host }}
 {{- end }}
 {{- end }}
 
