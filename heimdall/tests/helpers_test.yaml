@@ -1,0 +1,133 @@
+suite: test heimdall template helpers
+templates:
+  - configmap.yaml  # Uses helpers, so we can test them indirectly
+tests:
+  #
+  # Test Database Helpers - Embedded PostgreSQL
+  #
+  - it: databaseHost should return embedded PostgreSQL service name
+    asserts:
+      - equal:
+          path: data.DATABASE_HOST
+          value: RELEASE-NAME-heimdall-postgresql
+
+  - it: databasePort should return default port 5432
+    asserts:
+      - equal:
+          path: data.DATABASE_PORT
+          value: "5432"
+
+  - it: databaseName should return embedded database name
+    asserts:
+      - equal:
+          path: data.DATABASE_NAME
+          value: heimdall
+
+  - it: databaseUsername should return embedded username
+    asserts:
+      - equal:
+          path: data.DATABASE_USERNAME
+          value: postgres
+
+  #
+  # Test Database Helpers - External Database
+  #
+  - it: databaseHost should return external host when postgresql disabled
+    set:
+      postgresql.enabled: false
+      externalDatabase.host: db.example.com
+    asserts:
+      - equal:
+          path: data.DATABASE_HOST
+          value: db.example.com
+
+  - it: databasePort should return custom port for external database
+    set:
+      postgresql.enabled: false
+      externalDatabase.host: db.example.com
+      externalDatabase.port: 5433
+    asserts:
+      - equal:
+          path: data.DATABASE_PORT
+          value: "5433"
+
+  - it: databaseName should return external database name
+    set:
+      postgresql.enabled: false
+      externalDatabase.host: db.example.com
+      externalDatabase.database: heimdall_production
+    asserts:
+      - equal:
+          path: data.DATABASE_NAME
+          value: heimdall_production
+
+  - it: databaseUsername should return external username
+    set:
+      postgresql.enabled: false
+      externalDatabase.host: db.example.com
+      externalDatabase.username: heimdall_app
+    asserts:
+      - equal:
+          path: data.DATABASE_USERNAME
+          value: heimdall_app
+
+  #
+  # Test Bitnami PostgreSQL Configuration Override
+  #
+  - it: databaseName should use Bitnami auth.database value
+    set:
+      postgresql.auth.database: custom_heimdall_db
+    asserts:
+      - equal:
+          path: data.DATABASE_NAME
+          value: custom_heimdall_db
+
+  - it: databaseUsername should use Bitnami auth.username value
+    set:
+      postgresql.auth.username: custom_user
+    asserts:
+      - equal:
+          path: data.DATABASE_USERNAME
+          value: custom_user
+
+  - it: databasePort should use custom Bitnami port
+    set:
+      postgresql.primary.service.ports.postgresql: 5434
+    asserts:
+      - equal:
+          path: data.DATABASE_PORT
+          value: "5434"
+
+  #
+  # Test Full Name Helper
+  #
+  - it: fullname should use release name and chart name
+    asserts:
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-heimdall-config
+
+  #
+  # Test Labels Helper
+  #
+  - it: labels should include all standard labels
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            helm.sh/chart: heimdall-1.0.0
+            app.kubernetes.io/name: heimdall
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/version: "release-latest"
+            app.kubernetes.io/managed-by: Helm
+
+  #
+  # Test NODE_ENV Helper (from values)
+  #
+  - it: should use NODE_ENV from values
+    set:
+      nodeEnv: development
+    asserts:
+      - equal:
+          path: data.NODE_ENV
+          value: development

@@ -1,0 +1,79 @@
+suite: test heimdall ca certificates configmap
+templates:
+  - heimdall-cacerts-configmap.yaml
+tests:
+  #
+  # Test 1: Not Created by Default
+  #
+  - it: should NOT create ConfigMap when extraCertificates disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  #
+  # Test 2: Not Created When Using Existing ConfigMap
+  #
+  - it: should NOT create ConfigMap when using existing configMapName
+    set:
+      extraCertificates.enabled: true
+      extraCertificates.configMapName: existing-ca-certs
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  #
+  # Test 3: Basic ConfigMap Creation
+  #
+  - it: should create ConfigMap when enabled with inline certificates
+    set:
+      extraCertificates.enabled: true
+      extraCertificates.certificates:
+        corporate-ca.crt: |
+          -----BEGIN CERTIFICATE-----
+          MIICorporateCA
+          -----END CERTIFICATE-----
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-heimdall-ca-certs
+
+  #
+  # Test 4: Multiple Certificates
+  #
+  - it: should support multiple CA certificates
+    set:
+      extraCertificates.enabled: true
+      extraCertificates.certificates:
+        corporate-ca.crt: |
+          -----BEGIN CERTIFICATE-----
+          CorpCA
+          -----END CERTIFICATE-----
+        internal-ca.crt: |
+          -----BEGIN CERTIFICATE-----
+          InternalCA
+          -----END CERTIFICATE-----
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - isNotEmpty:
+          path: data
+
+  #
+  # Test 5: Labels
+  #
+  - it: should have correct labels
+    set:
+      extraCertificates.enabled: true
+      extraCertificates.certificates:
+        test-ca.crt: "test"
+    asserts:
+      - equal:
+          path: metadata.labels
+          value:
+            helm.sh/chart: heimdall-1.0.0
+            app.kubernetes.io/name: heimdall
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/version: "release-latest"
+            app.kubernetes.io/managed-by: Helm

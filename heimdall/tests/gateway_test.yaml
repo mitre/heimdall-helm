@@ -1,0 +1,181 @@
+suite: test heimdall gateway/virtualservice
+templates:
+  - gateway.yaml
+tests:
+  #
+  # Test 1: Disabled by Default
+  #
+  - it: should NOT create Gateway when disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  #
+  # Test 2: Basic Gateway Creation
+  #
+  - it: should create Gateway when enabled
+    set:
+      heimdall.gateway.enabled: true
+      heimdall.gateway.apiVersion: networking.istio.io/v1beta1
+      heimdall.gateway.kind: VirtualService
+      heimdall.gateway.gateways:
+        - istio-system/gateway
+      heimdall.gateway.hosts:
+        - heimdall.example.com
+      heimdall.gateway.http:
+        - name: heimdall-route
+          route:
+            - destination:
+                host: heimdall.default.svc.cluster.local
+                port:
+                  number: 3000
+    asserts:
+      - equal:
+          path: kind
+          value: VirtualService
+      - equal:
+          path: apiVersion
+          value: networking.istio.io/v1beta1
+
+  #
+  # Test 3: Metadata
+  #
+  - it: should have correct metadata
+    set:
+      heimdall.gateway.enabled: true
+      heimdall.gateway.apiVersion: networking.istio.io/v1beta1
+      heimdall.gateway.kind: VirtualService
+      heimdall.gateway.gateways:
+        - istio-system/gateway
+      heimdall.gateway.hosts:
+        - heimdall.example.com
+      heimdall.gateway.http:
+        - name: heimdall-route
+          route:
+            - destination:
+                host: heimdall.default.svc.cluster.local
+                port:
+                  number: 3000
+    asserts:
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-heimdall
+      - equal:
+          path: metadata.labels
+          value:
+            helm.sh/chart: heimdall-1.0.0
+            app.kubernetes.io/name: heimdall
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/version: "release-latest"
+            app.kubernetes.io/managed-by: Helm
+
+  #
+  # Test 4: Annotations
+  #
+  - it: should support custom annotations
+    set:
+      heimdall.gateway.enabled: true
+      heimdall.gateway.apiVersion: networking.istio.io/v1beta1
+      heimdall.gateway.kind: VirtualService
+      heimdall.gateway.annotations:
+        custom-annotation: custom-value
+      heimdall.gateway.gateways:
+        - istio-system/gateway
+      heimdall.gateway.hosts:
+        - heimdall.example.com
+      heimdall.gateway.http:
+        - name: heimdall-route
+          route:
+            - destination:
+                host: heimdall.default.svc.cluster.local
+                port:
+                  number: 3000
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            custom-annotation: custom-value
+
+  #
+  # Test 5: Gateways Configuration
+  #
+  - it: should configure gateways
+    set:
+      heimdall.gateway.enabled: true
+      heimdall.gateway.apiVersion: networking.istio.io/v1beta1
+      heimdall.gateway.kind: VirtualService
+      heimdall.gateway.gateways:
+        - istio-system/gateway
+        - istio-system/gateway-internal
+      heimdall.gateway.hosts:
+        - heimdall.example.com
+      heimdall.gateway.http:
+        - name: heimdall-route
+          route:
+            - destination:
+                host: heimdall.default.svc.cluster.local
+                port:
+                  number: 3000
+    asserts:
+      - equal:
+          path: spec.gateways
+          value:
+            - istio-system/gateway
+            - istio-system/gateway-internal
+
+  #
+  # Test 6: Hosts Configuration
+  #
+  - it: should configure hosts
+    set:
+      heimdall.gateway.enabled: true
+      heimdall.gateway.apiVersion: networking.istio.io/v1beta1
+      heimdall.gateway.kind: VirtualService
+      heimdall.gateway.gateways:
+        - istio-system/gateway
+      heimdall.gateway.hosts:
+        - heimdall.example.com
+        - heimdall-alt.example.com
+      heimdall.gateway.http:
+        - name: heimdall-route
+          route:
+            - destination:
+                host: heimdall.default.svc.cluster.local
+                port:
+                  number: 3000
+    asserts:
+      - equal:
+          path: spec.hosts
+          value:
+            - heimdall.example.com
+            - heimdall-alt.example.com
+
+  #
+  # Test 7: HTTP Routes
+  #
+  - it: should configure HTTP routes
+    set:
+      heimdall.gateway.enabled: true
+      heimdall.gateway.apiVersion: networking.istio.io/v1beta1
+      heimdall.gateway.kind: VirtualService
+      heimdall.gateway.gateways:
+        - istio-system/gateway
+      heimdall.gateway.hosts:
+        - heimdall.example.com
+      heimdall.gateway.http:
+        - name: heimdall-route
+          route:
+            - destination:
+                host: heimdall.default.svc.cluster.local
+                port:
+                  number: 3000
+    asserts:
+      - equal:
+          path: spec.http[0].name
+          value: heimdall-route
+      - equal:
+          path: spec.http[0].route[0].destination.host
+          value: heimdall.default.svc.cluster.local
+      - equal:
+          path: spec.http[0].route[0].destination.port.number
+          value: 3000

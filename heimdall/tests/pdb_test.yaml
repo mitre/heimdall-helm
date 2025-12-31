@@ -1,0 +1,94 @@
+suite: test heimdall poddisruptionbudget
+templates:
+  - poddisruptionbudget.yaml
+tests:
+  #
+  # Test 1: Disabled by Default
+  #
+  - it: should NOT create PDB when disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  #
+  # Test 2: Basic PDB Creation
+  #
+  - it: should create PDB when enabled
+    set:
+      heimdall.podDisruptionBudget.enabled: true
+      heimdall.podDisruptionBudget.minAvailable: 1
+    asserts:
+      - isKind:
+          of: PodDisruptionBudget
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-heimdall
+
+  #
+  # Test 3: minAvailable
+  #
+  - it: should set minAvailable when provided
+    set:
+      heimdall.podDisruptionBudget.enabled: true
+      heimdall.podDisruptionBudget.minAvailable: 1
+    asserts:
+      - equal:
+          path: spec.minAvailable
+          value: 1
+
+  - it: should support minAvailable as percentage
+    set:
+      heimdall.podDisruptionBudget.enabled: true
+      heimdall.podDisruptionBudget.minAvailable: "50%"
+    asserts:
+      - equal:
+          path: spec.minAvailable
+          value: "50%"
+
+  #
+  # Test 4: maxUnavailable
+  #
+  - it: should set maxUnavailable when provided
+    set:
+      heimdall.podDisruptionBudget.enabled: true
+      heimdall.podDisruptionBudget.maxUnavailable: 1
+    asserts:
+      - equal:
+          path: spec.maxUnavailable
+          value: 1
+
+  - it: should support maxUnavailable as percentage
+    set:
+      heimdall.podDisruptionBudget.enabled: true
+      heimdall.podDisruptionBudget.maxUnavailable: "25%"
+    asserts:
+      - equal:
+          path: spec.maxUnavailable
+          value: "25%"
+
+  #
+  # Test 5: Selector Labels
+  #
+  - it: should have correct selector labels
+    set:
+      heimdall.podDisruptionBudget.enabled: true
+      heimdall.podDisruptionBudget.minAvailable: 1
+    asserts:
+      - equal:
+          path: spec.selector.matchLabels
+          value:
+            app.kubernetes.io/name: heimdall
+            app.kubernetes.io/instance: RELEASE-NAME
+            app.kubernetes.io/component: heimdall
+
+  #
+  # Test 6: API Version
+  #
+  - it: should use policy/v1 API
+    set:
+      heimdall.podDisruptionBudget.enabled: true
+      heimdall.podDisruptionBudget.minAvailable: 1
+    asserts:
+      - equal:
+          path: apiVersion
+          value: policy/v1

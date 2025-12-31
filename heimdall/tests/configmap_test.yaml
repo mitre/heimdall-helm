@@ -20,7 +20,7 @@ tests:
     asserts:
       - equal:
           path: data.DATABASE_HOST
-          value: RELEASE-NAME-postgresql
+          value: RELEASE-NAME-heimdall-postgresql
 
   - it: should set DATABASE_PORT to 5432 by default
     asserts:
@@ -32,7 +32,7 @@ tests:
     asserts:
       - equal:
           path: data.DATABASE_NAME
-          value: heimdall-database
+          value: heimdall
 
   - it: should set DATABASE_USERNAME from values
     asserts:
@@ -70,7 +70,7 @@ tests:
           path: data.NODE_ENV
           value: production
 
-  - it: should allow custom NODE_ENV
+  - it: should allow custom NODE_ENV via nodeEnv value
     set:
       nodeEnv: development
     asserts:
@@ -81,21 +81,21 @@ tests:
   #
   # Test 5: External URL (Required for OAuth callbacks)
   #
-  - it: should set EXTERNAL_URL when provided
+  - it: should set EXTERNAL_URL when provided via heimdall.config
     set:
-      externalUrl: https://heimdall.example.com
+      heimdall.config.EXTERNAL_URL: https://heimdall.example.com
     asserts:
       - equal:
           path: data.EXTERNAL_URL
           value: https://heimdall.example.com
 
   #
-  # Test 6: Custom CA Certificates
+  # Test 6: Additional Config Variables
   #
-  - it: should set NODE_EXTRA_CA_CERTS when extraCertificates enabled
+  - it: should set custom config variables via heimdall.config
     set:
-      extraCertificates.enabled: true
+      heimdall.config.CUSTOM_VAR: "custom_value"
     asserts:
       - equal:
-          path: data.NODE_EXTRA_CA_CERTS
-          value: /tmp/all-certs.pem
+          path: data.CUSTOM_VAR
+          value: custom_value

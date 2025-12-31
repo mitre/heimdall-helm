@@ -102,3 +102,25 @@ tests:
               secretKeyRef:
                 name: RELEASE-NAME-heimdall-postgresql
                 key: postgres-password
+
+  #
+  # Test 8: Custom CA Certificates
+  #
+  - it: should NOT set NODE_EXTRA_CA_CERTS when extraCertificates disabled
+    set:
+      extraCertificates.enabled: false
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: NODE_EXTRA_CA_CERTS
+
+  - it: should set NODE_EXTRA_CA_CERTS when extraCertificates enabled
+    set:
+      extraCertificates.enabled: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: NODE_EXTRA_CA_CERTS
+            value: /usr/local/share/ca-certificates/ca-bundle.pem

@@ -1,0 +1,158 @@
+suite: test heimdall ingress
+templates:
+  - ingress.yaml
+tests:
+  #
+  # Test 1: Disabled by Default
+  #
+  - it: should NOT create Ingress when disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  #
+  # Test 2: Basic Ingress Creation
+  #
+  - it: should create Ingress when enabled
+    set:
+      heimdall.ingress.enabled: true
+      heimdall.ingress.hosts:
+        - host: heimdall.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - isKind:
+          of: Ingress
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-heimdall
+
+  #
+  # Test 3: Ingress Class
+  #
+  - it: should set ingressClassName when provided
+    set:
+      heimdall.ingress.enabled: true
+      heimdall.ingress.className: nginx
+      heimdall.ingress.hosts:
+        - host: heimdall.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    capabilities:
+      kubeVersion: 1.19.0
+    asserts:
+      - equal:
+          path: spec.ingressClassName
+          value: nginx
+
+  #
+  # Test 4: Annotations
+  #
+  - it: should include custom annotations
+    set:
+      heimdall.ingress.enabled: true
+      heimdall.ingress.annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      heimdall.ingress.hosts:
+        - host: heimdall.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: metadata.annotations
+          value:
+            cert-manager.io/cluster-issuer: letsencrypt-prod
+            nginx.ingress.kubernetes.io/ssl-redirect: "true"
+
+  #
+  # Test 5: TLS Configuration
+  #
+  - it: should configure TLS when provided
+    set:
+      heimdall.ingress.enabled: true
+      heimdall.ingress.hosts:
+        - host: heimdall.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+      heimdall.ingress.tls:
+        - secretName: heimdall-tls
+          hosts:
+            - heimdall.example.com
+    asserts:
+      - equal:
+          path: spec.tls[0].secretName
+          value: heimdall-tls
+      - contains:
+          path: spec.tls[0].hosts
+          content: heimdall.example.com
+
+  #
+  # Test 6: Multiple Hosts
+  #
+  - it: should support multiple hosts
+    set:
+      heimdall.ingress.enabled: true
+      heimdall.ingress.hosts:
+        - host: heimdall.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+        - host: heimdall-alt.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    asserts:
+      - equal:
+          path: spec.rules[0].host
+          value: heimdall.example.com
+      - equal:
+          path: spec.rules[1].host
+          value: heimdall-alt.example.com
+
+  #
+  # Test 7: Backend Service Reference
+  #
+  - it: should reference correct backend service
+    set:
+      heimdall.ingress.enabled: true
+      heimdall.service.port: 3000
+      heimdall.ingress.hosts:
+        - host: heimdall.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+    capabilities:
+      kubeVersion: 1.19.0
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.name
+          value: RELEASE-NAME-heimdall
+      - equal:
+          path: spec.rules[0].http.paths[0].backend.service.port.number
+          value: 3000
+
+  #
+  # Test 8: Path Configuration
+  #
+  - it: should support custom path and pathType
+    set:
+      heimdall.ingress.enabled: true
+      heimdall.ingress.hosts:
+        - host: heimdall.example.com
+          paths:
+            - path: /heimdall
+              pathType: Prefix
+    capabilities:
+      kubeVersion: 1.19.0
+    asserts:
+      - equal:
+          path: spec.rules[0].http.paths[0].path
+          value: /heimdall
+      - equal:
+          path: spec.rules[0].http.paths[0].pathType
+          value: Prefix

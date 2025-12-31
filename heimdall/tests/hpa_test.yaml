@@ -1,0 +1,142 @@
+suite: test heimdall horizontalpodautoscaler
+templates:
+  - hpa.yaml
+tests:
+  #
+  # Test 1: Disabled by Default
+  #
+  - it: should NOT create HPA when disabled
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  #
+  # Test 2: Basic HPA Creation
+  #
+  - it: should create HPA when enabled
+    set:
+      heimdall.autoscaling.enabled: true
+      heimdall.autoscaling.minReplicas: 2
+      heimdall.autoscaling.maxReplicas: 10
+      heimdall.autoscaling.targetCPUUtilizationPercentage: 80
+    asserts:
+      - isKind:
+          of: HorizontalPodAutoscaler
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-heimdall
+
+  #
+  # Test 3: Replica Limits
+  #
+  - it: should set min and max replicas
+    set:
+      heimdall.autoscaling.enabled: true
+      heimdall.autoscaling.minReplicas: 3
+      heimdall.autoscaling.maxReplicas: 15
+      heimdall.autoscaling.targetCPUUtilizationPercentage: 80
+    asserts:
+      - equal:
+          path: spec.minReplicas
+          value: 3
+      - equal:
+          path: spec.maxReplicas
+          value: 15
+
+  #
+  # Test 4: Scale Target Reference
+  #
+  - it: should target StatefulSet
+    set:
+      heimdall.autoscaling.enabled: true
+      heimdall.autoscaling.minReplicas: 2
+      heimdall.autoscaling.maxReplicas: 10
+      heimdall.autoscaling.targetCPUUtilizationPercentage: 80
+    asserts:
+      - equal:
+          path: spec.scaleTargetRef
+          value:
+            apiVersion: apps/v1
+            kind: StatefulSet
+            name: RELEASE-NAME-heimdall
+
+  #
+  # Test 5: CPU Metrics
+  #
+  - it: should configure CPU target when specified
+    set:
+      heimdall.autoscaling.enabled: true
+      heimdall.autoscaling.minReplicas: 2
+      heimdall.autoscaling.maxReplicas: 10
+      heimdall.autoscaling.targetCPUUtilizationPercentage: 75
+    asserts:
+      - contains:
+          path: spec.metrics
+          content:
+            type: Resource
+            resource:
+              name: cpu
+              target:
+                type: Utilization
+                averageUtilization: 75
+
+  #
+  # Test 6: Memory Metrics
+  #
+  - it: should configure memory target when specified
+    set:
+      heimdall.autoscaling.enabled: true
+      heimdall.autoscaling.minReplicas: 2
+      heimdall.autoscaling.maxReplicas: 10
+      heimdall.autoscaling.targetMemoryUtilizationPercentage: 85
+    asserts:
+      - contains:
+          path: spec.metrics
+          content:
+            type: Resource
+            resource:
+              name: memory
+              target:
+                type: Utilization
+                averageUtilization: 85
+
+  #
+  # Test 7: Both CPU and Memory Metrics
+  #
+  - it: should configure both CPU and memory targets
+    set:
+      heimdall.autoscaling.enabled: true
+      heimdall.autoscaling.minReplicas: 2
+      heimdall.autoscaling.maxReplicas: 10
+      heimdall.autoscaling.targetCPUUtilizationPercentage: 70
+      heimdall.autoscaling.targetMemoryUtilizationPercentage: 80
+    asserts:
+      - equal:
+          path: spec.metrics
+          value:
+            - type: Resource
+              resource:
+                name: cpu
+                target:
+                  type: Utilization
+                  averageUtilization: 70
+            - type: Resource
+              resource:
+                name: memory
+                target:
+                  type: Utilization
+                  averageUtilization: 80
+
+  #
+  # Test 8: API Version
+  #
+  - it: should use autoscaling/v2 API
+    set:
+      heimdall.autoscaling.enabled: true
+      heimdall.autoscaling.minReplicas: 2
+      heimdall.autoscaling.maxReplicas: 10
+      heimdall.autoscaling.targetCPUUtilizationPercentage: 80
+    asserts:
+      - equal:
+          path: apiVersion
+          value: autoscaling/v2
