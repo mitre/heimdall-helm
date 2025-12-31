@@ -33,7 +33,9 @@ upgrade: false  # Will enable in separate upgrade test job
 
 # Additional Helm install arguments
 # Timeout increased to 15min for CI environment (PostgreSQL + Heimdall startup)
-helm-extra-args: --timeout 900s --create-namespace
+# Note: --create-namespace removed from helm-extra-args as it breaks cleanup
+# (helm uninstall doesn't support that flag). Use create-namespace: true instead.
+helm-extra-args: --timeout 900s
 
 # Namespace for chart installation
 namespace: heimdall-test
