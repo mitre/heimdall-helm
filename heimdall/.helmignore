@@ -25,7 +25,8 @@ OWNERS
 # ===========================
 docs/
 examples/
-*.txt
+# NOTE: *.txt removed - NOTES.txt is required for Helm charts
+# If needed, exclude specific txt files individually
 
 # ===========================
 # Secrets and Environment Files

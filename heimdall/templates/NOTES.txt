@@ -1,0 +1,91 @@
+{{- $secretName := ternary .Values.heimdall.existingSecret (printf "%s-secrets" (include "heimdall.fullname" .)) (not (empty .Values.heimdall.existingSecret)) -}}
+
+Thank you for installing {{ .Chart.Name }}!
+
+Your release is named {{ .Release.Name }}.
+
+════════════════════════════════════════════════════════════════
+  GETTING STARTED
+════════════════════════════════════════════════════════════════
+
+1. Get your admin credentials:
+
+   Admin Email:
+     kubectl get configmap --namespace {{ .Release.Namespace }} {{ include "heimdall.fullname" . }}-config \
+       -o jsonpath="{.data.ADMIN_EMAIL}"
+
+   Admin Password:
+     kubectl get secret --namespace {{ .Release.Namespace }} {{ $secretName }} \
+       -o jsonpath="{.data.ADMIN_PASSWORD}" | base64 -d && echo
+
+{{- if .Values.heimdall.ingress.enabled }}
+{{- range $host := .Values.heimdall.ingress.hosts }}
+  {{- range .paths }}
+
+2. Access Heimdall at:
+     http{{ if $.Values.heimdall.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else if contains "NodePort" .Values.heimdall.service.type }}
+
+2. Access Heimdall via NodePort:
+
+   export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} \
+     -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "heimdall.fullname" . }})
+   export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} \
+     -o jsonpath="{.items[0].status.addresses[0].address}")
+
+   echo http://$NODE_IP:$NODE_PORT
+
+{{- else if contains "LoadBalancer" .Values.heimdall.service.type }}
+
+2. Access Heimdall via LoadBalancer:
+
+   NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+
+   kubectl get svc --namespace {{ .Release.Namespace }} {{ include "heimdall.fullname" . }} --watch
+
+   Once available, get the URL:
+     export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} \
+       {{ include "heimdall.fullname" . }} \
+       --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+     echo http://$SERVICE_IP:{{ .Values.heimdall.service.port }}
+
+{{- else }}
+
+2. Access Heimdall locally via port-forward:
+
+   kubectl port-forward --namespace {{ .Release.Namespace }} \
+     svc/{{ include "heimdall.fullname" . }} 8080:{{ .Values.heimdall.service.port }}
+
+   Then visit: http://localhost:8080
+{{- end }}
+
+3. Login with the credentials from step 1
+
+════════════════════════════════════════════════════════════════
+  NEXT STEPS
+════════════════════════════════════════════════════════════════
+
+→ Upload your first security scan (InSpec, XCCDF, etc.)
+→ Configure OAuth/OIDC providers (see values.yaml)
+→ Set up LDAP authentication if needed
+→ Review documentation: https://github.com/mitre/heimdall2
+
+════════════════════════════════════════════════════════════════
+  NOTES
+════════════════════════════════════════════════════════════════
+
+• Default admin account is created automatically on first startup
+• Database migrations run automatically on pod startup (no manual steps)
+{{- if not .Values.heimdall.ingress.enabled }}
+• Consider enabling ingress for production deployments (see values.yaml)
+{{- end }}
+{{- if not .Values.heimdall.ingress.tls }}
+• WARNING: TLS is not enabled. Use ingress.tls for HTTPS in production.
+{{- end }}
+
+To view these notes again, run:
+  helm get notes {{ .Release.Name }} -n {{ .Release.Namespace }}
+
+For support: https://github.com/mitre/heimdall2/issues
