@@ -32,7 +32,8 @@ check-version-increment: true
 upgrade: false  # Will enable in separate upgrade test job
 
 # Additional Helm install arguments
-helm-extra-args: --timeout 600s --create-namespace
+# Timeout increased to 15min for CI environment (PostgreSQL + Heimdall startup)
+helm-extra-args: --timeout 900s --create-namespace
 
 # Namespace for chart installation
 namespace: heimdall-test

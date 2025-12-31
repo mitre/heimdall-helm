@@ -218,9 +218,9 @@ extraCertificates:
 
 heimdall:
   image:
-    repository: heimdall-app
+    repository: mitre/heimdall2
     pullPolicy: IfNotPresent
-    tag: "arm64-test"
+    tag: "release-latest"
 
   # ===========================================================================
   # Secrets Management (Three Approaches - Following Vulcan Pattern)
