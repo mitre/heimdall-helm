@@ -28,20 +28,16 @@ jobs:
         with:
           version: v3.14.0
 
-      - name: Add Bitnami Helm repository
-        run: helm repo add bitnami https://charts.bitnami.com/bitnami
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
 
-      - name: Build chart dependencies
-        run: helm dependency build ./heimdall
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.7.0
 
-      - name: Lint chart with helm lint --strict
-        run: helm lint ./heimdall --strict
-
-      - name: Install yamllint
-        run: pip install yamllint
-
-      - name: Lint YAML files
-        run: yamllint -d relaxed heimdall/
+      - name: Run chart-testing (lint)
+        run: ct lint --config .github/ct.yaml
 
   # Stage 2: Unit Tests (< 60s)
   unit-test:

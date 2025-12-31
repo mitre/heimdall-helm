@@ -9,6 +9,10 @@ remote: origin
 chart-dirs:
   - .
 
+# Chart repositories (required for dependencies)
+chart-repos:
+  - bitnami=https://charts.bitnami.com/bitnami
+
 # Charts to exclude from testing
 excluded-charts: []
 
