@@ -52,61 +52,160 @@ helm install heimdall ./heimdall --skip-schema-validation
 
 ### 3. Template Unit Tests
 
-**Purpose**: Test template logic and helper functions
+**Purpose**: Test template logic and helper functions without requiring a Kubernetes cluster
 
 ```bash
 # Install helm-unittest plugin
 helm plugin install https://github.com/helm-unittest/helm-unittest
 
-# Run tests
+# Run all tests
 helm unittest ./heimdall
-
-# Run with coverage
-helm unittest ./heimdall --with-subchart
 
 # Run specific test file
 helm unittest ./heimdall -f tests/statefulset_test.yaml
+
+# Run tests with verbose output
+helm unittest ./heimdall -v
 ```
 
-**Example Test** (`heimdall/tests/statefulset_test.yaml`):
+**Current Test Suite: 92 tests across 11 test files (100% template coverage)**
+
+```
+Charts:      1 passed, 1 total
+Test Suites: 11 passed, 11 total
+Tests:       92 passed, 92 total
+Time:        ~850ms
+```
+
+**Test Files:**
+
+1. **statefulset_test.yaml** (12 tests)
+   - Basic StatefulSet structure
+   - Replicas configuration
+   - envFrom pattern (ConfigMap + Secrets)
+   - Secrets priority (existingSecret)
+   - Container name/image
+   - Health probes (startup + liveness)
+   - DATABASE_PASSWORD injection
+   - NODE_EXTRA_CA_CERTS (enabled/disabled)
+
+2. **configmap_test.yaml** (10 tests)
+   - ConfigMap creation
+   - Embedded database config (HOST, PORT, NAME, USERNAME)
+   - External database config
+   - NODE_ENV (default + custom)
+   - EXTERNAL_URL
+   - Custom config variables
+
+3. **secrets_test.yaml** (8 tests)
+   - Existing secret (not created when specified)
+   - Inline secrets from values
+   - File-based secrets
+   - Default behavior
+   - Priority order (existingSecret > inline > file)
+   - Metadata/labels
+   - Secret type (Opaque)
+
+4. **service_test.yaml** (7 tests)
+   - Service creation
+   - Service type (ClusterIP, LoadBalancer, NodePort)
+   - Port configuration
+   - Selector labels
+   - Metadata labels
+
+5. **ingress_test.yaml** (8 tests)
+   - Disabled by default
+   - Basic Ingress creation
+   - IngressClassName
+   - Annotations
+   - TLS configuration
+   - Multiple hosts
+   - Backend service reference
+   - Path/pathType configuration
+
+6. **pdb_test.yaml** (8 tests)
+   - PodDisruptionBudget disabled by default
+   - Basic PDB creation
+   - minAvailable (integer + percentage)
+   - maxUnavailable (integer + percentage)
+   - Selector labels
+   - API version (policy/v1)
+
+7. **hpa_test.yaml** (8 tests)
+   - HorizontalPodAutoscaler disabled by default
+   - Basic HPA creation
+   - Min/max replicas
+   - Scale target reference (StatefulSet)
+   - CPU metrics
+   - Memory metrics
+   - Both CPU and memory metrics
+   - API version (autoscaling/v2)
+
+8. **serviceaccount_test.yaml** (5 tests)
+   - ServiceAccount creation (enabled by default)
+   - Custom name
+   - Annotations (e.g., AWS IAM roles, GCP Workload Identity)
+   - Labels
+
+9. **cacerts_test.yaml** (5 tests)
+   - CA certificates ConfigMap disabled by default
+   - Not created when using existing configMapName
+   - Basic ConfigMap creation with inline certificates
+   - Multiple CA certificates
+   - Labels
+
+10. **gateway_test.yaml** (7 tests)
+    - Istio Gateway/VirtualService disabled by default
+    - Basic Gateway creation
+    - Metadata
+    - Annotations
+    - Gateways configuration
+    - Hosts configuration
+    - HTTP routes
+
+11. **helpers_test.yaml** (14 tests)
+    - Database host helper (embedded vs external)
+    - Database port helper (default + custom)
+    - Database name helper (embedded vs external)
+    - Database username helper (embedded vs external)
+    - Bitnami PostgreSQL configuration overrides
+    - Fullname helper
+    - Labels helper
+    - NODE_ENV from values
+
+**Example Test** (`heimdall/tests/configmap_test.yaml`):
 
 ```yaml
-suite: test statefulset
+suite: test heimdall configmap environment variables
 templates:
-  - heimdall-statefulset.yaml
+  - configmap.yaml
 tests:
-  - it: should set correct image tag
-    set:
-      heimdall.image.tag: v2.3.0
+  - it: should set DATABASE_HOST to embedded PostgreSQL service by default
     asserts:
       - equal:
-          path: spec.template.spec.containers[0].image
-          value: mitre/heimdall2:v2.3.0
+          path: data.DATABASE_HOST
+          value: RELEASE-NAME-heimdall-postgresql
 
-  - it: should use envFrom for ConfigMap
-    asserts:
-      - contains:
-          path: spec.template.spec.containers[0].envFrom
-          content:
-            configMapRef:
-              name: RELEASE-NAME-heimdall-config
-
-  - it: should create 3 replicas when autoscaling disabled
+  - it: should use external database host when postgresql.enabled=false
     set:
-      heimdall.replicaCount: 3
-      heimdall.autoscaling.enabled: false
+      postgresql.enabled: false
+      externalDatabase.host: external-db.example.com
+      externalDatabase.database: heimdall_prod
+      externalDatabase.username: heimdall_user
     asserts:
       - equal:
-          path: spec.replicas
-          value: 3
-
-  - it: should not set replicas when autoscaling enabled
-    set:
-      heimdall.autoscaling.enabled: true
-    asserts:
-      - isNull:
-          path: spec.replicas
+          path: data.DATABASE_HOST
+          value: external-db.example.com
+      - equal:
+          path: data.DATABASE_NAME
+          value: heimdall_prod
 ```
+
+**Bugs Discovered and Fixed by Unit Tests:**
+
+1. **Duplicate DATABASE_* keys in ConfigMap** - ConfigMap template and env file both set DATABASE_NAME, DATABASE_USERNAME, DATABASE_PORT creating invalid YAML
+2. **Wrong helper path** - `databaseHost` helper was checking `.Values.databaseHost` instead of `.Values.externalDatabase.host`
+3. **Duplicate EXTERNAL_URL** - Being set in both template logic and override section
 
 ### 4. Integration Testing (Local Cluster)
 
