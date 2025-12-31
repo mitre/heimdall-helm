@@ -1,0 +1,101 @@
+suite: test heimdall configmap environment variables
+templates:
+  - configmap.yaml
+tests:
+  #
+  # Test 1: ConfigMap Creation
+  #
+  - it: should create a ConfigMap
+    asserts:
+      - isKind:
+          of: ConfigMap
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-heimdall-config
+
+  #
+  # Test 2: Database Configuration (Embedded PostgreSQL)
+  #
+  - it: should set DATABASE_HOST to embedded PostgreSQL service by default
+    asserts:
+      - equal:
+          path: data.DATABASE_HOST
+          value: RELEASE-NAME-postgresql
+
+  - it: should set DATABASE_PORT to 5432 by default
+    asserts:
+      - equal:
+          path: data.DATABASE_PORT
+          value: "5432"
+
+  - it: should set DATABASE_NAME from values
+    asserts:
+      - equal:
+          path: data.DATABASE_NAME
+          value: heimdall-database
+
+  - it: should set DATABASE_USERNAME from values
+    asserts:
+      - equal:
+          path: data.DATABASE_USERNAME
+          value: postgres
+
+  #
+  # Test 3: External Database Configuration
+  #
+  - it: should use external database host when postgresql.enabled=false
+    set:
+      postgresql.enabled: false
+      externalDatabase.host: external-db.example.com
+      externalDatabase.port: 5432
+      externalDatabase.database: heimdall_prod
+      externalDatabase.username: heimdall_user
+    asserts:
+      - equal:
+          path: data.DATABASE_HOST
+          value: external-db.example.com
+      - equal:
+          path: data.DATABASE_NAME
+          value: heimdall_prod
+      - equal:
+          path: data.DATABASE_USERNAME
+          value: heimdall_user
+
+  #
+  # Test 4: Node Environment
+  #
+  - it: should set NODE_ENV to production by default
+    asserts:
+      - equal:
+          path: data.NODE_ENV
+          value: production
+
+  - it: should allow custom NODE_ENV
+    set:
+      nodeEnv: development
+    asserts:
+      - equal:
+          path: data.NODE_ENV
+          value: development
+
+  #
+  # Test 5: External URL (Required for OAuth callbacks)
+  #
+  - it: should set EXTERNAL_URL when provided
+    set:
+      externalUrl: https://heimdall.example.com
+    asserts:
+      - equal:
+          path: data.EXTERNAL_URL
+          value: https://heimdall.example.com
+
+  #
+  # Test 6: Custom CA Certificates
+  #
+  - it: should set NODE_EXTRA_CA_CERTS when extraCertificates enabled
+    set:
+      extraCertificates.enabled: true
+    asserts:
+      - equal:
+          path: data.NODE_EXTRA_CA_CERTS
+          value: /tmp/all-certs.pem
