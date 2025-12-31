@@ -306,33 +306,37 @@ heimdall:
     port: 3000
 
   ingress:
-    enabled: true  
-    apiVersion: networking.k8s.io/v1
-    kind: Ingress
+    # -- Enable ingress controller resource (disabled by default, enable for production)
+    enabled: false
 
+    # -- Ingress class name (traefik, nginx, kong, etc.)
+    # Traefik is the recommended default (Nginx will be retired March 2026)
+    className: "traefik"
+
+    # -- Custom annotations (controller-specific)
+    annotations: {}
+      # Examples for Traefik:
+      # traefik.ingress.kubernetes.io/router.entrypoints: websecure
+      # traefik.ingress.kubernetes.io/router.tls: "true"
+      # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+      #
+      # Examples for Nginx:
+      # nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+      # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+      # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # -- Ingress hosts with paths
     hosts:
-      - host: localhost
+      - host: heimdall.local
         paths:
           - path: /
             pathType: Prefix
-            backend:
-              service:
-                name: heimdall
-                port:
-                  number: 3000
 
-#     annotations:
-#       traefik.ingress.kubernetes.io/router.entrypoints: websecure
-#       traefik.ingress.kubernetes.io/router.tls: "true"
-#       traefik.ingress.kubernetes.io/service.sticky.cookie: "true"
-
-#     className: ingress class name
-
-#     tls:
-#       - name: nginx
-#         secretName: ingress-secret
-#         hosts:
-#           - heimdall.example.com
+    # -- TLS configuration for ingress
+    tls: []
+      # - secretName: heimdall-tls
+      #   hosts:
+      #     - heimdall.example.com
   
 # Introducing this tag utilizes the gateway API instead of the ingress API.
 # Both cannot be used at the same time.
