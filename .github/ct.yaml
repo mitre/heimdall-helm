@@ -33,15 +33,12 @@ upgrade: false  # Will enable in separate upgrade test job
 
 # Additional Helm install arguments
 # Timeout increased to 15min for CI environment (PostgreSQL + Heimdall startup)
-# Note: --create-namespace removed from helm-extra-args as it breaks cleanup
-# (helm uninstall doesn't support that flag). Use create-namespace: true instead.
 helm-extra-args: --timeout 900s
 
 # Namespace for chart installation
-namespace: heimdall-test
-
-# Create namespace if it doesn't exist
-create-namespace: true
+# NOTE: Do NOT set a fixed namespace. Chart-testing needs to create random
+# namespaces for each test to ensure isolation and proper cleanup.
+# When namespace is empty, ct automatically creates/deletes test namespaces.
 
 # Release name
 release-label: app.kubernetes.io/instance
