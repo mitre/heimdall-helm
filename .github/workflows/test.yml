@@ -28,6 +28,12 @@ jobs:
         with:
           version: v3.14.0
 
+      - name: Add Bitnami Helm repository
+        run: helm repo add bitnami https://charts.bitnami.com/bitnami
+
+      - name: Build chart dependencies
+        run: helm dependency build ./heimdall
+
       - name: Lint chart with helm lint --strict
         run: helm lint ./heimdall --strict
 
