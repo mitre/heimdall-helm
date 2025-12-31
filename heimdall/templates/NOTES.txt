@@ -22,10 +22,13 @@ Your release is named {{ .Release.Name }}.
 {{- range $host := .Values.heimdall.ingress.hosts }}
   {{- range .paths }}
 
-2. Access Heimdall at:
+2. Access Heimdall via Ingress ({{ $.Values.heimdall.ingress.className }}):
      http{{ if $.Values.heimdall.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
   {{- end }}
 {{- end }}
+
+   Verify ingress is ready:
+     kubectl get ingress --namespace {{ .Release.Namespace }} {{ include "heimdall.fullname" . }}
 {{- else if contains "NodePort" .Values.heimdall.service.type }}
 
 2. Access Heimdall via NodePort:
@@ -78,11 +81,19 @@ Your release is named {{ .Release.Name }}.
 
 • Default admin account is created automatically on first startup
 • Database migrations run automatically on pod startup (no manual steps)
-{{- if not .Values.heimdall.ingress.enabled }}
-• Consider enabling ingress for production deployments (see values.yaml)
-{{- end }}
+{{- if .Values.heimdall.ingress.enabled }}
 {{- if not .Values.heimdall.ingress.tls }}
-• WARNING: TLS is not enabled. Use ingress.tls for HTTPS in production.
+• WARNING: TLS is not enabled. Configure ingress.tls for HTTPS in production.
+{{- end }}
+• Ingress controller: {{ .Values.heimdall.ingress.className }}
+{{- if eq .Values.heimdall.ingress.className "traefik" }}
+  - Traefik is actively maintained (recommended)
+{{- else if eq .Values.heimdall.ingress.className "nginx" }}
+  - Note: Nginx Ingress Controller retires March 2026
+{{- end }}
+{{- else }}
+• Consider enabling ingress for production (set heimdall.ingress.enabled=true)
+• Supported controllers: Traefik (default), Nginx, Kong, cloud load balancers
 {{- end }}
 
 To view these notes again, run:
