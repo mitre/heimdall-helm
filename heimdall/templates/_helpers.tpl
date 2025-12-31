@@ -54,10 +54,10 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Create the name of the service account to use
 */}}
 {{- define "heimdall.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-{{- default (include "heimdall.fullname" .) .Values.serviceAccount.name }}
+{{- if .Values.heimdall.serviceAccount.create }}
+{{- default (include "heimdall.fullname" .) .Values.heimdall.serviceAccount.name }}
 {{- else }}
-{{- default "default" .Values.serviceAccount.name }}
+{{- default "default" .Values.heimdall.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
@@ -126,18 +126,40 @@ Returns: Database username from values (default postgres)
 
 {{/*
 Get the secret name containing database credentials
-Returns: Heimdall secrets (which contains database password)
+Returns: PostgreSQL secret (embedded), external secret, or Heimdall secret
+Priority:
+  1. Embedded PostgreSQL: Uses Bitnami's auto-generated secret
+  2. External DB with existingSecret: Uses user-provided secret
+  3. External DB without existingSecret: Uses Heimdall secret
 */}}
 {{- define "heimdall.databaseSecretName" -}}
-{{- include "heimdall.fullname" . }}
+{{- if .Values.postgresql.enabled }}
+  {{- if .Values.postgresql.auth.existingSecret }}
+{{- .Values.postgresql.auth.existingSecret }}
+  {{- else }}
+{{- include "heimdall.postgresql.fullname" . }}
+  {{- end }}
+{{- else }}
+  {{- if .Values.externalDatabase.existingSecret }}
+{{- .Values.externalDatabase.existingSecret }}
+  {{- else }}
+{{- include "heimdall.fullname" . }}-secrets
+  {{- end }}
+{{- end }}
 {{- end }}
 
 {{/*
 Get the secret key for database password
-Returns: Key name within secret
+Returns: Key name within secret (differs between embedded and external DB)
+  - Embedded PostgreSQL: "postgres-password" (Bitnami standard)
+  - External database: "DATABASE_PASSWORD" (Heimdall standard)
 */}}
 {{- define "heimdall.databaseSecretKey" -}}
-{{- "databasePassword" }}
+{{- if .Values.postgresql.enabled }}
+{{- print "postgres-password" }}
+{{- else }}
+{{- print "DATABASE_PASSWORD" }}
+{{- end }}
 {{- end }}
 
 {{/*

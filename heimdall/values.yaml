@@ -216,9 +216,9 @@ certs:
 
 heimdall:
   image:
-    repository: mitre/heimdall2
-    pullPolicy: Always
-    tag: "release-latest"
+    repository: heimdall-app
+    pullPolicy: IfNotPresent
+    tag: "arm64-test"
 
   # ===========================================================================
   # Secrets Management (Three Approaches - Following Vulcan Pattern)
@@ -268,6 +268,103 @@ heimdall:
   # ConfigMap resource name
   configmap:
     name: heimdall-config
+
+  # ===========================================================================
+  # Service Account
+  # ===========================================================================
+  # Service account for Heimdall pods
+  serviceAccount:
+    # Create service account for Heimdall pods
+    create: true
+    # Annotations for service account (e.g., for AWS IAM roles, GCP Workload Identity)
+    annotations: {}
+    # Example for AWS EKS:
+    # annotations:
+    #   eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/heimdall-role
+    # Name of service account (generated if empty)
+    name: ""
+
+  # ===========================================================================
+  # Database Migration Job (Helm Hook)
+  # ===========================================================================
+  # Runs Sequelize migrations on install/upgrade before the main deployment
+  # Uses Helm hooks to ensure database schema is up-to-date
+  dbMigrate:
+    enabled: true
+
+    # Job behavior configuration
+    backoffLimit: 3  # Retry failed migrations up to 3 times
+    activeDeadlineSeconds: 300  # Kill migration job after 5 minutes
+
+    # Migration command (default: yarn backend sequelize-cli db:migrate)
+    # Override if you need custom migration logic
+    command: []
+    # Example custom command:
+    # command:
+    #   - yarn
+    #   - backend
+    #   - sequelize-cli
+    #   - db:migrate
+    #   - --env
+    #   - production
+
+    # Additional environment variables for migration job
+    env: []
+    # Example:
+    # env:
+    #   - name: SEQUELIZE_ENV
+    #     value: production
+
+    # Resource limits for migration job
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+
+    # Security context for migration job container
+    securityContext: {}
+    # Example:
+    #   runAsNonRoot: true
+    #   runAsUser: 1000
+    #   allowPrivilegeEscalation: false
+
+    # Pod-level security context
+    podSecurityContext: {}
+    # Example:
+    #   fsGroup: 2000
+    #   runAsNonRoot: true
+
+    # Pod annotations
+    podAnnotations: {}
+
+    # Job annotations (separate from pod annotations)
+    annotations: {}
+
+    # Node selector for migration job
+    nodeSelector: {}
+
+    # Tolerations for migration job
+    tolerations: []
+
+    # Affinity rules for migration job
+    affinity: {}
+
+    # Additional init containers (runs before wait-for-postgres)
+    extraInitContainers: []
+    # Example:
+    # extraInitContainers:
+    #   - name: download-migrations
+    #     image: busybox
+    #     command: ['sh', '-c', 'echo "Downloading migrations..."']
+
+    # Volume mounts for migration job
+    volumeMounts: []
+
+    # Volumes for migration job
+    volumes: []
 
   service:
     type: ClusterIP

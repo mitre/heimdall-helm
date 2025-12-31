@@ -30,8 +30,10 @@ examples/
 # ===========================
 # Secrets and Environment Files
 # ===========================
-env/heimdall-secrets.yaml
-env/*secrets*.yaml
+# NOTE: env/heimdall-secrets.yaml is NOT ignored so .Files.Get can load it
+# This file is gitignored and only exists locally for development
+# env/heimdall-secrets.yaml
+# env/*secrets*.yaml
 .env
 *.secret
 

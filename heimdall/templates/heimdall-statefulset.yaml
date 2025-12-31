@@ -106,14 +106,23 @@ spec:
           - name: SSL_CERT_FILE
             value: /home/node/certs/certs.pem
           {{- end }}
-          # DATABASE_PASSWORD may come from external PostgreSQL secret
-          {{- if and (not .Values.postgresql.enabled) .Values.externalDatabase.existingSecret }}
+          # DATABASE_PASSWORD injection based on deployment pattern
+          # Pattern 1: Embedded PostgreSQL - reference Bitnami's secret
+          {{- if .Values.postgresql.enabled }}
+          - name: DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ include "heimdall.databaseSecretName" . }}
+                key: {{ include "heimdall.databaseSecretKey" . }}
+          {{- else if .Values.externalDatabase.existingSecret }}
+          # Pattern 2: External DB with existing secret
           - name: DATABASE_PASSWORD
             valueFrom:
               secretKeyRef:
                 name: {{ .Values.externalDatabase.existingSecret }}
                 key: {{ .Values.externalDatabase.existingSecretPasswordKey | default "password" }}
           {{- end }}
+          # Pattern 3: External DB without existing secret - comes from envFrom heimdall-secrets above
           livenessProbe:
             {{- with .Values.heimdall.livenessProbe }}
             httpGet:
