@@ -75,6 +75,32 @@ Your release is named {{ .Release.Name }}.
 → Set up LDAP authentication if needed
 → Review documentation: https://github.com/mitre/heimdall2
 
+{{- if and .Values.heimdall.config (hasKey .Values.heimdall.config "EXTERNAL_URL") }}
+
+⚠ OAuth/OIDC Configuration Detected
+════════════════════════════════════════════════════════════════
+EXTERNAL_URL is set: {{ .Values.heimdall.config.EXTERNAL_URL }}
+
+Important: EXTERNAL_URL must be the base URL only (without /authn path).
+Heimdall automatically appends '/authn' for OAuth callbacks.
+
+✓ Correct:   EXTERNAL_URL: "https://heimdall.example.com"
+  Callback:  https://heimdall.example.com/authn/oidc_callback
+
+✗ Incorrect: EXTERNAL_URL: "https://heimdall.example.com/authn"
+  Callback:  https://heimdall.example.com/authn/authn/oidc_callback (broken!)
+
+When configuring OAuth apps in GitLab/GitHub/Google/Okta, use:
+- GitLab:  {{ .Values.heimdall.config.EXTERNAL_URL }}/authn/gitlab/callback
+- GitHub:  {{ .Values.heimdall.config.EXTERNAL_URL }}/authn/github/callback
+- Google:  {{ .Values.heimdall.config.EXTERNAL_URL }}/authn/google/callback
+- OIDC:    {{ .Values.heimdall.config.EXTERNAL_URL }}/authn/oidc_callback
+- Okta:    {{ .Values.heimdall.config.EXTERNAL_URL }}/authn/okta_callback
+
+See: https://github.com/mitre/heimdall2/issues/7542
+════════════════════════════════════════════════════════════════
+{{- end }}
+
 ════════════════════════════════════════════════════════════════
   NOTES
 ════════════════════════════════════════════════════════════════

@@ -567,6 +567,21 @@
               "name": { "type": "string" }
             }
           }
+        },
+        "config": {
+          "type": "object",
+          "description": "Additional environment variables for Heimdall",
+          "properties": {
+            "EXTERNAL_URL": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://[^/]+$",
+              "description": "Public-facing base URL (e.g., https://heimdall.example.com). MUST NOT include /authn path - this is added automatically by Heimdall."
+            }
+          },
+          "additionalProperties": {
+            "type": "string"
+          }
         }
       }
     }

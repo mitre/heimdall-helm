@@ -27,7 +27,11 @@ data:
   EXTERNAL_URL: {{ printf "%s://%s" $scheme $host | quote }}
   {{- end }}
   {{- else if and .Values.heimdall.config (hasKey .Values.heimdall.config "EXTERNAL_URL") }}
-  EXTERNAL_URL: {{ .Values.heimdall.config.EXTERNAL_URL | quote }}
+  {{- $externalUrl := .Values.heimdall.config.EXTERNAL_URL }}
+  {{- if or (hasSuffix "/authn" $externalUrl) (contains "/authn/" $externalUrl) }}
+  {{- fail "ERROR: heimdall.config.EXTERNAL_URL must NOT include '/authn' path. Use base URL only (e.g., 'https://heimdall.example.com'). Heimdall automatically appends '/authn' for OAuth callbacks." }}
+  {{- end }}
+  EXTERNAL_URL: {{ $externalUrl | quote }}
   {{- else }}
   EXTERNAL_URL: ""
   {{- end }}
