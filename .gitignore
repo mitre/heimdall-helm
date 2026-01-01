@@ -93,3 +93,4 @@ SESSION-*.md
 recovery-prompt.md
 pr-summary.md
 *-prompt.md
+heimdall/values-local-testing.yaml
