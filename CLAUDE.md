@@ -2,6 +2,19 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Git Safety Protocol
+
+**CRITICAL - READ BEFORE ANY GIT OPERATION:**
+
+- **ALWAYS** run `git status --short` before ANY `git commit`
+- **NEVER** commit without showing the user what will be committed
+- **For code files**: User MUST review `git diff --staged` before commit
+- **For documentation**: Show `git status --short` before commit
+- **ONE git operation at a time** - verify success before next operation
+- **When in doubt**: Prepare changes, let USER run git commands
+
+**Reason**: Previous incident where commit deleted files instead of renaming them due to skipping verification step.
+
 ## Project Overview
 
 This is a **Helm chart** for deploying **MITRE SAF Heimdall** to Kubernetes. Heimdall is a Node.js/Sequelize application for visualizing security scan results from InSpec and other tools.
