@@ -1,0 +1,63 @@
+{{- if .Values.heimdall.networkPolicy.enabled -}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "heimdall.fullname" . }}
+  labels:
+    {{- include "heimdall.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "heimdall.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: heimdall
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow traffic from ingress controller
+    {{- if .Values.heimdall.networkPolicy.ingress.enabled }}
+    - from:
+      {{- if .Values.heimdall.networkPolicy.ingress.namespaceSelector }}
+        - namespaceSelector:
+            {{- toYaml .Values.heimdall.networkPolicy.ingress.namespaceSelector | nindent 12 }}
+      {{- end }}
+      {{- if .Values.heimdall.networkPolicy.ingress.podSelector }}
+        - podSelector:
+            {{- toYaml .Values.heimdall.networkPolicy.ingress.podSelector | nindent 12 }}
+      {{- end }}
+      ports:
+        - protocol: TCP
+          port: 3000
+    {{- end }}
+  egress:
+    # Allow DNS
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: kube-system
+      ports:
+        - protocol: UDP
+          port: 53
+    # Allow PostgreSQL (embedded or external)
+    {{- if .Values.postgresql.enabled }}
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: postgresql
+              app.kubernetes.io/instance: {{ .Release.Name }}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.postgresql.primary.service.ports.postgresql | default 5432 }}
+    {{- else }}
+    # Allow external database access
+    - to:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: {{ .Values.externalDatabase.port | default 5432 }}
+    {{- end }}
+    # Allow additional egress rules
+    {{- with .Values.heimdall.networkPolicy.egress.extraRules }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

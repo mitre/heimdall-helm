@@ -8,6 +8,10 @@ metadata:
 spec:
   serviceName: {{ template "heimdall.fullname" . }}
   replicas: 1
+  updateStrategy:
+    type: RollingUpdate
+    rollingUpdate:
+      partition: 0
   selector:
     matchLabels:
       {{- include "heimdall.selectorLabels" . | nindent 6 }}

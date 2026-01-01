@@ -1,0 +1,134 @@
+suite: test heimdall networkpolicy
+templates:
+  - networkpolicy.yaml
+tests:
+  #
+  # Test 1: NetworkPolicy Disabled by Default
+  #
+  - it: should NOT create NetworkPolicy when disabled
+    set:
+      heimdall.networkPolicy.enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  #
+  # Test 2: NetworkPolicy Created When Enabled
+  #
+  - it: should create NetworkPolicy when enabled
+    set:
+      heimdall.networkPolicy.enabled: true
+      heimdall.networkPolicy.ingress.enabled: true
+    asserts:
+      - isKind:
+          of: NetworkPolicy
+      - equal:
+          path: metadata.name
+          value: RELEASE-NAME-heimdall
+
+  #
+  # Test 3: Pod Selector
+  #
+  - it: should have correct podSelector labels
+    set:
+      heimdall.networkPolicy.enabled: true
+    asserts:
+      - isSubset:
+          path: spec.podSelector.matchLabels
+          content:
+            app.kubernetes.io/name: heimdall
+            app.kubernetes.io/component: heimdall
+
+  #
+  # Test 4: Policy Types
+  #
+  - it: should include both Ingress and Egress policy types
+    set:
+      heimdall.networkPolicy.enabled: true
+    asserts:
+      - contains:
+          path: spec.policyTypes
+          content: Ingress
+      - contains:
+          path: spec.policyTypes
+          content: Egress
+
+  #
+  # Test 5: Ingress Rules
+  #
+  - it: should allow ingress on port 3000 when ingress enabled
+    set:
+      heimdall.networkPolicy.enabled: true
+      heimdall.networkPolicy.ingress.enabled: true
+    asserts:
+      - equal:
+          path: spec.ingress[0].ports[0].protocol
+          value: TCP
+      - equal:
+          path: spec.ingress[0].ports[0].port
+          value: 3000
+
+  - it: should allow ingress from specific namespace
+    set:
+      heimdall.networkPolicy.enabled: true
+      heimdall.networkPolicy.ingress.enabled: true
+      heimdall.networkPolicy.ingress.namespaceSelector:
+        matchLabels:
+          name: ingress-nginx
+    asserts:
+      - equal:
+          path: spec.ingress[0].from[0].namespaceSelector.matchLabels.name
+          value: ingress-nginx
+
+  #
+  # Test 6: Egress Rules - DNS
+  #
+  - it: should allow DNS egress to kube-system
+    set:
+      heimdall.networkPolicy.enabled: true
+    asserts:
+      - isSubset:
+          path: spec.egress[0].to[0].namespaceSelector.matchLabels
+          content:
+            kubernetes.io/metadata.name: kube-system
+      - equal:
+          path: spec.egress[0].ports[0].protocol
+          value: UDP
+      - equal:
+          path: spec.egress[0].ports[0].port
+          value: 53
+
+  #
+  # Test 7: Egress Rules - Embedded PostgreSQL
+  #
+  - it: should allow egress to embedded PostgreSQL
+    set:
+      heimdall.networkPolicy.enabled: true
+      postgresql.enabled: true
+    asserts:
+      - isSubset:
+          path: spec.egress[1].to[0].podSelector.matchLabels
+          content:
+            app.kubernetes.io/name: postgresql
+      - equal:
+          path: spec.egress[1].ports[0].protocol
+          value: TCP
+      - equal:
+          path: spec.egress[1].ports[0].port
+          value: 5432
+
+  #
+  # Test 8: Egress Rules - External Database
+  #
+  - it: should allow egress to external database when PostgreSQL disabled
+    set:
+      heimdall.networkPolicy.enabled: true
+      postgresql.enabled: false
+      externalDatabase.port: 5432
+    asserts:
+      - equal:
+          path: spec.egress[1].ports[0].protocol
+          value: TCP
+      - equal:
+          path: spec.egress[1].ports[0].port
+          value: 5432

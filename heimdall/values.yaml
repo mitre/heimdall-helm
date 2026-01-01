@@ -362,6 +362,46 @@ heimdall:
 #    annotations:
 #       Optional annotations for the gateway
 
+  # ===========================================================================
+  # Network Policy
+  # ===========================================================================
+  # NetworkPolicy restricts network traffic to/from Heimdall pods
+  networkPolicy:
+    # -- Enable NetworkPolicy (disabled by default for backwards compatibility)
+    enabled: false
+
+    # -- Ingress rules - Allow traffic TO Heimdall pods
+    ingress:
+      # -- Enable ingress rules
+      enabled: true
+
+      # -- Allow traffic from specific namespace (e.g., ingress-nginx)
+      # Example for nginx-ingress:
+      # namespaceSelector:
+      #   matchLabels:
+      #     name: ingress-nginx
+      namespaceSelector: {}
+
+      # -- Allow traffic from specific pods
+      # Example:
+      # podSelector:
+      #   matchLabels:
+      #     app: nginx-ingress
+      podSelector: {}
+
+    # -- Egress rules - Allow traffic FROM Heimdall pods
+    egress:
+      # -- Additional egress rules beyond DNS and PostgreSQL
+      # DNS and PostgreSQL are allowed by default
+      # Example - Allow HTTPS to external services:
+      # extraRules:
+      #   - to:
+      #       - podSelector: {}
+      #     ports:
+      #       - protocol: TCP
+      #         port: 443
+      extraRules: []
+
   podAnnotations: {}
 #   Example:
 #     imageregistry: "https://example.docker.com"

@@ -23,6 +23,18 @@ tests:
           value: 1
 
   #
+  # Test 2a: UpdateStrategy (Rolling Updates)
+  #
+  - it: should have RollingUpdate strategy configured
+    asserts:
+      - equal:
+          path: spec.updateStrategy.type
+          value: RollingUpdate
+      - equal:
+          path: spec.updateStrategy.rollingUpdate.partition
+          value: 0
+
+  #
   # Test 3: envFrom Pattern (ConfigMap + Secrets)
   #
   - it: should use envFrom for ConfigMap
