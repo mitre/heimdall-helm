@@ -577,6 +577,82 @@
               "format": "uri",
               "pattern": "^https?://[^/]+$",
               "description": "Public-facing base URL (e.g., https://heimdall.example.com). MUST NOT include /authn path - this is added automatically by Heimdall."
+            },
+            "GITHUB_CLIENT_ID": {
+              "type": "string",
+              "minLength": 1,
+              "description": "GitHub OAuth Client ID (requires GITHUB_CLIENT_SECRET)"
+            },
+            "GITLAB_CLIENT_ID": {
+              "type": "string",
+              "minLength": 1,
+              "description": "GitLab OAuth Client ID (requires GITLAB_CLIENT_SECRET)"
+            },
+            "GITLAB_BASE_URL": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://[^/]+$",
+              "description": "GitLab instance URL without trailing slash (e.g., https://gitlab.example.com)"
+            },
+            "GOOGLE_CLIENT_ID": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Google OAuth Client ID (requires GOOGLE_CLIENT_SECRET)"
+            },
+            "OIDC_CLIENT_ID": {
+              "type": "string",
+              "minLength": 1,
+              "description": "OIDC Client ID (requires OIDC_CLIENT_SECRET)"
+            },
+            "OIDC_ISSUER": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://",
+              "description": "OIDC Issuer URL (e.g., https://auth.example.com)"
+            },
+            "OIDC_AUTHORIZATION_URL": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://",
+              "description": "OIDC Authorization endpoint URL"
+            },
+            "OIDC_TOKEN_URL": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://",
+              "description": "OIDC Token endpoint URL"
+            },
+            "OIDC_USER_INFO_URL": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https?://",
+              "description": "OIDC UserInfo endpoint URL"
+            },
+            "OKTA_CLIENT_ID": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Okta OAuth Client ID (requires OKTA_CLIENT_SECRET)"
+            },
+            "OKTA_DOMAIN": {
+              "type": "string",
+              "pattern": "^[a-z0-9-]+\\.(okta|oktapreview|okta-emea)\\.com$",
+              "description": "Okta domain (e.g., example.okta.com)"
+            },
+            "OKTA_ISSUER": {
+              "type": "string",
+              "format": "uri",
+              "pattern": "^https://[a-z0-9-]+\\.(okta|oktapreview|okta-emea)\\.com",
+              "description": "Okta Issuer URL (e.g., https://example.okta.com/oauth2/default)"
+            },
+            "LDAP_ENABLED": {
+              "type": "string",
+              "enum": ["true", "false"],
+              "description": "Enable LDAP authentication"
+            },
+            "LDAP_PORT": {
+              "type": "string",
+              "pattern": "^[1-9][0-9]{0,4}$",
+              "description": "LDAP port (1-65535, common: 389 for plain, 636 for SSL)"
             }
           },
           "additionalProperties": {

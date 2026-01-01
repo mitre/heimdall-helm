@@ -99,3 +99,66 @@ tests:
       - equal:
           path: data.CUSTOM_VAR
           value: custom_value
+
+  #
+  # Test 7: OAuth/OIDC Validation - EXTERNAL_URL
+  #
+  # Note: EXTERNAL_URL with /authn path is caught by JSON Schema pattern validation
+  # Schema pattern: ^https?://[^/]+$ rejects URLs with paths
+  # Template validation provides additional check for edge cases
+
+  #
+  # Test 8: OAuth/OIDC Validation - Paired Client ID/Secret
+  #
+  - it: should fail when GITHUB_CLIENT_ID is set without GITHUB_CLIENT_SECRET
+    set:
+      heimdall.config.GITHUB_CLIENT_ID: "test123"
+    asserts:
+      - failedTemplate:
+          errorMessage: "ERROR: GITHUB_CLIENT_ID is set but GITHUB_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
+
+  - it: should fail when GITLAB_CLIENT_ID is set without GITLAB_CLIENT_SECRET
+    set:
+      heimdall.config.GITLAB_CLIENT_ID: "test123"
+    asserts:
+      - failedTemplate:
+          errorMessage: "ERROR: GITLAB_CLIENT_ID is set but GITLAB_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
+
+  - it: should fail when GOOGLE_CLIENT_ID is set without GOOGLE_CLIENT_SECRET
+    set:
+      heimdall.config.GOOGLE_CLIENT_ID: "test123"
+    asserts:
+      - failedTemplate:
+          errorMessage: "ERROR: GOOGLE_CLIENT_ID is set but GOOGLE_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
+
+  - it: should fail when OIDC_CLIENT_ID is set without OIDC_CLIENT_SECRET
+    set:
+      heimdall.config.OIDC_CLIENT_ID: "test123"
+    asserts:
+      - failedTemplate:
+          errorMessage: "ERROR: OIDC_CLIENT_ID is set but OIDC_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
+
+  - it: should fail when OKTA_CLIENT_ID is set without OKTA_CLIENT_SECRET
+    set:
+      heimdall.config.OKTA_CLIENT_ID: "test123"
+    asserts:
+      - failedTemplate:
+          errorMessage: "ERROR: OKTA_CLIENT_ID is set but OKTA_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
+
+  #
+  # Test 9: OAuth/OIDC Validation - OIDC URL Consistency
+  #
+  - it: should fail when OIDC_ISSUER is set without required OIDC URLs
+    set:
+      heimdall.config.OIDC_ISSUER: https://auth.example.com
+      heimdall.config.OIDC_CLIENT_ID: test123
+      heimdall.secrets.OIDC_CLIENT_SECRET: secret123
+    asserts:
+      - failedTemplate:
+          errorMessage: "ERROR: When OIDC_ISSUER is set, you must also set OIDC_AUTHORIZATION_URL, OIDC_TOKEN_URL, and OIDC_USER_INFO_URL."
+
+  #
+  # Test 10: OAuth/OIDC Validation - GitLab BASE_URL
+  #
+  # Note: GitLab trailing slash is caught by JSON Schema pattern validation
+  # Schema pattern: ^https?://[^/]+$ rejects any URL with paths (including trailing slash)

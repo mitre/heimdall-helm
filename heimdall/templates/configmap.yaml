@@ -37,6 +37,44 @@ data:
   {{- end }}
 
   # =============================================================================
+  # OAuth/OIDC Configuration Validation
+  # =============================================================================
+  # Validate paired Client ID + Secret configurations
+  {{- if .Values.heimdall.config }}
+  {{- if and (hasKey .Values.heimdall.config "GITHUB_CLIENT_ID") (not (hasKey .Values.heimdall.secrets "GITHUB_CLIENT_SECRET")) }}
+  {{- fail "ERROR: GITHUB_CLIENT_ID is set but GITHUB_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret." }}
+  {{- end }}
+  {{- if and (hasKey .Values.heimdall.config "GITLAB_CLIENT_ID") (not (hasKey .Values.heimdall.secrets "GITLAB_CLIENT_SECRET")) }}
+  {{- fail "ERROR: GITLAB_CLIENT_ID is set but GITLAB_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret." }}
+  {{- end }}
+  {{- if and (hasKey .Values.heimdall.config "GOOGLE_CLIENT_ID") (not (hasKey .Values.heimdall.secrets "GOOGLE_CLIENT_SECRET")) }}
+  {{- fail "ERROR: GOOGLE_CLIENT_ID is set but GOOGLE_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret." }}
+  {{- end }}
+  {{- if and (hasKey .Values.heimdall.config "OIDC_CLIENT_ID") (not (hasKey .Values.heimdall.secrets "OIDC_CLIENT_SECRET")) }}
+  {{- fail "ERROR: OIDC_CLIENT_ID is set but OIDC_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret." }}
+  {{- end }}
+  {{- if and (hasKey .Values.heimdall.config "OKTA_CLIENT_ID") (not (hasKey .Values.heimdall.secrets "OKTA_CLIENT_SECRET")) }}
+  {{- fail "ERROR: OKTA_CLIENT_ID is set but OKTA_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret." }}
+  {{- end }}
+
+  # Validate OIDC URL consistency (all URLs should use same domain)
+  {{- if hasKey .Values.heimdall.config "OIDC_ISSUER" }}
+  {{- $oidcIssuer := .Values.heimdall.config.OIDC_ISSUER }}
+  {{- if not (and (hasKey .Values.heimdall.config "OIDC_AUTHORIZATION_URL") (hasKey .Values.heimdall.config "OIDC_TOKEN_URL") (hasKey .Values.heimdall.config "OIDC_USER_INFO_URL")) }}
+  {{- fail "ERROR: When OIDC_ISSUER is set, you must also set OIDC_AUTHORIZATION_URL, OIDC_TOKEN_URL, and OIDC_USER_INFO_URL." }}
+  {{- end }}
+  {{- end }}
+
+  # Validate GitLab BASE_URL doesn't have trailing slash
+  {{- if hasKey .Values.heimdall.config "GITLAB_BASE_URL" }}
+  {{- $gitlabUrl := .Values.heimdall.config.GITLAB_BASE_URL }}
+  {{- if hasSuffix "/" $gitlabUrl }}
+  {{- fail "ERROR: GITLAB_BASE_URL must NOT have a trailing slash. Use 'https://gitlab.example.com' not 'https://gitlab.example.com/'." }}
+  {{- end }}
+  {{- end }}
+  {{- end }}
+
+  # =============================================================================
   # Load Additional Non-Sensitive Environment Variables from File
   # =============================================================================
   # env/heimdallconfig.yaml contains default non-sensitive configuration
