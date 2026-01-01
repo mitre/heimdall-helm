@@ -180,6 +180,13 @@ helm test heimdall -n heimdall-test
 | heimdall.livenessProbe.initialDelaySeconds | int | `0` |  |
 | heimdall.livenessProbe.periodSeconds | int | `10` |  |
 | heimdall.livenessProbe.timeoutSeconds | int | `5` |  |
+| heimdall.networkPolicy.egress | object | `{"extraRules":[]}` | Egress rules - Allow traffic FROM Heimdall pods |
+| heimdall.networkPolicy.egress.extraRules | list | `[]` | Additional egress rules beyond DNS and PostgreSQL DNS and PostgreSQL are allowed by default Example - Allow HTTPS to external services: extraRules:   - to:       - podSelector: {}     ports:       - protocol: TCP         port: 443 |
+| heimdall.networkPolicy.enabled | bool | `false` | Enable NetworkPolicy (disabled by default for backwards compatibility) |
+| heimdall.networkPolicy.ingress | object | `{"enabled":true,"namespaceSelector":{},"podSelector":{}}` | Ingress rules - Allow traffic TO Heimdall pods |
+| heimdall.networkPolicy.ingress.enabled | bool | `true` | Enable ingress rules |
+| heimdall.networkPolicy.ingress.namespaceSelector | object | `{}` | Allow traffic from specific namespace (e.g., ingress-nginx) Example for nginx-ingress: namespaceSelector:   matchLabels:     name: ingress-nginx |
+| heimdall.networkPolicy.ingress.podSelector | object | `{}` | Allow traffic from specific pods Example: podSelector:   matchLabels:     app: nginx-ingress |
 | heimdall.nodeSelector | object | `{}` |  |
 | heimdall.podAnnotations | object | `{}` |  |
 | heimdall.podDisruptionBudget.enabled | bool | `false` |  |
