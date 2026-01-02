@@ -32,12 +32,15 @@ heimdall:
     EXTERNAL_URL: "http://localhost:8080"
 
     # OIDC Configuration pointing to mock OAuth server
+    # CRITICAL: Use OIDC_CLIENTID (one underscore) - Heimdall requirement
+    # See: apps/backend/src/config/config.service.ts:enabledOauthStrategies()
+    # Code: this.get(`${oauthStrategy.toUpperCase()}_CLIENTID`)
     OIDC_NAME: "Mock OAuth"
     OIDC_ISSUER: "http://oauth2-mock.oauth-test.svc.cluster.local:8080/default"
     OIDC_AUTHORIZATION_URL: "http://oauth2-mock.oauth-test.svc.cluster.local:8080/default/authorize"
     OIDC_TOKEN_URL: "http://oauth2-mock.oauth-test.svc.cluster.local:8080/default/token"
     OIDC_USER_INFO_URL: "http://oauth2-mock.oauth-test.svc.cluster.local:8080/default/userinfo"
-    OIDC_CLIENT_ID: "heimdall-test"
+    OIDC_CLIENTID: "heimdall-test"
 
   secrets:
     ADMIN_PASSWORD: "admin123"

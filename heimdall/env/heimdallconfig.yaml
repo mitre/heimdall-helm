@@ -73,42 +73,51 @@ SPLUNK_HOST_URL: ""     # Splunk integration
 # -----------------------------------------------------------------------------
 # GitHub OAuth
 # -----------------------------------------------------------------------------
-GITHUB_CLIENT_ID: ""
+# CRITICAL: Heimdall expects GITHUB_CLIENTID (one underscore)
+# See: apps/backend/src/config/config.service.ts:enabledOauthStrategies()
+# Code: this.get(`${oauthStrategy.toUpperCase()}_CLIENTID`)
+GITHUB_CLIENTID: ""
 GITHUB_ENTERPRISE_INSTANCE_BASE_URL: ""  # For GitHub Enterprise
 GITHUB_ENTERPRISE_INSTANCE_API_URL: ""
-# GITHUB_CLIENT_SECRET is in heimdall-secrets.yaml
+# GITHUB_CLIENTSECRET is in heimdall-secrets.yaml (no underscore before SECRET)
 
 # -----------------------------------------------------------------------------
 # GitLab OAuth
 # -----------------------------------------------------------------------------
-GITLAB_CLIENT_ID: ""
+# CRITICAL: Heimdall expects GITLAB_CLIENTID (one underscore) for ID
+# WARNING: GitLab uses GITLAB_SECRET (not CLIENTSECRET) - Heimdall inconsistency
+GITLAB_CLIENTID: ""
 GITLAB_BASE_URL: "https://gitlab.com"  # Or your GitLab instance URL
-# GITLAB_CLIENT_SECRET is in heimdall-secrets.yaml
+# GITLAB_SECRET is in heimdall-secrets.yaml
 
 # -----------------------------------------------------------------------------
 # Google OAuth
 # -----------------------------------------------------------------------------
-GOOGLE_CLIENT_ID: ""
-# GOOGLE_CLIENT_SECRET is in heimdall-secrets.yaml
+# CRITICAL: Heimdall expects GOOGLE_CLIENTID (one underscore)
+GOOGLE_CLIENTID: ""
+# GOOGLE_CLIENTSECRET is in heimdall-secrets.yaml (no underscore before SECRET)
 
 # -----------------------------------------------------------------------------
 # Okta OAuth/OIDC
 # -----------------------------------------------------------------------------
+# CRITICAL: Heimdall expects OKTA_CLIENTID (one underscore)
 OKTA_DOMAIN: ""  # e.g., "example.okta.com"
 OKTA_ISSUER: ""  # e.g., "https://example.okta.com/oauth2/default"
-OKTA_CLIENT_ID: ""
+OKTA_CLIENTID: ""
 OKTA_AUTHORIZATION_URL: ""
 OKTA_TOKEN_URL: ""
 OKTA_USER_INFO_URL: ""
 OKTA_USE_HTTPS_PROXY: "false"
-# OKTA_CLIENT_SECRET is in heimdall-secrets.yaml
+# OKTA_CLIENTSECRET is in heimdall-secrets.yaml (no underscore before SECRET)
 
 # -----------------------------------------------------------------------------
 # Generic OIDC Provider
 # -----------------------------------------------------------------------------
+# CRITICAL: Heimdall expects OIDC_CLIENTID (one underscore) for ID
+# WARNING: OIDC uses OIDC_CLIENT_SECRET (has underscore) - Heimdall inconsistency
 OIDC_NAME: "OIDC Provider"  # Display name for login button
 OIDC_ISSUER: ""  # e.g., "https://auth.example.com"
-OIDC_CLIENT_ID: ""
+OIDC_CLIENTID: ""
 OIDC_AUTHORIZATION_URL: ""
 OIDC_TOKEN_URL: ""
 OIDC_USER_INFO_URL: ""
@@ -117,7 +126,7 @@ OIDC_USES_PKCE_S256: "false"
 OIDC_USES_VERIFIED_EMAIL: "false"
 OIDC_EXTERNAL_GROUPS: "false"
 OIDC_USE_HTTPS_PROXY: "false"
-# OIDC_CLIENT_SECRET is in heimdall-secrets.yaml
+# OIDC_CLIENT_SECRET is in heimdall-secrets.yaml (has underscore before SECRET)
 
 # -----------------------------------------------------------------------------
 # LDAP Configuration

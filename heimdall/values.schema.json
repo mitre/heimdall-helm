@@ -578,31 +578,31 @@
               "pattern": "^https?://[^/]+$",
               "description": "Public-facing base URL (e.g., https://heimdall.example.com). MUST NOT include /authn path - this is added automatically by Heimdall."
             },
-            "GITHUB_CLIENT_ID": {
+            "GITHUB_CLIENTID": {
               "type": "string",
               "minLength": 1,
-              "description": "GitHub OAuth Client ID (requires GITHUB_CLIENT_SECRET)"
+              "description": "GitHub OAuth Client ID (requires GITHUB_CLIENTSECRET). CRITICAL: OAuth button appears only when this variable is set."
             },
-            "GITLAB_CLIENT_ID": {
+            "GITLAB_CLIENTID": {
               "type": "string",
               "minLength": 1,
-              "description": "GitLab OAuth Client ID (requires GITLAB_CLIENT_SECRET)"
+              "description": "GitLab OAuth Client ID (requires GITLAB_SECRET - note inconsistent naming). CRITICAL: OAuth button appears only when this variable is set."
             },
-            "GITLAB_BASE_URL": {
+            "GITLAB_BASEURL": {
               "type": "string",
               "format": "uri",
               "pattern": "^https?://[^/]+$",
               "description": "GitLab instance URL without trailing slash (e.g., https://gitlab.example.com)"
             },
-            "GOOGLE_CLIENT_ID": {
+            "GOOGLE_CLIENTID": {
               "type": "string",
               "minLength": 1,
-              "description": "Google OAuth Client ID (requires GOOGLE_CLIENT_SECRET)"
+              "description": "Google OAuth Client ID (requires GOOGLE_CLIENTSECRET). CRITICAL: OAuth button appears only when this variable is set."
             },
-            "OIDC_CLIENT_ID": {
+            "OIDC_CLIENTID": {
               "type": "string",
               "minLength": 1,
-              "description": "OIDC Client ID (requires OIDC_CLIENT_SECRET)"
+              "description": "OIDC Client ID (requires OIDC_CLIENT_SECRET - note inconsistent naming). CRITICAL: OAuth button appears only when this variable is set."
             },
             "OIDC_ISSUER": {
               "type": "string",
@@ -628,10 +628,10 @@
               "pattern": "^https?://",
               "description": "OIDC UserInfo endpoint URL"
             },
-            "OKTA_CLIENT_ID": {
+            "OKTA_CLIENTID": {
               "type": "string",
               "minLength": 1,
-              "description": "Okta OAuth Client ID (requires OKTA_CLIENT_SECRET)"
+              "description": "Okta OAuth Client ID (requires OKTA_CLIENTSECRET). CRITICAL: OAuth button appears only when this variable is set."
             },
             "OKTA_DOMAIN": {
               "type": "string",
