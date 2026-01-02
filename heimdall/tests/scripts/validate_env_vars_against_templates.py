@@ -196,7 +196,7 @@ def main():
     args = parser.parse_args()
 
     # Get base directory
-    base_dir = Path(__file__).parent
+    base_dir = Path(__file__).resolve().parent.parent.parent.parent
     os.chdir(base_dir)
 
     print("🔍 Heimdall Environment Variable Validator")

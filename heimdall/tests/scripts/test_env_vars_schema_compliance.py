@@ -148,15 +148,15 @@ def test_oauth_naming_compliance(
 
 def main():
     """Main test execution."""
-    # Get base directory
-    base_dir = Path(__file__).parent
+    # Get base directory (go up 3 levels from heimdall/tests/scripts/ to repo root)
+    base_dir = Path(__file__).resolve().parent.parent.parent.parent
     os.chdir(base_dir)
 
     print("🧪 Environment Variable Compliance Test Suite")
     print("=" * 60)
 
     # Load canonical fixture
-    fixture_path = base_dir / 'heimdall/data/env-vars.yaml'
+    fixture_path = (base_dir / 'heimdall/data/env-vars.yaml').resolve()
     if not fixture_path.exists():
         print(f"❌ FATAL: Fixture not found: {fixture_path}", file=sys.stderr)
         return 1
