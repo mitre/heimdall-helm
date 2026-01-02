@@ -10,7 +10,7 @@ export default defineContentConfig({
       type: 'page',
       source: {
         include: '**',
-        exclude: ['index.md']
+        exclude: ['index.md', 'data/**']
       },
       schema: z.object({
         links: z.array(z.object({
@@ -20,6 +20,10 @@ export default defineContentConfig({
           target: z.string().optional()
         })).optional()
       })
+    }),
+    envVars: defineCollection({
+      type: 'data',
+      source: 'data/env-vars.yaml'
     })
   }
 })
