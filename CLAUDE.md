@@ -39,6 +39,28 @@ People see AI-generated marketing language and immediately distrust it. Write li
 
 **Reason**: Previous incident where commit deleted files instead of renaming them due to skipping verification step.
 
+## CRITICAL ENVIRONMENT INFORMATION - READ FIRST
+
+**DOCUMENTATION SERVER RUNNING ON PORT 3000**
+- Nuxt documentation site runs on http://localhost:3000
+- **NEVER** use port 3000 for port-forwarding Heimdall or any other service
+- Use port 8080 or other ports for Heimdall testing: `kubectl port-forward -n heimdall svc/heimdall 8080:3000`
+
+**LOCAL HEIMDALL IMAGE FOR KIND**
+- kind cluster on Apple Silicon requires ARM64 images
+- Local image available: `heimdall-app:arm64-test`
+- Already loaded in kind cluster: `heimdall-test`
+- **ALWAYS** use local image in test values, NOT `mitre/heimdall2:release-latest` (x86 only)
+
+**GITLAB OAUTH ISSUE #7542 CONTEXT**
+- This has been investigated SEVEN times already
+- Root cause: USER CONFIGURATION ERROR - setting `EXTERNAL_URL` with `/authn` path
+- Our Helm chart ALREADY prevents this with:
+  1. values.schema.json regex: `^https?://[^/]+$`
+  2. ConfigMap template validation that fails if `/authn` is in URL
+- DO NOT add warnings to docs without TESTING FIRST
+- Testing plan: Deploy Heimdall with OAuth mock server, verify callback URLs work correctly
+
 ## Project Overview
 
 This is a **Helm chart** for deploying **MITRE SAF Heimdall** to Kubernetes. Heimdall is a Node.js/Sequelize application for visualizing security scan results from InSpec and other tools.

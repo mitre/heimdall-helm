@@ -1,0 +1,89 @@
+---
+# OAuth2 Mock Server for Integration Testing
+# Based on: https://github.com/navikt/mock-oauth2-server
+#
+# Usage:
+#   kubectl apply -f oauth2-mock-server.yaml
+#   kubectl wait --for=condition=ready pod -l app=oauth2-mock -n oauth-test --timeout=60s
+#
+# Access:
+#   kubectl port-forward -n oauth-test svc/oauth2-mock 8080:8080
+#   Open: http://localhost:8080
+#
+# OIDC Discovery:
+#   http://oauth2-mock.oauth-test.svc.cluster.local:8080/default/.well-known/openid-configuration
+#
+# Test Credentials:
+#   Any username/password accepted (mock server)
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: oauth-test
+  labels:
+    name: oauth-test
+    purpose: integration-testing
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-mock
+  namespace: oauth-test
+  labels:
+    app: oauth2-mock
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth2-mock
+  template:
+    metadata:
+      labels:
+        app: oauth2-mock
+    spec:
+      containers:
+      - name: oauth2-mock
+        image: ghcr.io/navikt/mock-oauth2-server:0.5.8
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        env:
+        - name: JSON_CONFIG
+          value: |
+            {
+              "interactiveLogin": true,
+              "httpServer": "NettyWrapper",
+              "tokenCallbacks": []
+            }
+        livenessProbe:
+          httpGet:
+            path: /default/.well-known/openid-configuration
+            port: 8080
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /default/.well-known/openid-configuration
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oauth2-mock
+  namespace: oauth-test
+  labels:
+    app: oauth2-mock
+spec:
+  type: ClusterIP
+  selector:
+    app: oauth2-mock
+  ports:
+  - name: http
+    port: 8080
+    targetPort: 8080
+    protocol: TCP

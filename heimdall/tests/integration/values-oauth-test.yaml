@@ -1,0 +1,52 @@
+# Test values for OAuth callback URL testing
+#
+# Usage:
+#   helm install heimdall-oauth-test ./heimdall \
+#     -n heimdall-test \
+#     -f heimdall/tests/integration/values-oauth-test.yaml
+#
+# Port-forward to access:
+#   kubectl port-forward -n heimdall-test svc/heimdall-oauth-test 3000:3000
+#   Open: http://localhost:3000
+
+# Use embedded PostgreSQL for simplicity
+postgresql:
+  enabled: true
+  auth:
+    database: heimdall
+    username: postgres
+    # Password auto-generated on first install (use existing)
+
+heimdall:
+  replicaCount: 1
+
+  image:
+    repository: heimdall-app
+    pullPolicy: IfNotPresent
+    tag: "arm64-test"
+
+  config:
+    NODE_ENV: "production"
+    # CORRECT configuration - base URL only (no /authn path)
+    # Port 8080 because docs server uses 3000
+    EXTERNAL_URL: "http://localhost:8080"
+
+    # OIDC Configuration pointing to mock OAuth server
+    OIDC_NAME: "Mock OAuth"
+    OIDC_ISSUER: "http://oauth2-mock.oauth-test.svc.cluster.local:8080/default"
+    OIDC_AUTHORIZATION_URL: "http://oauth2-mock.oauth-test.svc.cluster.local:8080/default/authorize"
+    OIDC_TOKEN_URL: "http://oauth2-mock.oauth-test.svc.cluster.local:8080/default/token"
+    OIDC_USER_INFO_URL: "http://oauth2-mock.oauth-test.svc.cluster.local:8080/default/userinfo"
+    OIDC_CLIENT_ID: "heimdall-test"
+
+  secrets:
+    ADMIN_PASSWORD: "admin123"
+    JWT_SECRET: "test-jwt-secret-key-for-testing"
+    OIDC_CLIENT_SECRET: "test-secret"
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress:
+    enabled: false
