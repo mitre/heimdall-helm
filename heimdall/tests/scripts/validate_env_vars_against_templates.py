@@ -20,6 +20,31 @@ from typing import Dict, List, Set, Tuple
 import yaml
 
 
+# Whitelisted variables that are NOT Heimdall vars but are legitimate
+WHITELIST = {
+    'NODE_EXTRA_CA_CERTS',  # Node.js system var
+    'CUSTOM_VAR',           # Test variable
+    'BASE_URL',             # Test variable (not EXTERNAL_URL)
+    'CLIENT_IP',            # Nginx variable
+    'JSON_CONFIG',          # OAuth2 mock server
+    'SPLUNK_API_TOKEN',     # Future/deprecated var
+    'TENABLE_API_TOKEN',    # Future/deprecated var
+    'NUXT_SITE_URL',        # Nuxt template var (not Heimdall)
+    'YOUR_CLOUDFLARE_API_TOKEN',  # Documentation placeholder
+    'YOUR_AWS_SECRET_KEY',        # Documentation placeholder
+    'INSECURE_DEFAULT_CHANGE_ME',  # Template placeholder pattern
+    'SELF_SIGNED_CERT_IN_CHAIN',   # Node.js error constant
+    'UNABLE_TO_VERIFY_LEAF_SIGNATURE',  # Node.js error constant
+}
+
+# Directories to exclude from validation
+EXCLUDED_DIRECTORIES = [
+    'nuxt-ui-template',  # Nuxt UI template content (will be removed)
+    'node_modules',      # Node.js dependencies
+    '.git',              # Git directory
+]
+
+
 def load_canonical_vars(fixture_path: Path) -> Dict[str, Dict]:
     """Load canonical environment variables from fixture."""
     with open(fixture_path, 'r', encoding='utf-8') as f:
@@ -69,6 +94,18 @@ def find_invalid_references(
     invalid = []
 
     for ref in refs:
+        # Skip whitelisted variables
+        if ref in WHITELIST:
+            continue
+
+        # Skip partial references (patterns ending with underscore)
+        if ref.endswith('_'):
+            continue
+
+        # Skip partial placeholder patterns (like INSECURE_DEFAULT_CHANGE_ME_)
+        if any(ref.startswith(pattern) for pattern in ['INSECURE_DEFAULT_CHANGE_ME_']):
+            continue
+
         if ref not in canonical_names:
             # Try to find a similar correct variable
             suggestion = find_similar_var(ref, canonical_names)
@@ -150,6 +187,14 @@ def scan_directory(
     for pattern in patterns:
         for filepath in base_dir.glob(pattern):
             if not filepath.is_file():
+                continue
+
+            # Skip excluded directories
+            if any(excluded in str(filepath) for excluded in EXCLUDED_DIRECTORIES):
+                continue
+
+            # Skip the fixture file itself (contains var names in documentation)
+            if 'fixtures/env-vars.yaml' in str(filepath) or 'data/env-vars.yaml' in str(filepath):
                 continue
 
             try:
