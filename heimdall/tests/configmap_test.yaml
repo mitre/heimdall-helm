@@ -110,40 +110,40 @@ tests:
   #
   # Test 8: OAuth/OIDC Validation - Paired Client ID/Secret
   #
-  - it: should fail when GITHUB_CLIENT_ID is set without GITHUB_CLIENT_SECRET
+  - it: should fail when GITHUB_CLIENTID is set without GITHUB_CLIENTSECRET
     set:
-      heimdall.config.GITHUB_CLIENT_ID: "test123"
+      heimdall.config.GITHUB_CLIENTID: "test123"
     asserts:
       - failedTemplate:
-          errorMessage: "ERROR: GITHUB_CLIENT_ID is set but GITHUB_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
+          errorMessage: "ERROR: GITHUB_CLIENTID is set but GITHUB_CLIENTSECRET is missing. OAuth requires both Client ID and Secret."
 
-  - it: should fail when GITLAB_CLIENT_ID is set without GITLAB_CLIENT_SECRET
+  - it: should fail when GITLAB_CLIENTID is set without GITLAB_SECRET
     set:
-      heimdall.config.GITLAB_CLIENT_ID: "test123"
+      heimdall.config.GITLAB_CLIENTID: "test123"
     asserts:
       - failedTemplate:
-          errorMessage: "ERROR: GITLAB_CLIENT_ID is set but GITLAB_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
+          errorMessage: "ERROR: GITLAB_CLIENTID is set but GITLAB_SECRET is missing. OAuth requires both Client ID and Secret."
 
-  - it: should fail when GOOGLE_CLIENT_ID is set without GOOGLE_CLIENT_SECRET
+  - it: should fail when GOOGLE_CLIENTID is set without GOOGLE_CLIENTSECRET
     set:
-      heimdall.config.GOOGLE_CLIENT_ID: "test123"
+      heimdall.config.GOOGLE_CLIENTID: "test123"
     asserts:
       - failedTemplate:
-          errorMessage: "ERROR: GOOGLE_CLIENT_ID is set but GOOGLE_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
+          errorMessage: "ERROR: GOOGLE_CLIENTID is set but GOOGLE_CLIENTSECRET is missing. OAuth requires both Client ID and Secret."
 
-  - it: should fail when OIDC_CLIENT_ID is set without OIDC_CLIENT_SECRET
+  - it: should fail when OIDC_CLIENTID is set without OIDC_CLIENT_SECRET
     set:
-      heimdall.config.OIDC_CLIENT_ID: "test123"
+      heimdall.config.OIDC_CLIENTID: "test123"
     asserts:
       - failedTemplate:
-          errorMessage: "ERROR: OIDC_CLIENT_ID is set but OIDC_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
+          errorMessage: "ERROR: OIDC_CLIENTID is set but OIDC_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
 
-  - it: should fail when OKTA_CLIENT_ID is set without OKTA_CLIENT_SECRET
+  - it: should fail when OKTA_CLIENTID is set without OKTA_CLIENTSECRET
     set:
-      heimdall.config.OKTA_CLIENT_ID: "test123"
+      heimdall.config.OKTA_CLIENTID: "test123"
     asserts:
       - failedTemplate:
-          errorMessage: "ERROR: OKTA_CLIENT_ID is set but OKTA_CLIENT_SECRET is missing. OAuth requires both Client ID and Secret."
+          errorMessage: "ERROR: OKTA_CLIENTID is set but OKTA_CLIENTSECRET is missing. OAuth requires both Client ID and Secret."
 
   #
   # Test 9: OAuth/OIDC Validation - OIDC URL Consistency
@@ -151,7 +151,7 @@ tests:
   - it: should fail when OIDC_ISSUER is set without required OIDC URLs
     set:
       heimdall.config.OIDC_ISSUER: https://auth.example.com
-      heimdall.config.OIDC_CLIENT_ID: test123
+      heimdall.config.OIDC_CLIENTID: test123
       heimdall.secrets.OIDC_CLIENT_SECRET: secret123
     asserts:
       - failedTemplate:

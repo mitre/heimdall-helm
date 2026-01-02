@@ -67,7 +67,7 @@ SPLUNK_HOST_URL: ""     # Splunk integration
 # =============================================================================
 # OAuth/OIDC Configuration (URLs and Non-Sensitive Settings)
 # =============================================================================
-# Secrets (CLIENT_SECRET) go in heimdall-secrets.yaml
+# Secrets go in heimdall-secrets.yaml
 # External URL is set via ingress or service configuration
 
 # -----------------------------------------------------------------------------
@@ -87,7 +87,7 @@ GITHUB_ENTERPRISE_INSTANCE_API_URL: ""
 # CRITICAL: Heimdall expects GITLAB_CLIENTID (one underscore) for ID
 # WARNING: GitLab uses GITLAB_SECRET (not CLIENTSECRET) - Heimdall inconsistency
 GITLAB_CLIENTID: ""
-GITLAB_BASE_URL: "https://gitlab.com"  # Or your GitLab instance URL
+GITLAB_BASEURL: "https://gitlab.com"  # Or your GitLab instance URL
 # GITLAB_SECRET is in heimdall-secrets.yaml
 
 # -----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ GOOGLE_CLIENTID: ""
 # -----------------------------------------------------------------------------
 # CRITICAL: Heimdall expects OKTA_CLIENTID (one underscore)
 OKTA_DOMAIN: ""  # e.g., "example.okta.com"
-OKTA_ISSUER: ""  # e.g., "https://example.okta.com/oauth2/default"
+OKTA_ISSUER_URL: ""  # e.g., "https://example.okta.com/oauth2/default"
 OKTA_CLIENTID: ""
 OKTA_AUTHORIZATION_URL: ""
 OKTA_TOKEN_URL: ""
@@ -134,13 +134,13 @@ OIDC_USE_HTTPS_PROXY: "false"
 LDAP_ENABLED: "false"
 LDAP_HOST: "ldap.example.com"
 LDAP_PORT: "389"
-LDAP_SEARCH_BASE: "dc=example,dc=com"
-LDAP_SEARCH_FILTER: "(uid={{username}})"
-LDAP_NAME_FIELD: "cn"      # LDAP attribute for user's full name
-LDAP_MAIL_FIELD: "mail"    # LDAP attribute for user's email
+LDAP_SEARCHBASE: "dc=example,dc=com"
+LDAP_SEARCHFILTER: "(uid={{username}})"
+LDAP_NAMEFIELD: "cn"      # LDAP attribute for user's full name
+LDAP_MAILFIELD: "mail"    # LDAP attribute for user's email
 LDAP_SSL: "false"
 LDAP_SSL_INSECURE: "false"
-# LDAP_BIND_DN and LDAP_PASSWORD are in heimdall-secrets.yaml
+# LDAP_BINDDN and LDAP_PASSWORD are in heimdall-secrets.yaml
 # LDAP_SSL_CA is in heimdall-secrets.yaml (if using SSL with custom CA)
 
 # =============================================================================
