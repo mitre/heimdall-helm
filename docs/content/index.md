@@ -1,7 +1,7 @@
 ---
 seo:
   title: Heimdall Helm Chart
-  description: Deploy MITRE SAF Heimdall to Kubernetes with production-ready Helm charts.
+  description: Deploy MITRE SAF Heimdall to Kubernetes.
 ---
 
 ::u-page-hero{class="dark:bg-gradient-to-b from-neutral-900 to-neutral-950"}
@@ -15,16 +15,16 @@ orientation: horizontal
 [Heimdall]{.text-primary} Helm Chart
 
 #description
-Deploy MITRE SAF Heimdall to Kubernetes with production-ready Helm charts. Built following industry best practices with Bitnami PostgreSQL, comprehensive validation, and flexible secrets management.
+Deploy MITRE SAF Heimdall to Kubernetes.
 
 #links
   :::u-button
   ---
-  to: /getting-started
+  to: /getting-started/quickstart
   size: xl
   trailing-icon: i-lucide-arrow-right
   ---
-  Get started
+  Quickstart
   :::
 
   :::u-button
@@ -36,18 +36,18 @@ Deploy MITRE SAF Heimdall to Kubernetes with production-ready Helm charts. Built
   to: https://github.com/mitre/heimdall-helm
   target: _blank
   ---
-  View on GitHub
+  GitHub
   :::
 
 #default
   :::prose-pre
   ---
   code: |
-    # Add Heimdall Helm repository
+    # Add Helm repository
     helm repo add mitre https://mitre.github.io/heimdall-helm
     helm repo update
 
-    # Install Heimdall
+    # Install
     helm install heimdall mitre/heimdall \
       --namespace heimdall \
       --create-namespace
@@ -55,11 +55,11 @@ Deploy MITRE SAF Heimdall to Kubernetes with production-ready Helm charts. Built
   ---
 
   ```bash [install.sh]
-  # Add Heimdall Helm repository
+  # Add Helm repository
   helm repo add mitre https://mitre.github.io/heimdall-helm
   helm repo update
 
-  # Install Heimdall
+  # Install
   helm install heimdall mitre/heimdall \
     --namespace heimdall \
     --create-namespace
@@ -69,20 +69,7 @@ Deploy MITRE SAF Heimdall to Kubernetes with production-ready Helm charts. Built
 
 ::u-page-section{class="dark:bg-neutral-950"}
 #title
-Production-Ready Helm Chart
-
-#links
-  :::u-button
-  ---
-  color: neutral
-  size: lg
-  target: _blank
-  to: https://helm.sh/docs/chart_best_practices/
-  trailingIcon: i-lucide-arrow-right
-  variant: subtle
-  ---
-  Helm Best Practices
-  :::
+Features
 
 #features
   :::u-page-feature
@@ -93,7 +80,7 @@ Production-Ready Helm Chart
   High Availability
 
   #description
-  Built-in PodDisruptionBudget, rolling updates, health probes, and HorizontalPodAutoscaler support for zero-downtime deployments.
+  PodDisruptionBudget, health probes, HorizontalPodAutoscaler, rolling updates.
   :::
 
   :::u-page-feature
@@ -101,10 +88,10 @@ Production-Ready Helm Chart
   icon: i-lucide-database
   ---
   #title
-  Flexible Database Options
+  Database Options
 
   #description
-  Use embedded Bitnami PostgreSQL StatefulSet or connect to external database (AWS RDS, Google Cloud SQL, Azure Database).
+  Embedded PostgreSQL or external database (AWS RDS, GCP Cloud SQL, Azure Database).
   :::
 
   :::u-page-feature
@@ -112,10 +99,10 @@ Production-Ready Helm Chart
   icon: i-lucide-lock
   ---
   #title
-  Secure by Default
+  Secrets Management
 
   #description
-  Three secrets approaches (existingSecret, files, inline), values.schema.json validation, and security contexts out of the box.
+  Three approaches: existing secret, file-based, or inline values.
   :::
 
   :::u-page-feature
@@ -123,95 +110,10 @@ Production-Ready Helm Chart
   icon: i-lucide-key
   ---
   #title
-  Multiple Auth Providers
+  Authentication
 
   #description
-  Support for local authentication, LDAP, OAuth (GitHub, GitLab, Google), OIDC, and Okta with configurable callback URLs.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-gauge
-  ---
-  #title
-  Full Observability
-
-  #description
-  Health check endpoints, Prometheus ServiceMonitor support, structured logging to stdout/stderr, and metrics exporters.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-scaling
-  ---
-  #title
-  Auto-Scaling Ready
-
-  #description
-  HorizontalPodAutoscaler with CPU/memory metrics, configurable replica counts, and resource requests/limits.
-  :::
-::
-
-::u-page-section{class="dark:bg-neutral-950"}
-#title
-Following Helm Best Practices
-
-#links
-  :::u-button
-  ---
-  color: neutral
-  size: lg
-  target: _blank
-  to: https://github.com/mitre/vulcan-helm
-  trailingIcon: i-lucide-arrow-right
-  variant: subtle
-  ---
-  Vulcan Chart Reference
-  :::
-
-#features
-  :::u-page-feature
-  ---
-  icon: i-lucide-file-json
-  ---
-  #title
-  Schema Validation
-
-  #description
-  Comprehensive values.schema.json validates all 95+ environment variables with type checking, enums, and required field enforcement.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-code
-  ---
-  #title
-  Database Abstraction Helpers
-
-  #description
-  Template helpers abstract embedded vs external database configuration, making it easy to switch between deployment modes.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-package
-  ---
-  #title
-  Bitnami Dependencies
-
-  #description
-  Uses battle-tested Bitnami PostgreSQL subchart with millions of deployments, built-in HA, backup/restore, and metrics.
-  :::
-
-  :::u-page-feature
-  ---
-  icon: i-lucide-git-branch
-  ---
-  #title
-  Helm Hooks
-
-  #description
-  Database migrations run via Helm hooks before app deployment. Automatic admin user creation with post-install jobs.
+  Local, LDAP, GitHub, GitLab, Google OAuth, Okta OIDC.
   :::
 
   :::u-page-feature
@@ -219,10 +121,10 @@ Following Helm Best Practices
   icon: i-lucide-network
   ---
   #title
-  Network Policies
+  Ingress Support
 
   #description
-  Optional NetworkPolicy resources for zero-trust security. Restrict traffic between pods and external services.
+  Traefik, Nginx, AWS ALB, GCP Load Balancer, Azure App Gateway, Kong.
   :::
 
   :::u-page-feature
@@ -230,10 +132,10 @@ Following Helm Best Practices
   icon: i-lucide-certificate
   ---
   #title
-  Custom CA Certificates
+  TLS/SSL
 
   #description
-  Inject custom CA certificates for corporate environments. Support for both system-wide and application-specific trust stores.
+  Automated with cert-manager or manual certificates.
   :::
 ::
 
@@ -241,16 +143,15 @@ Following Helm Best Practices
   :::u-page-c-t-a
   ---
   links:
-    - label: Start deploying
-      to: '/getting-started'
+    - label: Quickstart
+      to: '/getting-started/quickstart'
       trailingIcon: i-lucide-arrow-right
-    - label: View Chart Repository
-      to: 'https://mitre.github.io/heimdall-helm'
-      target: _blank
+    - label: Common Scenarios
+      to: '/getting-started/common-scenarios'
       variant: subtle
-      icon: i-lucide-package
-  title: Ready to deploy Heimdall to Kubernetes?
-  description: Join organizations using MITRE SAF for security automation. Install this chart and start visualizing InSpec results today.
+      icon: i-lucide-copy
+  title: Deploy Heimdall to Kubernetes
+  description: 5-minute quickstart or copy-paste configurations for GitHub, GitLab, and Okta auth.
   class: dark:bg-neutral-950
   ---
 

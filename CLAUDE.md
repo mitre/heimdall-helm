@@ -2,6 +2,30 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Documentation and Communication Style - NO MARKETING BULLSHIT
+
+**CRITICAL - THIS IS WORK, NOT A SALES PITCH**
+
+People see AI-generated marketing language and immediately distrust it. Write like a human helping another human get work done.
+
+**NEVER use:**
+- "Production-ready", "battle-tested", "enterprise-grade" - marketing bullshit
+- "Built following best practices" - empty praise
+- "Comprehensive", "robust", "powerful" - meaningless adjectives
+- "Millions of deployments" - who gives a fuck
+- Feel-good language trying to validate or praise
+- Explaining WHY things are good - just state what they ARE
+- References to other projects unless directly relevant (no "like Vulcan" comparisons)
+
+**ALWAYS:**
+- State facts: what it is, what it does
+- Be direct and concise
+- Link to relevant standards/patterns if they're actually useful for understanding
+- Assume the reader knows what they need - just tell them how to get it
+- Write like you're helping someone do work, not selling them something
+
+**Why:** The work speaks for itself. If working code isn't enough to sell someone, we don't want to work with them.
+
 ## Git Safety Protocol
 
 **CRITICAL - READ BEFORE ANY GIT OPERATION:**
