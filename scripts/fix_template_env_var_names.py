@@ -265,8 +265,8 @@ def main():
 
     args = parser.parse_args()
 
-    # Get base directory
-    base_dir = Path(__file__).parent
+    # Get base directory (go up 1 level from scripts/ to repo root)
+    base_dir = Path(__file__).parent.parent
     os.chdir(base_dir)
 
     print("🔍 Heimdall Environment Variable Name Fixer")
