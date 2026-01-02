@@ -73,6 +73,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
+          cache-dependency-path: ''  # Disable cache (no Python deps in repo)
 
       - name: Install PyYAML
         run: pip install pyyaml
