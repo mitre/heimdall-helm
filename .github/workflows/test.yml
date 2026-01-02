@@ -61,7 +61,29 @@ jobs:
       - name: Run unit tests
         run: helm unittest ./heimdall
 
-  # Stage 3: Schema Validation (< 5s)
+  # Stage 3: Environment Variables Validation (< 10s)
+  env-vars-validation:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate env vars schema compliance
+        run: python heimdall/tests/scripts/test_env_vars_schema_compliance.py
+
+      - name: Validate env vars against templates
+        run: python heimdall/tests/scripts/validate_env_vars_against_templates.py
+
+  # Stage 4: Schema Validation (< 5s)
   schema-validation:
     runs-on: ubuntu-latest
     needs: lint
@@ -94,10 +116,10 @@ jobs:
             exit 1
           fi
 
-  # Stage 4: Integration Tests (2-5 min)
+  # Stage 5: Integration Tests (2-5 min)
   integration-test:
     runs-on: ubuntu-latest
-    needs: [unit-test, schema-validation]
+    needs: [unit-test, env-vars-validation, schema-validation]
     strategy:
       matrix:
         k8s-version:
@@ -135,7 +157,7 @@ jobs:
         if: steps.list-changed.outputs.changed == 'true'
         run: ct install --config .github/ct.yaml
 
-  # Stage 5: Template Rendering Tests
+  # Stage 6: Template Rendering Tests
   template-test:
     runs-on: ubuntu-latest
     needs: lint
