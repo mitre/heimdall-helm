@@ -1,0 +1,786 @@
+# Heimdall Environment Variables - Single Source of Truth
+#
+# This fixture defines ALL environment variables used by Heimdall.
+# It serves as the canonical reference for:
+# - Helm chart templates and validation
+# - Documentation generation
+# - Test case generation
+# - Heimdall2 application integration
+#
+# Source: Extracted from Heimdall2 source code (apps/backend/src/)
+# Last Updated: 2026-01-02
+
+environment_variables:
+  # ===========================================================================
+  # Node.js Configuration
+  # ===========================================================================
+  - name: NODE_ENV
+    category: nodejs
+    type: string
+    default: null
+    required: false
+    description: "Node.js runtime environment"
+    examples:
+      - "production"
+      - "development"
+      - "test"
+
+  - name: PORT
+    category: nodejs
+    type: integer
+    default: 3000
+    required: false
+    description: "Port that the application listens on"
+    examples:
+      - 8080
+      - 3000
+
+  # ===========================================================================
+  # Application Settings
+  # ===========================================================================
+  - name: EXTERNAL_URL
+    category: application
+    type: string
+    default: null
+    required: true
+    description: "Base URL for OAuth callbacks (without /authn path)"
+    examples:
+      - "https://heimdall.example.com"
+    validation:
+      pattern: "^https?://[^/]+$"
+      error: "Must be base URL only, no path"
+
+  - name: MAX_FILE_UPLOAD_SIZE
+    category: application
+    type: integer
+    default: 50
+    required: false
+    description: "Maximum evaluation upload size in MB"
+    examples:
+      - 100
+
+  # ===========================================================================
+  # Admin User Configuration
+  # ===========================================================================
+  - name: ADMIN_EMAIL
+    category: admin
+    type: string
+    default: "admin@heimdall.local"
+    required: false
+    description: "Administrator email address"
+    examples:
+      - "admin@example.com"
+
+  - name: ADMIN_PASSWORD
+    category: admin
+    type: secret
+    default: "auto-generated"
+    required: true
+    description: "Administrator password"
+    examples:
+      - "secure-password-123"
+
+  - name: ADMIN_USES_EXTERNAL_AUTH
+    category: admin
+    type: boolean
+    default: "false"
+    required: false
+    description: "Admin uses OAuth/OIDC login instead of local"
+    examples:
+      - "true"
+      - "false"
+
+  # ===========================================================================
+  # Authentication Settings
+  # ===========================================================================
+  - name: LOCAL_LOGIN_DISABLED
+    category: auth_local
+    type: boolean
+    default: "false"
+    required: false
+    description: "Disable local username/password login"
+    examples:
+      - "true"
+      - "false"
+
+  - name: REGISTRATION_DISABLED
+    category: auth_local
+    type: boolean
+    default: "false"
+    required: false
+    description: "Disable user self-registration"
+    examples:
+      - "true"
+      - "false"
+
+  - name: ONE_SESSION_PER_USER
+    category: auth_session
+    type: boolean
+    default: "false"
+    required: false
+    description: "Allow only one session per user"
+    examples:
+      - "true"
+      - "false"
+
+  # ===========================================================================
+  # JWT Configuration
+  # ===========================================================================
+  - name: JWT_SECRET
+    category: auth_jwt
+    type: secret
+    default: null
+    required: true
+    description: "JSON Web Token signing secret"
+    examples:
+      - "64+ character random string"
+    validation:
+      min_length: 64
+
+  - name: JWT_EXPIRE_TIME
+    category: auth_jwt
+    type: string
+    default: "60s"
+    required: false
+    description: "Token expiration time"
+    examples:
+      - "25m"
+      - "1h"
+      - "7d"
+
+  - name: API_KEY_SECRET
+    category: auth_jwt
+    type: secret
+    default: null
+    required: true
+    description: "API key token secret"
+    examples:
+      - "32+ character random string"
+    validation:
+      min_length: 32
+
+  # ===========================================================================
+  # Classification Banner
+  # ===========================================================================
+  - name: CLASSIFICATION_BANNER_TEXT
+    category: ui
+    type: string
+    default: null
+    required: false
+    description: "Sensitivity classification banner text"
+    examples:
+      - "UNCLASSIFIED"
+      - "SECRET"
+
+  - name: CLASSIFICATION_BANNER_TEXT_COLOR
+    category: ui
+    type: string
+    default: "white"
+    required: false
+    description: "Banner text color"
+    examples:
+      - "white"
+      - "black"
+      - "#FF0000"
+
+  - name: CLASSIFICATION_BANNER_COLOR
+    category: ui
+    type: string
+    default: "red"
+    required: false
+    description: "Banner background color"
+    examples:
+      - "red"
+      - "green"
+      - "#00FF00"
+
+  # ===========================================================================
+  # Database Configuration
+  # ===========================================================================
+  - name: DATABASE_HOST
+    category: database
+    type: string
+    default: "127.0.0.1"
+    required: true
+    description: "PostgreSQL hostname"
+    examples:
+      - "postgres.example.com"
+
+  - name: DATABASE_PORT
+    category: database
+    type: integer
+    default: 5432
+    required: true
+    description: "PostgreSQL port"
+    examples:
+      - 5432
+
+  - name: DATABASE_NAME
+    category: database
+    type: string
+    default: "heimdall-server-{NODE_ENV}"
+    required: true
+    description: "Database name"
+    examples:
+      - "heimdall_production"
+
+  - name: DATABASE_USERNAME
+    category: database
+    type: string
+    default: "postgres"
+    required: true
+    description: "Database username"
+    examples:
+      - "heimdall_app"
+
+  - name: DATABASE_PASSWORD
+    category: database
+    type: secret
+    default: null
+    required: true
+    description: "Database password"
+    examples:
+      - "secure-db-password"
+
+  # ===========================================================================
+  # Database SSL/TLS
+  # ===========================================================================
+  - name: DATABASE_SSL
+    category: database_ssl
+    type: boolean
+    default: "false"
+    required: false
+    description: "Enable SSL for database connection"
+    examples:
+      - "true"
+      - "false"
+
+  - name: DATABASE_SSL_INSECURE
+    category: database_ssl
+    type: boolean
+    default: "false"
+    required: false
+    description: "Ignore SSL certificate validation (security risk)"
+    examples:
+      - "true"
+      - "false"
+
+  - name: DATABASE_SSL_KEY
+    category: database_ssl
+    type: secret
+    default: null
+    required: false
+    description: "SSL key file path or content"
+    examples:
+      - "/path/to/client-key.pem"
+
+  - name: DATABASE_SSL_CERT
+    category: database_ssl
+    type: string
+    default: null
+    required: false
+    description: "SSL certificate file path or content"
+    examples:
+      - "/path/to/client-cert.pem"
+
+  - name: DATABASE_SSL_CA
+    category: database_ssl
+    type: string
+    default: null
+    required: false
+    description: "SSL CA certificate file path or content"
+    examples:
+      - "/path/to/ca-cert.pem"
+
+  # ===========================================================================
+  # GitHub OAuth
+  # ===========================================================================
+  - name: GITHUB_CLIENTID
+    category: auth_oauth
+    provider: github
+    type: oauth_client_id
+    default: null
+    required: false
+    description: "GitHub OAuth client ID"
+    required_pair: GITHUB_CLIENTSECRET
+    button_visibility: true
+    examples:
+      - "abc123def456"
+
+  - name: GITHUB_CLIENTSECRET
+    category: auth_oauth
+    provider: github
+    type: oauth_client_secret
+    default: null
+    required: false
+    description: "GitHub OAuth client secret"
+    required_pair: GITHUB_CLIENTID
+    examples:
+      - "secret_key_here"
+
+  - name: GITHUB_ENTERPRISE_INSTANCE_BASE_URL
+    category: auth_oauth
+    provider: github
+    type: string
+    default: null
+    required: false
+    description: "GitHub Enterprise base URL"
+    examples:
+      - "https://github.company.com/"
+
+  - name: GITHUB_ENTERPRISE_INSTANCE_API_URL
+    category: auth_oauth
+    provider: github
+    type: string
+    default: null
+    required: false
+    description: "GitHub Enterprise API URL"
+    examples:
+      - "https://github.company.com/api/v3/"
+
+  # ===========================================================================
+  # GitLab OAuth
+  # ===========================================================================
+  - name: GITLAB_CLIENTID
+    category: auth_oauth
+    provider: gitlab
+    type: oauth_client_id
+    default: null
+    required: false
+    description: "GitLab OAuth client ID"
+    required_pair: GITLAB_SECRET
+    button_visibility: true
+    examples:
+      - "xyz789abc123"
+    notes: "Inconsistent naming - uses GITLAB_SECRET not GITLAB_CLIENTSECRET"
+
+  - name: GITLAB_SECRET
+    category: auth_oauth
+    provider: gitlab
+    type: oauth_client_secret
+    default: null
+    required: false
+    description: "GitLab OAuth client secret"
+    required_pair: GITLAB_CLIENTID
+    examples:
+      - "secret_key_here"
+    notes: "Inconsistent naming - uses GITLAB_SECRET not GITLAB_CLIENTSECRET"
+
+  - name: GITLAB_BASEURL
+    category: auth_oauth
+    provider: gitlab
+    type: string
+    default: "https://gitlab.com"
+    required: false
+    description: "GitLab instance URL"
+    examples:
+      - "https://gitlab.com"
+      - "https://gitlab.company.com"
+
+  # ===========================================================================
+  # Google OAuth
+  # ===========================================================================
+  - name: GOOGLE_CLIENTID
+    category: auth_oauth
+    provider: google
+    type: oauth_client_id
+    default: null
+    required: false
+    description: "Google OAuth client ID"
+    required_pair: GOOGLE_CLIENTSECRET
+    button_visibility: true
+    examples:
+      - "123456.apps.googleusercontent.com"
+
+  - name: GOOGLE_CLIENTSECRET
+    category: auth_oauth
+    provider: google
+    type: oauth_client_secret
+    default: null
+    required: false
+    description: "Google OAuth client secret"
+    required_pair: GOOGLE_CLIENTID
+    examples:
+      - "secret_key_here"
+
+  # ===========================================================================
+  # Okta OAuth/OIDC
+  # ===========================================================================
+  - name: OKTA_CLIENTID
+    category: auth_oauth
+    provider: okta
+    type: oauth_client_id
+    default: null
+    required: false
+    description: "Okta client ID"
+    required_pair: OKTA_CLIENTSECRET
+    button_visibility: true
+    examples:
+      - "0oa1b2c3d4e5f6g7h8"
+
+  - name: OKTA_CLIENTSECRET
+    category: auth_oauth
+    provider: okta
+    type: oauth_client_secret
+    default: null
+    required: false
+    description: "Okta client secret"
+    required_pair: OKTA_CLIENTID
+    examples:
+      - "secret_key_here"
+
+  - name: OKTA_DOMAIN
+    category: auth_oauth
+    provider: okta
+    type: string
+    default: null
+    required: false
+    description: "Okta domain (for auto-discovery)"
+    examples:
+      - "dev-12345.okta.com"
+
+  - name: OKTA_ISSUER_URL
+    category: auth_oauth
+    provider: okta
+    type: string
+    default: null
+    required: false
+    description: "Okta issuer URL"
+    examples:
+      - "https://dev-12345.okta.com"
+
+  - name: OKTA_AUTHORIZATION_URL
+    category: auth_oauth
+    provider: okta
+    type: string
+    default: null
+    required: false
+    description: "Okta authorization endpoint"
+    examples:
+      - "https://dev-12345.okta.com/oauth2/v1/authorize"
+
+  - name: OKTA_TOKEN_URL
+    category: auth_oauth
+    provider: okta
+    type: string
+    default: null
+    required: false
+    description: "Okta token endpoint"
+    examples:
+      - "https://dev-12345.okta.com/oauth2/v1/token"
+
+  - name: OKTA_USER_INFO_URL
+    category: auth_oauth
+    provider: okta
+    type: string
+    default: null
+    required: false
+    description: "Okta userinfo endpoint"
+    examples:
+      - "https://dev-12345.okta.com/oauth2/v1/userinfo"
+
+  - name: OKTA_USE_HTTPS_PROXY
+    category: auth_oauth
+    provider: okta
+    type: boolean
+    default: "false"
+    required: false
+    description: "Use HTTPS proxy for Okta requests"
+    examples:
+      - "true"
+      - "false"
+
+  # ===========================================================================
+  # Generic OIDC Provider
+  # ===========================================================================
+  - name: OIDC_NAME
+    category: auth_oidc
+    provider: oidc
+    type: string
+    default: null
+    required: false
+    description: "Display name for OIDC provider"
+    examples:
+      - "Auth0"
+      - "Keycloak"
+
+  - name: OIDC_CLIENTID
+    category: auth_oidc
+    provider: oidc
+    type: oauth_client_id
+    default: null
+    required: false
+    description: "OIDC client ID"
+    required_pair: OIDC_CLIENT_SECRET
+    button_visibility: true
+    examples:
+      - "your-client-id"
+
+  - name: OIDC_CLIENT_SECRET
+    category: auth_oidc
+    provider: oidc
+    type: oauth_client_secret
+    default: null
+    required: false
+    description: "OIDC client secret"
+    required_pair: OIDC_CLIENTID
+    examples:
+      - "secret_key_here"
+    notes: "Inconsistent naming - has underscore before SECRET unlike other providers"
+
+  - name: OIDC_ISSUER
+    category: auth_oidc
+    provider: oidc
+    type: string
+    default: null
+    required: false
+    description: "OIDC issuer URL"
+    examples:
+      - "https://auth.example.com"
+
+  - name: OIDC_AUTHORIZATION_URL
+    category: auth_oidc
+    provider: oidc
+    type: string
+    default: null
+    required: false
+    description: "OIDC authorization endpoint"
+    examples:
+      - "https://auth.example.com/authorize"
+
+  - name: OIDC_TOKEN_URL
+    category: auth_oidc
+    provider: oidc
+    type: string
+    default: null
+    required: false
+    description: "OIDC token endpoint"
+    examples:
+      - "https://auth.example.com/oauth/token"
+
+  - name: OIDC_USER_INFO_URL
+    category: auth_oidc
+    provider: oidc
+    type: string
+    default: null
+    required: false
+    description: "OIDC userinfo endpoint"
+    examples:
+      - "https://auth.example.com/userinfo"
+
+  - name: OIDC_USES_PKCE_PLAIN
+    category: auth_oidc
+    provider: oidc
+    type: boolean
+    default: "false"
+    required: false
+    description: "Enable PKCE with plain code challenge"
+    examples:
+      - "true"
+      - "false"
+
+  - name: OIDC_USES_PKCE_S256
+    category: auth_oidc
+    provider: oidc
+    type: boolean
+    default: "false"
+    required: false
+    description: "Enable PKCE with S256 code challenge"
+    examples:
+      - "true"
+      - "false"
+
+  - name: OIDC_USES_VERIFIED_EMAIL
+    category: auth_oidc
+    provider: oidc
+    type: boolean
+    default: "true"
+    required: false
+    description: "Require verified email from OIDC provider"
+    examples:
+      - "true"
+      - "false"
+
+  - name: OIDC_EXTERNAL_GROUPS
+    category: auth_oidc
+    provider: oidc
+    type: boolean
+    default: "false"
+    required: false
+    description: "Enable external group synchronization"
+    examples:
+      - "true"
+      - "false"
+
+  - name: OIDC_USE_HTTPS_PROXY
+    category: auth_oidc
+    provider: oidc
+    type: boolean
+    default: "false"
+    required: false
+    description: "Use HTTPS proxy for OIDC requests"
+    examples:
+      - "true"
+      - "false"
+
+  # ===========================================================================
+  # LDAP Authentication
+  # ===========================================================================
+  - name: LDAP_ENABLED
+    category: auth_ldap
+    type: boolean
+    default: "false"
+    required: false
+    description: "Enable LDAP authentication"
+    examples:
+      - "true"
+      - "false"
+
+  - name: LDAP_HOST
+    category: auth_ldap
+    type: string
+    default: null
+    required: false
+    description: "LDAP server hostname"
+    examples:
+      - "ldap.example.com"
+
+  - name: LDAP_PORT
+    category: auth_ldap
+    type: integer
+    default: 389
+    required: false
+    description: "LDAP server port"
+    examples:
+      - 389
+      - 636
+
+  - name: LDAP_BINDDN
+    category: auth_ldap
+    type: string
+    default: null
+    required: false
+    description: "Bind DN for LDAP authentication"
+    examples:
+      - "cn=admin,dc=example,dc=com"
+
+  - name: LDAP_PASSWORD
+    category: auth_ldap
+    type: secret
+    default: null
+    required: false
+    description: "Password for bind DN"
+    examples:
+      - "ldap-bind-password"
+
+  - name: LDAP_SEARCHBASE
+    category: auth_ldap
+    type: string
+    default: null
+    required: false
+    description: "LDAP search base DN"
+    examples:
+      - "ou=users,dc=example,dc=com"
+
+  - name: LDAP_SEARCHFILTER
+    category: auth_ldap
+    type: string
+    default: "(uid={{username}})"
+    required: false
+    description: "LDAP search filter"
+    examples:
+      - "(uid={{username}})"
+      - "(sAMAccountName={{username}})"
+
+  - name: LDAP_NAMEFIELD
+    category: auth_ldap
+    type: string
+    default: "name"
+    required: false
+    description: "LDAP attribute for user's full name"
+    examples:
+      - "cn"
+      - "displayName"
+
+  - name: LDAP_MAILFIELD
+    category: auth_ldap
+    type: string
+    default: "mail"
+    required: false
+    description: "LDAP attribute for user's email"
+    examples:
+      - "mail"
+      - "userPrincipalName"
+
+  - name: LDAP_SSL
+    category: auth_ldap
+    type: boolean
+    default: "false"
+    required: false
+    description: "Enable SSL/TLS for LDAP"
+    examples:
+      - "true"
+      - "false"
+
+  - name: LDAP_SSL_INSECURE
+    category: auth_ldap
+    type: boolean
+    default: "false"
+    required: false
+    description: "Ignore SSL certificate validation (security risk)"
+    examples:
+      - "true"
+      - "false"
+
+  - name: LDAP_SSL_CA
+    category: auth_ldap
+    type: string
+    default: null
+    required: false
+    description: "SSL CA certificate file path or content"
+    examples:
+      - "/path/to/ca-cert.pem"
+
+  # ===========================================================================
+  # External Integrations
+  # ===========================================================================
+  - name: SPLUNK_HOST_URL
+    category: integration
+    type: string
+    default: null
+    required: false
+    description: "Splunk integration URL"
+    examples:
+      - "https://splunk.example.com"
+
+  - name: TENABLE_HOST_URL
+    category: integration
+    type: string
+    default: null
+    required: false
+    description: "Tenable.SC integration URL"
+    examples:
+      - "https://tenable.example.com"
+
+  - name: FORCE_TENABLE_FRONTEND
+    category: integration
+    type: boolean
+    default: "false"
+    required: false
+    description: "Force Tenable-specific UI features"
+    examples:
+      - "true"
+      - "false"
+
+  # ===========================================================================
+  # Proxy Configuration
+  # ===========================================================================
+  - name: HTTPS_PROXY
+    category: proxy
+    type: string
+    default: null
+    required: false
+    description: "HTTPS proxy for external requests"
+    examples:
+      - "http://proxy.example.com:8080"
+    notes: "Used by OIDC and Okta OAuth when *_USE_HTTPS_PROXY is enabled"
