@@ -21,6 +21,8 @@ helm install heimdall ./heimdall \
   --set heimdall.secrets.OKTA_CLIENTSECRET=${{ secrets.OKTA_CLIENT_SECRET }}
 ```
 
+**See:** [`.github/SECRETS.md`](../../.github/SECRETS.md) for GitHub repository secrets configuration.
+
 ### For Local Development
 
 1. **Copy template to local override** (gitignored):

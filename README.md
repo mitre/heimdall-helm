@@ -285,7 +285,9 @@ heimdall:
 
 Supported providers: GitHub, GitLab, Google, Okta OIDC, LDAP
 
-See [Configuration Documentation](docs/content/2.configuration/01.environment-variables.md) for all available options.
+See:
+- [Configuration Documentation](docs/content/2.configuration/01.environment-variables.md) for all available options
+- [`.github/SECRETS.md`](.github/SECRETS.md) for CI/CD secrets configuration
 
 ## Testing
 
