@@ -94,3 +94,11 @@ recovery-prompt.md
 pr-summary.md
 *-prompt.md
 heimdall/values-local-testing.yaml
+
+# ===========================
+# Local Development Overrides (With Secrets)
+# ===========================
+# Pattern: Commit *-template.yaml or *-real.yaml with placeholders
+# Developers copy to *-local.yaml and add real secrets (gitignored)
+*-local.yaml
+heimdall/tests/integration/*-local.yaml

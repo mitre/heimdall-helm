@@ -1,0 +1,63 @@
+# Real Okta OAuth Testing Values
+# Clean deployment for testing OAuth with real Okta developer account
+#
+# Usage:
+#   helm install heimdall-okta ./heimdall -n heimdall-test -f heimdall/tests/integration/values-okta-real.yaml
+#
+# Port-forward to access:
+#   kubectl port-forward -n heimdall-test svc/heimdall-okta 8080:3000
+#   Open: http://localhost:8080
+
+# PostgreSQL (embedded for simplicity)
+postgresql:
+  enabled: true
+  auth:
+    database: heimdall
+    username: postgres
+    # Password auto-generated on first install
+
+# Heimdall Configuration
+heimdall:
+  replicaCount: 1
+
+  image:
+    repository: heimdall-app
+    pullPolicy: IfNotPresent
+    tag: "arm64-test"
+
+  config:
+    NODE_ENV: "production"
+
+    # CRITICAL: Base URL only, no /authn path
+    # Heimdall constructs callback as: ${EXTERNAL_URL}/authn/okta_callback
+    EXTERNAL_URL: "http://localhost:8080"
+
+    # Okta Configuration
+    # Using OKTA_DOMAIN - strategy will auto-construct endpoint URLs
+    # IMPORTANT: Replace with your actual Okta domain and client ID
+    OKTA_DOMAIN: "your-okta-domain.okta.com"
+    OKTA_CLIENTID: "your-okta-client-id-here"
+
+    # Alternative: Explicit endpoint URLs (uncomment if needed)
+    # OKTA_ISSUER_URL: "https://trial-8371755.okta.com"
+    # OKTA_AUTHORIZATION_URL: "https://trial-8371755.okta.com/oauth2/v1/authorize"
+    # OKTA_TOKEN_URL: "https://trial-8371755.okta.com/oauth2/v1/token"
+    # OKTA_USER_INFO_URL: "https://trial-8371755.okta.com/oauth2/v1/userinfo"
+
+  secrets:
+    # Admin account
+    ADMIN_PASSWORD: "admin123"
+    JWT_SECRET: "okta-test-jwt-secret-key"
+
+    # Okta OAuth
+    # IMPORTANT: Replace with your actual Okta client secret
+    # For CI/CD: Use --set heimdall.secrets.OKTA_CLIENTSECRET=${{ secrets.OKTA_CLIENT_SECRET }}
+    # For local: Copy to values-okta-local.yaml (gitignored) and add real secret
+    OKTA_CLIENTSECRET: "your-okta-client-secret-here"
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress:
+    enabled: false

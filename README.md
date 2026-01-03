@@ -54,13 +54,34 @@ kubectl get pods -n heimdall -w
 
 ## Accessing Heimdall
 
-### Port Forward (Development/Testing)
+### Port Forward (Quick Testing)
+
+For quick non-OAuth testing:
 
 ```bash
-kubectl port-forward -n heimdall service/heimdall 3000:3000
+kubectl port-forward -n heimdall service/heimdall 8080:3000
 ```
 
-Then open [http://localhost:3000](http://localhost:3000) in your browser.
+Then open [http://localhost:8080](http://localhost:8080) in your browser.
+
+**Note:** Port-forward is not suitable for OAuth testing or ingress development due to unstable URLs. For production-like local environment, see [Local Development](#local-development).
+
+### Local Development
+
+For local development with production-like environment (ingress, LoadBalancer, stable URLs):
+
+```bash
+# One-command setup
+./scripts/local-setup.sh
+```
+
+This provides:
+- Stable URL: `http://heimdall.172.18.255.200.nip.io`
+- LoadBalancer support via MetalLB
+- Traefik ingress controller
+- Suitable for OAuth/OIDC testing, ingress development, and integration testing
+
+**See:** [Local Development Guide](https://mitre.github.io/heimdall-helm/development/local-setup) for complete setup instructions.
 
 ### Ingress (Production)
 
@@ -90,7 +111,7 @@ helm upgrade heimdall ./heimdall \
   --values values.yaml
 ```
 
-See [Ingress Documentation](docs/content/4.helm-chart/8.ingress.md) for detailed configuration options.
+See [Ingress Documentation](docs/content/2.configuration/ingress/01.overview.md) for detailed configuration options.
 
 ## Configuration
 
@@ -122,7 +143,7 @@ This chart provides three approaches for managing secrets (in priority order):
 - `DATABASE_PASSWORD` - PostgreSQL password
 - `ADMIN_PASSWORD` - Initial admin user password
 
-See [Secrets Documentation](docs/content/4.helm-chart/2.secrets.md) for complete details.
+See [Secrets Documentation](docs/content/1.getting-started/secrets/01.overview.md) for complete details.
 
 ### Database Options
 
@@ -152,7 +173,7 @@ externalDatabase:
   # Password from secrets
 ```
 
-See [Database Documentation](docs/content/4.helm-chart/6.database.md) for HA configurations and backup strategies.
+See [Database Documentation](docs/content/1.getting-started/06.database.md) for HA configurations and backup strategies.
 
 ### Values Schema Validation
 
@@ -164,7 +185,7 @@ helm install heimdall ./heimdall --set nodeEnv=invalid
 # Error: value must be one of 'production', 'development', 'test'
 ```
 
-See [Values Schema Documentation](docs/content/4.helm-chart/4.values-schema.md).
+See [Values Schema Documentation](docs/content/4.reference/01.values-schema.md).
 
 ## Example Scripts
 
@@ -247,7 +268,7 @@ extraCertificates:
       -----END CERTIFICATE-----
 ```
 
-See [Custom CA Certificates Documentation](docs/content/4.helm-chart/10.custom-ca-certificates.md).
+See [Custom CA Certificates Documentation](docs/content/2.configuration/04.custom-ca-certificates.md).
 
 ### OAuth/OIDC Authentication
 
@@ -264,7 +285,7 @@ heimdall:
 
 Supported providers: GitHub, GitLab, Google, Okta OIDC, LDAP
 
-See [Configuration Documentation](docs/content/4.helm-chart/3.configuration.md) for all available options.
+See [Configuration Documentation](docs/content/2.configuration/01.environment-variables.md) for all available options.
 
 ## Testing
 
@@ -291,22 +312,22 @@ helm lint ./heimdall --strict
 helm template heimdall ./heimdall | kubectl apply --dry-run=client -f -
 ```
 
-See [Testing Documentation](docs/content/4.helm-chart/12.testing.md) for complete testing guide.
+See [Testing Documentation](docs/content/5.development/01.testing.md) for complete testing guide.
 
 ## Documentation
 
-Comprehensive documentation is available in the `docs/` directory:
+Comprehensive documentation is available:
 
-- **[Getting Started](docs/content/4.helm-chart/1.index.md)** - Chart overview and quick start
-- **[Secrets Management](docs/content/4.helm-chart/2.secrets.md)** - Three secrets approaches
-- **[Configuration](docs/content/4.helm-chart/3.configuration.md)** - Complete configuration reference
-- **[Database](docs/content/4.helm-chart/6.database.md)** - Embedded vs external, HA setup
-- **[Ingress & TLS](docs/content/4.helm-chart/8.ingress.md)** - Ingress controllers, TLS, cert-manager
-- **[Health & Availability](docs/content/4.helm-chart/11.health-and-availability.md)** - Probes, HPA, PDB
-- **[Testing](docs/content/4.helm-chart/12.testing.md)** - Unit, integration, E2E testing
-- **[Architecture](docs/content/4.helm-chart/7.architecture.md)** - Design decisions and patterns
+- **[Getting Started](docs/content/1.getting-started/02.quickstart.md)** - Quick deployment guide
+- **[Secrets Management](docs/content/1.getting-started/secrets/01.overview.md)** - Three secrets approaches
+- **[Configuration](docs/content/2.configuration/01.environment-variables.md)** - Environment variables reference
+- **[Database](docs/content/1.getting-started/06.database.md)** - Embedded vs external, HA setup
+- **[Ingress](docs/content/2.configuration/ingress/01.overview.md)** - Ingress controllers and TLS
+- **[Local Development](docs/content/5.development/02.local-setup.md)** - Production-like local environment
+- **[Testing](docs/content/5.development/01.testing.md)** - Unit, integration, E2E testing
+- **[Architecture](docs/content/4.reference/03.architecture.md)** - Design decisions and patterns
 
-Or view online: [https://mitre.github.io/heimdall-helm/](https://mitre.github.io/heimdall-helm/)
+**Online:** [https://mitre.github.io/heimdall-helm/](https://mitre.github.io/heimdall-helm/)
 
 ## Requirements
 
