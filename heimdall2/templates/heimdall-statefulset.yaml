@@ -93,9 +93,9 @@ spec:
           env:
             {{- if and (not .Values.certs.systemCertsApproach.enabled) .Values.certs.enabled }}          
             - name: NODE_EXTRA_CA_CERTS
-              value: /home/node/certs/certs.pem
+              value: /home/node/certs/{{ (index .Values.certs.certificates 0).filename }}
             - name: SSL_CERT_FILE
-              value: /home/node/certs/certs.pem
+              value: /home/node/certs/{{ (index .Values.certs.certificates 0).filename }}
             {{- end }}
             - name: NODE_ENV
               value: {{ .Values.nodeEnv | quote }}
