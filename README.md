@@ -1,4 +1,4 @@
-# heimdall2-helm
+# heimdall-helm
 
 A Helm chart for the [MITRE SAF Heimdall application](https://github.com/mitre/heimdall2).
 
@@ -14,7 +14,7 @@ You can clone this repo, enter the repository folder and then execute something 
 ./start_heimdall2.sh
 ```
 
-The script will spin up Heimdall2 using the example [values.yaml](heimdall2/values.yaml) values file.  You will need
+The script will spin up Heimdall using the example [values.yaml](heimdall2/values.yaml) values file.  You will need
 to provide your own if you want to configure other settings, and ingress, etc.  Look at the [values.yaml](heimdall2/values.yaml)
 file for what to place in your own.
 
@@ -35,7 +35,7 @@ The start_heimdall.sh script generates some of these values for you, and demonst
 ## To install via MITRE chart repository
 
 ```
-helm repo add heimdall2-helm https://mitre.github.io/heimdall2-helm/
+helm repo add heimdall2-helm https://mitre.github.io/heimdall-helm/
 helm repo update
 helm search repo heimdall2
 wget https://raw.githubusercontent.com/mitre/heimdall2-helm/main/values.yaml
@@ -44,11 +44,11 @@ helm install heimdall heimdall2-helm/heimdall --namespace heimdall --create-name
 watch -n 15 kubectl get pods -n heimdall
 ```
 
-Give it time for Heimdall2 to come fully up.  It has to "migrate" data, and the frontend site needs to build. It takes a few minutes.
+Give it time for Heimdall to come fully up.  It has to "migrate" data, and the frontend site needs to build. It takes a few minutes.
 
-## Accessing Heimdall2
+## Accessing Heimdall
 
-If you've spun up Heimdall2 using the [start_heimdall2.sh](start_heimdall2.sh) script, you can access it in your
+If you've spun up Heimdall using the [start_heimdall2.sh](start_heimdall2.sh) script, you can access it in your
 browser via exposing via `kubectl port-forward` like so
 
 ```
