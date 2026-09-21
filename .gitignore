@@ -2,3 +2,5 @@
 .cr-release-packages/
 .cr-index/
 .DS_Store
+# generated test artifacts (keys, certs, secrets)
+tests/.generated/
