@@ -50,11 +50,14 @@ for v in DATABASE_USERNAME DATABASE_PASSWORD JWT_SECRET API_KEY_SECRET; do
 done
 pass "env vars resolve from the external Secret"
 
-# Known issue (opt-in): the repo's kustomize generator files are misnamed.
+# The repo's kustomize generator file paths (opt-in check).
+# A full `kustomize build` still fails without the external SopsSecretGenerator
+# plugin installed, so this only asserts the filename mismatch bug is gone.
 if [[ "${RUN_KNOWN_ISSUES:-0}" == 1 ]]; then
   require kustomize
-  if kustomize build --enable-alpha-plugins "$REPO_ROOT/sops" >/dev/null 2>&1; then
-    fail "kustomize build of sops/ now succeeds (known issue may be fixed; update this test)"
+  out="$(kustomize build --enable-alpha-plugins "$REPO_ROOT/sops" 2>&1 || true)"
+  if grep -qi 'no such file' <<<"$out"; then
+    fail "sops/ generator files still reference the wrong filenames: $out"
   fi
-  pass "sops/ kustomize build fails as documented"
+  pass "sops/ generator and secrets file paths resolve"
 fi

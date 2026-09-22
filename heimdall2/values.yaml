@@ -319,5 +319,6 @@ heimdall:
     timeoutSeconds: 15
     failureThreshold: 3
 
-  imagePullSecrets:
+## imagePullSecrets is top-level (shared by both the heimdall and postgresql StatefulSets), not nested under heimdall:
+imagePullSecrets:
 #     - name: your-secret-name

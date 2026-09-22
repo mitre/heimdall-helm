@@ -242,7 +242,7 @@ spec:
                   name: {{ include "heimdall.fullname" . }}
                   key: githubClientId
             {{- end }}
-            {{- if or .Values.githubClientId (and .Values.sops.enabled (has "GITHUB_CLIENTSECRET" .Values.sops.secrets)) }}
+            {{- if or .Values.githubClientSecret (and .Values.sops.enabled (has "GITHUB_CLIENTSECRET" .Values.sops.secrets)) }}
             - name: GITHUB_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
