@@ -6,6 +6,7 @@ on:
       - develop
     paths:
       - 'heimdall/**'
+      - 'tests/lifecycle/**'
       - '.github/workflows/test.yml'
       - '.github/ct.yaml'
   push:
@@ -13,6 +14,7 @@ on:
       - develop
     paths:
       - 'heimdall/**'
+      - 'tests/lifecycle/**'
       - '.github/workflows/test.yml'
       - '.github/ct.yaml'
   workflow_dispatch:
@@ -287,4 +289,4 @@ jobs:
           EXTERNAL_POSTGRES_HOST: ${{ steps.postgres-service.outputs.host }}
           EXTERNAL_POSTGRES_PORT: 5432
           EXTERNAL_POSTGRES_PASSWORD: lifecycle-postgres-password
-        run: heimdall/tests/lifecycle/run-all.sh
+        run: tests/lifecycle/run-all.sh

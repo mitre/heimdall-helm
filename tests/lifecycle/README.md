@@ -41,13 +41,13 @@ On Docker Desktop, run all scenarios with:
 ```bash
 EXTERNAL_POSTGRES_HOST=host.docker.internal \
 EXTERNAL_POSTGRES_PORT=15432 \
-heimdall/tests/lifecycle/run-all.sh
+tests/lifecycle/run-all.sh
 ```
 
 Run selected scenarios with `ONLY`, for example:
 
 ```bash
-ONLY="01 04 05" heimdall/tests/lifecycle/run-all.sh
+ONLY="01 04 05" tests/lifecycle/run-all.sh
 ```
 
 Clean up the local resources afterward:

@@ -4,4 +4,4 @@
 .DS_Store
 
 # Lifecycle test artifacts
-heimdall/tests/lifecycle/.generated/
+tests/lifecycle/.generated/

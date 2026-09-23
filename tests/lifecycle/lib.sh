@@ -4,7 +4,8 @@
 set -euo pipefail
 
 TESTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CHART="$(cd "$TESTS_DIR/../.." && pwd)"
+REPO_ROOT="$(cd "$TESTS_DIR/../.." && pwd)"
+CHART="$REPO_ROOT/heimdall"
 GEN="$TESTS_DIR/.generated"
 RELEASE="heimdall"
 WAIT_TIMEOUT="${WAIT_TIMEOUT:-600s}"
