@@ -2,6 +2,8 @@
 # Scenario 5: baseline ConfigMap config (custom CA certs), both injection approaches.
 source "$(dirname "$0")/lib.sh"
 NS=t5-certs
+CERTS_IMAGE="${CERTS_IMAGE:-registry.access.redhat.com/ubi8/ubi}"
+CERTS_IMAGE_TAG="${CERTS_IMAGE_TAG:-latest}"
 trap 'cleanup_ns $NS' EXIT
 
 log "Scenario 5: certs ConfigMap"
@@ -24,12 +26,15 @@ kubectl exec -n "$NS" "$RELEASE-0" -- cat /home/node/certs/certs.pem | diff - "$
   || fail "mounted cert differs from supplied cert"
 pass "single-file approach: cert mounted and env vars set"
 
-log "System-certs approach (init container runs update-ca-trust)"
+log "System-certs approach (init container runs update-ca-trust from $CERTS_IMAGE:$CERTS_IMAGE_TAG)"
 count_certs() {
   kubectl exec -n "$NS" "$RELEASE-0" -c heimdall-front -- \
     awk '/BEGIN CERT/{n++} END{print n}' /etc/pki/ca-trust/extracted/pem/tls-ca-bundle.pem
 }
-helm upgrade "$RELEASE" "$CHART" -n "$NS" -f "$GEN/certs-vals.yaml" --set certs.systemCertsApproach.enabled=true
+helm upgrade "$RELEASE" "$CHART" -n "$NS" -f "$GEN/certs-vals.yaml" \
+  --set certs.systemCertsApproach.enabled=true \
+  --set certs.systemCertsApproach.image.repository="$CERTS_IMAGE" \
+  --set-string certs.systemCertsApproach.image.tag="$CERTS_IMAGE_TAG"
 kubectl rollout status statefulset/"$RELEASE" -n "$NS" --timeout="$WAIT_TIMEOUT"
 wait_ready "$NS"
 [[ "$(kubectl get pod "$RELEASE-0" -n "$NS" -o jsonpath='{.spec.initContainers[0].name}')" == setup-certs ]] \

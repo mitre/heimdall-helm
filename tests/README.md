@@ -27,6 +27,41 @@ RUN_KNOWN_ISSUES=1 tests/run-all.sh   # also assert documented known issues
 kind delete cluster --name heimdall-test
 ```
 
+### PostgreSQL through MITRE Artifactory
+
+MITRE Artifactory's Docker virtual repository proxies the official PostgreSQL image. The following
+reference has been verified from a kind node and supports both `linux/amd64` and `linux/arm64`:
+
+```text
+<MITRE Artifactory URL>/docker/postgres:17
+```
+
+The image includes the PostgreSQL server and the `psql` client. Use it for scenario 3 without changing
+the test script:
+
+```bash
+GHCR_PG_IMAGE="<MITRE Artifactory URL>/docker/postgres" \
+GHCR_PG_TAG=17 \
+tests/03-ghcr-postgres.sh
+```
+
+### UBI through MITRE Artifactory
+
+The UBI image used by scenario 5's system-certs init container is also available through MITRE
+Artifactory and has been verified from a kind node for both `linux/amd64` and `linux/arm64`:
+
+```text
+<MITRE Artifactory URL>/docker/ubi8/ubi:latest
+```
+
+Use it without changing the chart's default image:
+
+```bash
+CERTS_IMAGE="<MITRE Artifactory URL>/docker/ubi8/ubi" \
+CERTS_IMAGE_TAG=latest \
+tests/05-certs.sh
+```
+
 Options: `STORAGE_CLASS` (default `standard`, kind's class), `WAIT_TIMEOUT` (default `300s`).
 
 Generated keys, certs and secrets are written to `tests/.generated/` (gitignored). A full run takes about 10 minutes.

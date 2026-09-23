@@ -1,0 +1,56 @@
+name: Test
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  helm-chart:
+    name: Helm chart scenarios
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+
+      - name: Install SOPS and age
+        env:
+          SOPS_VERSION: 3.13.3
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes age
+          curl --fail --silent --show-error --location --remote-name \
+            "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64"
+          curl --fail --silent --show-error --location --remote-name \
+            "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.checksums.txt"
+          sha256sum --check --ignore-missing "sops-v${SOPS_VERSION}.checksums.txt"
+          sudo install --mode 0755 "sops-v${SOPS_VERSION}.linux.amd64" /usr/local/bin/sops
+
+      - name: Create Kind cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: heimdall-test
+          wait: 120s
+
+      - name: Show tool versions
+        run: |
+          helm version --short
+          kubectl version --client
+          kind version
+          sops --version
+          age --version
+
+      - name: Run Helm chart scenarios
+        run: tests/run-all.sh
