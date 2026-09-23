@@ -6,6 +6,7 @@ require helm kubectl openssl curl
 check_context
 
 log "Build chart dependencies"
+helm repo add bitnami https://charts.bitnami.com/bitnami --force-update
 helm dependency build "$CHART"
 
 failed=()
