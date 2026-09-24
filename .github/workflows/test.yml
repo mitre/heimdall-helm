@@ -3,19 +3,21 @@ name: Test Helm Chart
 on:
   pull_request:
     branches:
-      - develop
+      - main
     paths:
-      - 'heimdall/**'
+      - 'heimdall2/**'
       - 'tests/lifecycle/**'
+      - 'tests/unit/**'
       - '.github/workflows/test.yml'
       - '.github/ct.yaml'
   push:
     branches:
       - main
-      - develop
+      - hh-lifecycle-tests
     paths:
-      - 'heimdall/**'
+      - 'heimdall2/**'
       - 'tests/lifecycle/**'
+      - 'tests/unit/**'
       - '.github/workflows/test.yml'
       - '.github/ct.yaml'
   workflow_dispatch:
@@ -24,7 +26,7 @@ permissions:
   contents: read
 
 jobs:
-  # Stage 1: Lint (< 10s)
+  # Stage 1: Lint
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -42,15 +44,14 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-          cache-dependency-path: ''  # Disable cache (no Python deps in repo)
 
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.8.0
 
-      - name: Run chart-testing (lint)
+      - name: Run chart-testing lint
         run: ct lint --config .github/ct.yaml
 
-  # Stage 2: Unit Tests (< 60s)
+  # Stage 2: Unit Tests
   unit-test:
     runs-on: ubuntu-latest
     needs: lint
@@ -67,9 +68,9 @@ jobs:
         run: helm plugin install https://github.com/helm-unittest/helm-unittest --version=v1.0.3
 
       - name: Run unit tests
-        run: helm unittest ./heimdall
+        run: helm unittest --strict -f '../tests/unit/*_test.yaml' ./heimdall2
 
-  # Stage 3: Environment Variables Validation (< 10s)
+  # Stage 3: Environment Variables Validation
   env-vars-validation:
     runs-on: ubuntu-latest
     needs: lint
@@ -77,22 +78,67 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
-          cache-dependency-path: ''  # Disable cache (no Python deps in repo)
 
       - name: Install PyYAML
         run: pip install pyyaml
 
-      - name: Validate env vars schema compliance
-        run: python heimdall/tests/scripts/test_env_vars_schema_compliance.py
+      - name: Render chart
+        run: |
+          helm template heimdall ./heimdall2 \
+            --set-string jwtSecret=env-test-jwt \
+            --set-string databasePassword=env-test-db \
+            --set-string apiKeySecret=env-test-api \
+            --set-string adminPassword=env-test-admin \
+            --set-string externalUrl=http://localhost:3000 \
+            --set heimdall.ingress.enabled=false \
+            > /tmp/heimdall-env.yaml
 
-      - name: Validate env vars against templates
-        run: python heimdall/tests/scripts/validate_env_vars_against_templates.py
+      - name: Validate required environment variables
+        run: |
+          python - <<'PY'
+          import yaml
 
-  # Stage 4: Schema Validation (< 5s)
+          with open('/tmp/heimdall-env.yaml', encoding='utf-8') as stream:
+              documents = [document for document in yaml.safe_load_all(stream) if document]
+
+          statefulset = next(
+              document for document in documents
+              if document.get('kind') == 'StatefulSet'
+              and document.get('metadata', {}).get('name') == 'heimdall'
+          )
+          environment = statefulset['spec']['template']['spec']['containers'][0]['env']
+          by_name = {entry['name']: entry for entry in environment}
+          required = {
+              'NODE_ENV', 'DATABASE_HOST', 'DATABASE_PORT', 'DATABASE_NAME',
+              'DATABASE_USERNAME', 'DATABASE_PASSWORD', 'JWT_SECRET',
+              'API_KEY_SECRET', 'ADMIN_PASSWORD', 'EXTERNAL_URL',
+          }
+          missing = sorted(required - by_name.keys())
+          if missing:
+              raise SystemExit(f'Missing environment variables: {missing}')
+
+          secret_backed = {
+              'DATABASE_USERNAME', 'DATABASE_PASSWORD', 'JWT_SECRET',
+              'API_KEY_SECRET', 'ADMIN_PASSWORD',
+          }
+          invalid = sorted(
+              name for name in secret_backed
+              if by_name[name].get('valueFrom', {}).get('secretKeyRef', {}).get('name') != 'heimdall'
+          )
+          if invalid:
+              raise SystemExit(f'Variables not backed by the Heimdall Secret: {invalid}')
+          PY
+
+  # Stage 4: Schema Validation
   schema-validation:
     runs-on: ubuntu-latest
     needs: lint
@@ -105,34 +151,36 @@ jobs:
         with:
           version: v3.22.0
 
-      - name: Add Bitnami Helm repository
-        run: helm repo add bitnami https://charts.bitnami.com/bitnami
-
-      - name: Build chart dependencies
-        run: helm dependency build ./heimdall
-
-      - name: Validate values.schema.json
+      - name: Validate chart and values
         run: |
-          helm template heimdall ./heimdall
+          helm lint --strict ./heimdall2 \
+            --set-string jwtSecret=schema-test-jwt \
+            --set-string databasePassword=schema-test-db \
+            --set-string apiKeySecret=schema-test-api \
+            --set-string externalUrl=http://localhost:3000
+          helm template heimdall ./heimdall2 \
+            --set-string jwtSecret=schema-test-jwt \
+            --set-string databasePassword=schema-test-db \
+            --set-string apiKeySecret=schema-test-api \
+            --set-string externalUrl=http://localhost:3000 \
+            > /dev/null
 
-      - name: Test invalid values are rejected
+      - name: Report values schema coverage
         run: |
-          # Test that invalid nodeEnv is rejected
-          if helm template heimdall ./heimdall --set nodeEnv=invalid 2>&1 | grep -q "values don't meet the specifications"; then
-            echo "✓ Schema validation working - rejected invalid nodeEnv"
+          if [[ -f heimdall2/values.schema.json ]]; then
+            echo 'values.schema.json is present and was validated by Helm'
           else
-            echo "✗ Schema validation failed - should reject invalid nodeEnv"
-            exit 1
+            echo '::notice::main does not currently include heimdall2/values.schema.json; Helm lint and rendering validation completed'
           fi
 
-  # Stage 5: Integration Tests (2-5 min)
+  # Stage 5: Integration Tests
   integration-test:
     runs-on: ubuntu-latest
     needs: [unit-test, env-vars-validation, schema-validation]
     strategy:
       matrix:
         k8s-version:
-          - v1.30.0  # Latest stable
+          - v1.30.0
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -157,14 +205,20 @@ jobs:
       - name: List changed charts
         id: list-changed
         run: |
-          changed=$(ct list-changed --config .github/ct.yaml --target-branch ${{ github.event.repository.default_branch }})
-          if [[ -n "$changed" ]]; then
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+          if [[ "${{ github.event_name }}" == pull_request ]]; then
+            changed=$(ct list-changed --config .github/ct.yaml --target-branch ${{ github.event.repository.default_branch }})
+            if [[ -n "$changed" ]]; then
+              echo 'changed=true' >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Run chart-testing (install)
+      - name: Run chart-testing install
         if: steps.list-changed.outputs.changed == 'true'
-        run: ct install --config .github/ct.yaml
+        run: |
+          ct install --config .github/ct.yaml --all \
+            --helm-extra-set-args '--set-string jwtSecret=integration-test-jwt --set-string databasePassword=integration-test-db --set-string apiKeySecret=integration-test-api --set-string externalUrl=http://localhost:3000 --set heimdall.ingress.enabled=false'
 
   # Stage 6: Template Rendering Tests
   template-test:
@@ -179,43 +233,47 @@ jobs:
         with:
           version: v3.22.0
 
-      - name: Add Bitnami Helm repository
-        run: helm repo add bitnami https://charts.bitnami.com/bitnami
-
-      - name: Update chart dependencies
-        run: helm dependency update ./heimdall
-
       - name: Test template rendering (embedded PostgreSQL)
         run: |
-          helm template heimdall ./heimdall > /tmp/heimdall-embedded.yaml
-          echo "✓ Template rendered successfully with embedded PostgreSQL"
+          helm template heimdall ./heimdall2 \
+            --set-string jwtSecret=template-test-jwt \
+            --set-string databasePassword=template-test-db \
+            --set-string apiKeySecret=template-test-api \
+            --set-string externalUrl=http://localhost:3000 \
+            --set heimdall.ingress.enabled=false \
+            > /tmp/heimdall-embedded.yaml
 
       - name: Test template rendering (external database)
         run: |
-          helm template heimdall ./heimdall \
+          helm template heimdall ./heimdall2 \
             --set postgresql.enabled=false \
-            --set externalDatabase.host=db.example.com \
-            --set externalDatabase.database=heimdall_prod \
-            --set externalDatabase.username=heimdall_user \
+            --set-string databaseHost=db.example.com \
+            --set databasePort=5432 \
+            --set-string databaseName=heimdall_prod \
+            --set-string databaseUsername=heimdall_user \
+            --set-string databasePassword=template-test-db \
+            --set-string jwtSecret=template-test-jwt \
+            --set-string apiKeySecret=template-test-api \
+            --set-string externalUrl=http://localhost:3000 \
+            --set heimdall.ingress.enabled=false \
             > /tmp/heimdall-external.yaml
-          echo "✓ Template rendered successfully with external database"
 
       - name: Test template rendering (with ingress)
         run: |
-          helm template heimdall ./heimdall \
+          helm template heimdall ./heimdall2 \
+            --set-string jwtSecret=template-test-jwt \
+            --set-string databasePassword=template-test-db \
+            --set-string apiKeySecret=template-test-api \
+            --set-string externalUrl=https://heimdall.example.com \
             --set heimdall.ingress.enabled=true \
-            --set 'heimdall.ingress.hosts[0].host=heimdall.example.com' \
-            --set 'heimdall.ingress.hosts[0].paths[0].path=/' \
+            --set-string 'heimdall.ingress.hosts[0].host=heimdall.example.com' \
             > /tmp/heimdall-ingress.yaml
-          echo "✓ Template rendered successfully with ingress enabled"
 
-      - name: Verify rendered manifests are valid YAML
+      - name: Verify rendered manifests
         run: |
-          # Verify YAML syntax is valid
-          cat /tmp/heimdall-embedded.yaml | grep -q "apiVersion:"
-          cat /tmp/heimdall-external.yaml | grep -q "apiVersion:"
-          cat /tmp/heimdall-ingress.yaml | grep -q "apiVersion:"
-          echo "✓ All manifests contain valid Kubernetes resources"
+          grep -q '^kind: StatefulSet$' /tmp/heimdall-embedded.yaml
+          grep -q 'value: "db.example.com"' /tmp/heimdall-external.yaml
+          grep -q '^kind: Ingress$' /tmp/heimdall-ingress.yaml
 
   # Stage 7: Runtime Lifecycle Scenarios
   lifecycle-test:
@@ -290,4 +348,6 @@ jobs:
           EXTERNAL_POSTGRES_HOST: ${{ steps.postgres-service.outputs.host }}
           EXTERNAL_POSTGRES_PORT: 5432
           EXTERNAL_POSTGRES_PASSWORD: lifecycle-postgres-password
+          CERTS_IMAGE: ${{ vars.MITRE_ARTIFACTORY_URL != '' && format('{0}/docker/ubi8/ubi', vars.MITRE_ARTIFACTORY_URL) || 'registry.access.redhat.com/ubi8/ubi' }}
+          CERTS_IMAGE_TAG: latest
         run: tests/lifecycle/run-all.sh

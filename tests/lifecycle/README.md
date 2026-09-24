@@ -1,20 +1,21 @@
 # Lifecycle tests
 
-These end-to-end scenarios install the chart in a disposable Kubernetes cluster and validate the
-runtime behaviors required by the Helm testing ticket. Every scenario uses its own namespace and
-cleans it up on exit.
+These end-to-end scenarios install the `heimdall2/` chart from `main` into a disposable Kubernetes
+cluster. Each scenario uses its own namespace and cleans it up when finished.
 
 | Script | Scenario |
 |---|---|
-| `01-minimal.sh` | Bare-minimum install, HTTP validation, and clean uninstall |
-| `02-embedded-postgres.sh` | Embedded PostgreSQL with persistent data across a pod restart |
+| `01-minimal.sh` | Bare-minimum values: install, HTTP validation, and clean uninstall |
+| `02-embedded-postgres.sh` | In-chart PostgreSQL with persistent data across a pod restart |
 | `03-github-service-postgres.sh` | External PostgreSQL supplied by a GitHub Actions service container |
-| `04-sops.sh` | SOPS/age encryption with an externally managed Kubernetes Secret |
-| `05-vault-secret.sh` | `existingSecret` contract used by Vault or External Secrets integrations |
-| `06-configmap-certs.sh` | Baseline ConfigMap values and custom CA certificate bundle |
+| `04-sops.sh` | SOPS/age encryption and the chart's externally managed Secret mode |
+| `05-vault-secret.sh` | Kubernetes Secret contract used by a Vault integration |
+| `06-configmap-certs.sh` | Certificate ConfigMap with direct and system trust-store injection |
 
-The Vault scenario validates the chart boundary after Vault has synchronized a Kubernetes Secret. It
-does not deploy Vault or an External Secrets operator.
+The chart on `main` does not have a generic `existingSecret` value. It uses `sops.enabled` to suppress
+creation of its built-in Secret and expects an external controller to create a Secret named after the
+Helm release. The Vault scenario validates that boundary; it does not deploy Vault or an External
+Secrets operator.
 
 ## Requirements
 
@@ -24,7 +25,7 @@ Install `helm`, `kubectl`, `openssl`, `curl`, `sops`, and `age`, and use a dispo
 
 ## Run locally
 
-Create a cluster and a local PostgreSQL container for scenario 3:
+Create a cluster and an external PostgreSQL container for scenario 3:
 
 ```bash
 kind create cluster --name heimdall-test
@@ -36,7 +37,7 @@ docker run --detach --rm --name heimdall-lifecycle-postgres \
   postgres:17
 ```
 
-On Docker Desktop, run all scenarios with:
+On Docker Desktop, run every scenario with:
 
 ```bash
 EXTERNAL_POSTGRES_HOST=host.docker.internal \
@@ -50,11 +51,35 @@ Run selected scenarios with `ONLY`, for example:
 ONLY="01 04 05" tests/lifecycle/run-all.sh
 ```
 
-Clean up the local resources afterward:
+Clean up afterward:
 
 ```bash
 docker stop heimdall-lifecycle-postgres
 kind delete cluster --name heimdall-test
 ```
 
-Generated keys, values, and certificates are written to `.generated/`, which is gitignored.
+## MITRE Artifactory images
+
+MITRE Artifactory's Docker virtual repository proxies the official PostgreSQL image and includes the
+PostgreSQL server and `psql` client:
+
+```text
+<MITRE Artifactory URL>/docker/postgres:17
+```
+
+The UBI image used by the system-certificate scenario is also available through Artifactory:
+
+```text
+<MITRE Artifactory URL>/docker/ubi8/ubi:latest
+```
+
+Use the UBI mirror without changing the chart defaults:
+
+```bash
+CERTS_IMAGE="<MITRE Artifactory URL>/docker/ubi8/ubi" \
+CERTS_IMAGE_TAG=latest \
+tests/lifecycle/06-configmap-certs.sh
+```
+
+Options include `STORAGE_CLASS` (default `standard`) and `WAIT_TIMEOUT` (default `600s`). Generated
+keys, values, and certificates are written to `tests/lifecycle/.generated/`, which is gitignored.

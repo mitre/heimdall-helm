@@ -5,10 +5,6 @@ source "$(dirname "$0")/lib.sh"
 require helm kubectl openssl curl
 check_context
 
-log "Build chart dependencies"
-helm repo add bitnami https://charts.bitnami.com/bitnami --force-update
-helm dependency build "$CHART"
-
 failed=()
 for scenario in "$TESTS_DIR"/0*.sh; do
   base="$(basename "$scenario")"

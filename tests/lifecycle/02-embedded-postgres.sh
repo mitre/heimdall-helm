@@ -7,11 +7,11 @@ trap 'cleanup_ns "$NS"' EXIT
 log "Scenario 2: embedded PostgreSQL with persistence"
 gen_min_values
 helm install "$RELEASE" "$CHART" -n "$NS" --create-namespace -f "$GEN/min.yaml" \
-  --set postgresql.primary.persistence.enabled=true \
-  --set postgresql.primary.persistence.storageClass="$STORAGE_CLASS"
+  --set postgresql.persistence.enabled=true \
+  --set postgresql.persistence.storageClassName="$STORAGE_CLASS"
 wait_ready "$NS"
 
-pvc="$(kubectl get pvc -n "$NS" -l app.kubernetes.io/instance="$RELEASE" -o jsonpath='{.items[0].metadata.name}')"
+pvc="$RELEASE-db-data"
 [[ -n "$pvc" ]] || fail "PostgreSQL PVC was not created"
 [[ "$(kubectl get pvc "$pvc" -n "$NS" -o jsonpath='{.status.phase}')" == Bound ]] \
   || fail "PostgreSQL PVC is not Bound"

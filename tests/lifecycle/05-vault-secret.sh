@@ -1,39 +1,45 @@
 #!/usr/bin/env bash
-# Validate the Secret contract used by Vault/External Secrets integrations.
+# Validate the Kubernetes Secret contract a Vault integration must satisfy.
 source "$(dirname "$0")/lib.sh"
 NS=lifecycle-vault
-SECRET_NAME=heimdall-vault-secrets
+SECRET_NAME="$RELEASE"
 trap 'cleanup_ns "$NS"' EXIT
 
-log "Scenario 5: Vault-compatible existingSecret contract"
-gen_min_values
+log "Scenario 5: Vault-compatible external Secret contract"
 kubectl create namespace "$NS"
 kubectl create secret generic "$SECRET_NAME" -n "$NS" \
-  --from-literal=JWT_SECRET="$(openssl rand -hex 64)" \
-  --from-literal=API_KEY_SECRET="$(openssl rand -hex 33)" \
-  --from-literal=ADMIN_PASSWORD='Lifecycle-Test-Password-1!'
+  --from-literal=databaseUsername=postgres \
+  --from-literal=databasePassword="$(openssl rand -hex 33)" \
+  --from-literal=jwtSecret="$(openssl rand -hex 64)" \
+  --from-literal=apiKeySecret="$(openssl rand -hex 33)" \
+  --from-literal=adminPassword='Lifecycle-Test-Password-1!'
 
 cat > "$GEN/vault-values.yaml" <<VALS
+externalUrl: "http://localhost:3000"
+sops:
+  enabled: true
+  secrets:
+    - DATABASE_USERNAME
+    - DATABASE_PASSWORD
+    - JWT_SECRET
+    - API_KEY_SECRET
+    - ADMIN_PASSWORD
 heimdall:
-  existingSecret: "$SECRET_NAME"
-  secretsFiles: []
-  config:
-    EXTERNAL_URL: "http://localhost:3000"
-postgresql:
-  auth:
-    postgresPassword: "$DB_PASSWORD"
-    password: "$DB_PASSWORD"
-  primary:
-    persistence:
-      enabled: false
+  ingress:
+    enabled: false
 VALS
+
+rendered="$(helm template "$RELEASE" "$CHART" -n "$NS" -f "$GEN/vault-values.yaml")"
+! grep -q '^kind: Secret$' <<<"$rendered" \
+  || fail "chart rendered a competing Secret while using the external Secret contract"
 
 helm install "$RELEASE" "$CHART" -n "$NS" -f "$GEN/vault-values.yaml"
 wait_ready "$NS"
-actual="$(kubectl get statefulset "$RELEASE" -n "$NS" \
-  -o jsonpath='{.spec.template.spec.containers[0].envFrom[1].secretRef.name}')"
-[[ "$actual" == "$SECRET_NAME" ]] || fail "StatefulSet references '$actual', expected '$SECRET_NAME'"
-[[ -z "$(kubectl get secret "$RELEASE-secrets" -n "$NS" --ignore-not-found -o name)" ]] \
-  || fail "chart created a competing Secret while existingSecret was set"
+env_refs="$(kubectl get statefulset "$RELEASE" -n "$NS" \
+  -o jsonpath='{range .spec.template.spec.containers[0].env[*]}{.name}{"="}{.valueFrom.secretKeyRef.name}{"\n"}{end}')"
+for variable in DATABASE_USERNAME DATABASE_PASSWORD JWT_SECRET API_KEY_SECRET ADMIN_PASSWORD; do
+  grep -qx "$variable=$SECRET_NAME" <<<"$env_refs" \
+    || fail "$variable is not wired to Secret '$SECRET_NAME'"
+done
 check_http "$NS" 18085
 pass "Vault-managed Secret contract works"

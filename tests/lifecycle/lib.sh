@@ -5,7 +5,7 @@ set -euo pipefail
 
 TESTS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$TESTS_DIR/../.." && pwd)"
-CHART="$REPO_ROOT/heimdall"
+CHART="$REPO_ROOT/heimdall2"
 GEN="$TESTS_DIR/.generated"
 RELEASE="heimdall"
 WAIT_TIMEOUT="${WAIT_TIMEOUT:-600s}"
@@ -25,35 +25,31 @@ require() {
 }
 
 check_context() {
-  local ctx
-  ctx="$(kubectl config current-context)"
-  log "kubectl context: $ctx"
-  if [[ "$ctx" != kind-* && "$ctx" != k3d-* && "${ALLOW_ANY_CONTEXT:-0}" != 1 ]]; then
-    fail "context '$ctx' is not kind/k3d; set ALLOW_ANY_CONTEXT=1 to override"
+  local context
+  context="$(kubectl config current-context)"
+  log "kubectl context: $context"
+  if [[ "$context" != kind-* && "$context" != k3d-* && "${ALLOW_ANY_CONTEXT:-0}" != 1 ]]; then
+    fail "context '$context' is not kind/k3d; set ALLOW_ANY_CONTEXT=1 to override"
   fi
   kubectl wait --for=condition=Ready node --all --timeout=120s \
     || fail "cluster nodes are not Ready"
 }
 
 gen_min_values() {
-  DB_PASSWORD="$(openssl rand -hex 24)"
+  DB_PASSWORD="$(openssl rand -hex 33)"
   export DB_PASSWORD
   cat > "$GEN/min.yaml" <<VALS
-heimdall:
-  secretsFiles: []
-  secrets:
-    JWT_SECRET: "$(openssl rand -hex 64)"
-    API_KEY_SECRET: "$(openssl rand -hex 33)"
-    ADMIN_PASSWORD: "Lifecycle-Test-Password-1!"
-  config:
-    EXTERNAL_URL: "http://localhost:3000"
+jwtSecret: "$(openssl rand -hex 64)"
+databasePassword: "$DB_PASSWORD"
+apiKeySecret: "$(openssl rand -hex 33)"
+adminPassword: "Lifecycle-Test-Password-1!"
+externalUrl: "http://localhost:3000"
 postgresql:
-  auth:
-    postgresPassword: "$DB_PASSWORD"
-    password: "$DB_PASSWORD"
-  primary:
-    persistence:
-      enabled: false
+  persistence:
+    enabled: false
+heimdall:
+  ingress:
+    enabled: false
 VALS
 }
 
@@ -74,16 +70,16 @@ wait_ready() {
 }
 
 check_http() {
-  local namespace="$1" port="${2:-18081}" code=000 pf
+  local namespace="$1" port="${2:-18081}" code=000 port_forward_pid
   kubectl port-forward -n "$namespace" "service/$RELEASE" "$port:3000" >/dev/null 2>&1 &
-  pf=$!
+  port_forward_pid=$!
   for _ in $(seq 1 30); do
     code="$(curl --silent --output /dev/null --write-out '%{http_code}' "http://localhost:$port/" || true)"
     [[ "$code" == 200 ]] && break
     sleep 2
   done
-  kill "$pf" >/dev/null 2>&1 || true
-  wait "$pf" 2>/dev/null || true
+  kill "$port_forward_pid" >/dev/null 2>&1 || true
+  wait "$port_forward_pid" 2>/dev/null || true
   [[ "$code" == 200 ]] || fail "GET / returned $code (expected 200)"
   pass "application serves HTTP 200"
 }
@@ -91,5 +87,5 @@ check_http() {
 psql_in() {
   local namespace="$1" sql="$2"
   kubectl exec -n "$namespace" "$RELEASE-postgresql-0" -- \
-    env PGPASSWORD="$DB_PASSWORD" psql -U postgres -d heimdall -tA -c "$sql"
+    env PGPASSWORD="$DB_PASSWORD" psql -U postgres -d heimdall-database -tA -c "$sql"
 }

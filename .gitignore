@@ -5,3 +5,4 @@
 
 # Lifecycle test artifacts
 tests/lifecycle/.generated/
+tests/.generated/
