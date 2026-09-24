@@ -2,7 +2,7 @@
 # https://github.com/helm/chart-testing
 
 # Target branches for detecting changed charts
-target-branch: develop
+target-branch: main
 remote: origin
 
 # Chart directories to process
