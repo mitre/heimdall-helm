@@ -1,0 +1,353 @@
+name: Test Helm Chart
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'heimdall2/**'
+      - 'tests/lifecycle/**'
+      - 'tests/unit/**'
+      - '.github/workflows/test.yml'
+      - '.github/ct.yaml'
+  push:
+    branches:
+      - main
+      - hh-lifecycle-tests
+    paths:
+      - 'heimdall2/**'
+      - 'tests/lifecycle/**'
+      - 'tests/unit/**'
+      - '.github/workflows/test.yml'
+      - '.github/ct.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # Stage 1: Lint
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.8.0
+
+      - name: Run chart-testing lint
+        run: ct lint --config .github/ct.yaml
+
+  # Stage 2: Unit Tests
+  unit-test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+
+      - name: Install helm-unittest plugin
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest --version=v1.0.3
+
+      - name: Run unit tests
+        run: helm unittest --strict -f '../tests/unit/*_test.yaml' ./heimdall2
+
+  # Stage 3: Environment Variables Validation
+  env-vars-validation:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Render chart
+        run: |
+          helm template heimdall ./heimdall2 \
+            --set-string jwtSecret=env-test-jwt \
+            --set-string databasePassword=env-test-db \
+            --set-string apiKeySecret=env-test-api \
+            --set-string adminPassword=env-test-admin \
+            --set-string externalUrl=http://localhost:3000 \
+            --set heimdall.ingress.enabled=false \
+            > /tmp/heimdall-env.yaml
+
+      - name: Validate required environment variables
+        run: |
+          python - <<'PY'
+          import yaml
+
+          with open('/tmp/heimdall-env.yaml', encoding='utf-8') as stream:
+              documents = [document for document in yaml.safe_load_all(stream) if document]
+
+          statefulset = next(
+              document for document in documents
+              if document.get('kind') == 'StatefulSet'
+              and document.get('metadata', {}).get('name') == 'heimdall'
+          )
+          environment = statefulset['spec']['template']['spec']['containers'][0]['env']
+          by_name = {entry['name']: entry for entry in environment}
+          required = {
+              'NODE_ENV', 'DATABASE_HOST', 'DATABASE_PORT', 'DATABASE_NAME',
+              'DATABASE_USERNAME', 'DATABASE_PASSWORD', 'JWT_SECRET',
+              'API_KEY_SECRET', 'ADMIN_PASSWORD', 'EXTERNAL_URL',
+          }
+          missing = sorted(required - by_name.keys())
+          if missing:
+              raise SystemExit(f'Missing environment variables: {missing}')
+
+          secret_backed = {
+              'DATABASE_USERNAME', 'DATABASE_PASSWORD', 'JWT_SECRET',
+              'API_KEY_SECRET', 'ADMIN_PASSWORD',
+          }
+          invalid = sorted(
+              name for name in secret_backed
+              if by_name[name].get('valueFrom', {}).get('secretKeyRef', {}).get('name') != 'heimdall'
+          )
+          if invalid:
+              raise SystemExit(f'Variables not backed by the Heimdall Secret: {invalid}')
+          PY
+
+  # Stage 4: Schema Validation
+  schema-validation:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+
+      - name: Validate chart and values
+        run: |
+          helm lint --strict ./heimdall2 \
+            --set-string jwtSecret=schema-test-jwt \
+            --set-string databasePassword=schema-test-db \
+            --set-string apiKeySecret=schema-test-api \
+            --set-string externalUrl=http://localhost:3000
+          helm template heimdall ./heimdall2 \
+            --set-string jwtSecret=schema-test-jwt \
+            --set-string databasePassword=schema-test-db \
+            --set-string apiKeySecret=schema-test-api \
+            --set-string externalUrl=http://localhost:3000 \
+            > /dev/null
+
+      - name: Report values schema coverage
+        run: |
+          if [[ -f heimdall2/values.schema.json ]]; then
+            echo 'values.schema.json is present and was validated by Helm'
+          else
+            echo '::notice::main does not currently include heimdall2/values.schema.json; Helm lint and rendering validation completed'
+          fi
+
+  # Stage 5: Integration Tests
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: [unit-test, env-vars-validation, schema-validation]
+    strategy:
+      matrix:
+        k8s-version:
+          - v1.30.0
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+
+      - name: Set up chart-testing
+        uses: helm/chart-testing-action@v2.8.0
+
+      - name: Create kind cluster (Kubernetes ${{ matrix.k8s-version }})
+        uses: helm/kind-action@v1.10.0
+        with:
+          node_image: kindest/node:${{ matrix.k8s-version }}
+          cluster_name: heimdall-test
+          wait: 120s
+
+      - name: List changed charts
+        id: list-changed
+        run: |
+          if [[ "${{ github.event_name }}" == pull_request ]]; then
+            changed=$(ct list-changed --config .github/ct.yaml --target-branch ${{ github.event.repository.default_branch }})
+            if [[ -n "$changed" ]]; then
+              echo 'changed=true' >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run chart-testing install
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          ct install --config .github/ct.yaml --all \
+            --helm-extra-set-args '--set-string jwtSecret=integration-test-jwt --set-string databasePassword=integration-test-db --set-string apiKeySecret=integration-test-api --set-string externalUrl=http://localhost:3000 --set heimdall.ingress.enabled=false'
+
+  # Stage 6: Template Rendering Tests
+  template-test:
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+
+      - name: Test template rendering (embedded PostgreSQL)
+        run: |
+          helm template heimdall ./heimdall2 \
+            --set-string jwtSecret=template-test-jwt \
+            --set-string databasePassword=template-test-db \
+            --set-string apiKeySecret=template-test-api \
+            --set-string externalUrl=http://localhost:3000 \
+            --set heimdall.ingress.enabled=false \
+            > /tmp/heimdall-embedded.yaml
+
+      - name: Test template rendering (external database)
+        run: |
+          helm template heimdall ./heimdall2 \
+            --set postgresql.enabled=false \
+            --set-string databaseHost=db.example.com \
+            --set databasePort=5432 \
+            --set-string databaseName=heimdall_prod \
+            --set-string databaseUsername=heimdall_user \
+            --set-string databasePassword=template-test-db \
+            --set-string jwtSecret=template-test-jwt \
+            --set-string apiKeySecret=template-test-api \
+            --set-string externalUrl=http://localhost:3000 \
+            --set heimdall.ingress.enabled=false \
+            > /tmp/heimdall-external.yaml
+
+      - name: Test template rendering (with ingress)
+        run: |
+          helm template heimdall ./heimdall2 \
+            --set-string jwtSecret=template-test-jwt \
+            --set-string databasePassword=template-test-db \
+            --set-string apiKeySecret=template-test-api \
+            --set-string externalUrl=https://heimdall.example.com \
+            --set heimdall.ingress.enabled=true \
+            --set-string 'heimdall.ingress.hosts[0].host=heimdall.example.com' \
+            > /tmp/heimdall-ingress.yaml
+
+      - name: Verify rendered manifests
+        run: |
+          grep -q '^kind: StatefulSet$' /tmp/heimdall-embedded.yaml
+          grep -q 'value: "db.example.com"' /tmp/heimdall-external.yaml
+          grep -q '^kind: Ingress$' /tmp/heimdall-ingress.yaml
+
+  # Stage 7: Runtime Lifecycle Scenarios
+  lifecycle-test:
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: heimdall
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: lifecycle-postgres-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d heimdall"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.22.0
+
+      - name: Install SOPS and age
+        env:
+          SOPS_VERSION: 3.13.3
+          AGE_VERSION: 1.3.2
+          AGE_SHA256: cbe24006683f8eb669266162894b9a522a1af52f2665fbc63a4bb032ed26ac10
+        run: |
+          curl --fail --silent --show-error --location --remote-name \
+            "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.linux.amd64"
+          curl --fail --silent --show-error --location --remote-name \
+            "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops-v${SOPS_VERSION}.checksums.txt"
+          sha256sum --check --ignore-missing "sops-v${SOPS_VERSION}.checksums.txt"
+          sudo install --mode 0755 "sops-v${SOPS_VERSION}.linux.amd64" /usr/local/bin/sops
+          curl --fail --silent --show-error --location --remote-name \
+            "https://github.com/FiloSottile/age/releases/download/v${AGE_VERSION}/age-v${AGE_VERSION}-linux-amd64.tar.gz"
+          echo "${AGE_SHA256}  age-v${AGE_VERSION}-linux-amd64.tar.gz" | sha256sum --check
+          tar --extract --gzip --file "age-v${AGE_VERSION}-linux-amd64.tar.gz"
+          sudo install --mode 0755 age/age age/age-keygen /usr/local/bin/
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: heimdall-test
+          wait: 120s
+
+      - name: Locate GitHub PostgreSQL service
+        id: postgres-service
+        run: |
+          host="$(docker network inspect kind --format '{{range .IPAM.Config}}{{println .Gateway}}{{end}}' \
+            | awk '/\./ {print; exit}')"
+          test -n "$host"
+          echo "host=$host" >> "$GITHUB_OUTPUT"
+
+      - name: Show tool versions
+        run: |
+          helm version --short
+          kubectl version --client
+          kind version
+          sops --version
+          age --version
+
+      - name: Run lifecycle scenarios
+        env:
+          EXTERNAL_POSTGRES_HOST: ${{ steps.postgres-service.outputs.host }}
+          EXTERNAL_POSTGRES_PORT: 5432
+          EXTERNAL_POSTGRES_PASSWORD: lifecycle-postgres-password
+          CERTS_IMAGE: ${{ vars.MITRE_ARTIFACTORY_URL != '' && format('{0}/docker/ubi8/ubi', vars.MITRE_ARTIFACTORY_URL) || 'registry.access.redhat.com/ubi8/ubi' }}
+          CERTS_IMAGE_TAG: latest
+        run: tests/lifecycle/run-all.sh

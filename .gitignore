@@ -2,3 +2,7 @@
 .cr-release-packages/
 .cr-index/
 .DS_Store
+
+# Lifecycle test artifacts
+tests/lifecycle/.generated/
+tests/.generated/
