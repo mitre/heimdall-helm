@@ -1,0 +1,50 @@
+suite: Heimdall StatefulSet environment
+templates:
+  - templates/heimdall-statefulset.yaml
+set:
+  jwtSecret: unit-test-jwt
+  databasePassword: unit-test-password
+  externalUrl: http://heimdall.example.test
+  warningBanner: Authorized use only
+  gitlabClientSecret: unit-test-gitlab-secret
+  oktaIssuer: https://okta.example.test/oauth2/default
+tests:
+  - it: passes warningBanner to Heimdall2 as WARNING_BANNER
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: WARNING_BANNER
+            value: Authorized use only
+
+  - it: passes the GitLab secret using Heimdall2 and legacy variable names
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: GITLAB_SECRET
+            valueFrom:
+              secretKeyRef:
+                name: RELEASE-NAME-heimdall
+                key: gitlabClientSecret
+
+  - it: passes the Okta issuer using Heimdall2 and legacy variable names
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: OKTA_ISSUER_URL
+            value: https://okta.example.test/oauth2/default
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: OKTA_ISSUER
+            value: https://okta.example.test/oauth2/default
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: GITLAB_CLIENTSECRET
+            valueFrom:
+              secretKeyRef:
+                name: RELEASE-NAME-heimdall
+                key: gitlabClientSecret
