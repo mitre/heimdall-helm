@@ -4,7 +4,7 @@ description: Heimdall is a security results visualization tool that lets you vie
 icon: https://raw.githubusercontent.com/mitre/heimdall2/master/apps/frontend/src/assets/logo.png
 
 type: application
-version: 3.3.5
+version: 3.3.6
 appVersion: "release-latest"
 
 annotations:
