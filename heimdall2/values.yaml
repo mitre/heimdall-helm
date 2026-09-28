@@ -29,6 +29,11 @@ nodeEnv: production
 # databaseHost: postgresql.example.com
 ## Set external database port or set `postgresql.enabled` equal to `true`
 # databasePort: 5672
+# Alternative connection configuration. Stored in the chart Secret as `databaseUrl`.
+# When set, Helm omits DATABASE_HOST, DATABASE_PORT, DATABASE_NAME, DATABASE_USERNAME,
+# and DATABASE_PASSWORD so Heimdall2 uses this URL. Set `postgresql.enabled: false`
+# when connecting to an external database through this value.
+# databaseUrl: postgresql://username:password@postgresql.example.com:5432/heimdall
 databaseName: heimdall-database
 databaseUsername: postgres
 ## Set postgres user's password via `openssl rand -hex 33`
@@ -106,6 +111,7 @@ sops:
     # Example
     # - DATABASE_PASSWORD
     # - DATABASE_USERNAME
+    # - DATABASE_URL
     # - ADMIN_PASSWORD
     # - JWT_SECRET
     # - API_KEY_SECRET

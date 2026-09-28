@@ -103,6 +103,14 @@ spec:
             - name: MAX_FILE_UPLOAD_SIZE
               value: {{ .Values.maxFileUploadSize | quote }}
             {{- end }}
+            {{- $hasDatabaseUrl := or .Values.databaseUrl (and .Values.sops.enabled (has "DATABASE_URL" .Values.sops.secrets)) }}
+            {{- if $hasDatabaseUrl }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "heimdall.fullname" . }}
+                  key: databaseUrl
+            {{- else }}
             {{- if or .Values.postgresql.enabled .Values.databaseHost }}
             - name: DATABASE_HOST
             {{- if .Values.postgresql.enabled }}
@@ -136,6 +144,7 @@ spec:
                 secretKeyRef:
                   name: {{ include "heimdall.fullname" . }}
                   key: databasePassword
+            {{- end }}
             {{- end }}
             {{- if .Values.databaseSsl }}
             - name: DATABASE_SSL

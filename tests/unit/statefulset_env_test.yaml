@@ -27,6 +27,14 @@ tests:
               secretKeyRef:
                 name: RELEASE-NAME-heimdall
                 key: gitlabClientSecret
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: GITLAB_CLIENTSECRET
+            valueFrom:
+              secretKeyRef:
+                name: RELEASE-NAME-heimdall
+                key: gitlabClientSecret
 
   - it: passes the Okta issuer using Heimdall2 and legacy variable names
     asserts:
@@ -40,11 +48,51 @@ tests:
           content:
             name: OKTA_ISSUER
             value: https://okta.example.test/oauth2/default
+
+  - it: passes databaseUrl as DATABASE_URL and omits conflicting database variables
+    set:
+      databaseUrl: postgresql://unit-test-user:unit-test-password@database.example.test:5432/heimdall
+    asserts:
       - contains:
           path: spec.template.spec.containers[0].env
           content:
-            name: GITLAB_CLIENTSECRET
+            name: DATABASE_URL
             valueFrom:
               secretKeyRef:
                 name: RELEASE-NAME-heimdall
-                key: gitlabClientSecret
+                key: databaseUrl
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DATABASE_HOST
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DATABASE_PORT
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DATABASE_NAME
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DATABASE_USERNAME
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DATABASE_PASSWORD
+
+  - it: references a SOPS-managed databaseUrl Secret
+    set:
+      sops.enabled: true
+      sops.secrets:
+        - DATABASE_URL
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: DATABASE_URL
+            valueFrom:
+              secretKeyRef:
+                name: RELEASE-NAME-heimdall
+                key: databaseUrl
