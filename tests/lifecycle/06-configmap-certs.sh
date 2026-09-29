@@ -3,7 +3,7 @@
 source "$(dirname "$0")/lib.sh"
 NS=lifecycle-configmap
 CERTS_IMAGE="${CERTS_IMAGE:-registry.access.redhat.com/ubi8/ubi}"
-CERTS_IMAGE_TAG="${CERTS_IMAGE_TAG:-latest}"
+CERTS_IMAGE_TAG="${CERTS_IMAGE_TAG:-latest@sha256:61528281e9ef10e9e34e88d63a8e2d4e1755d130a6fb1e0e931bd062ad476a6c}"
 trap 'cleanup_ns "$NS"' EXIT
 
 log "Scenario 6: certificate ConfigMap"
