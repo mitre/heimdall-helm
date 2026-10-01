@@ -1,9 +1,10 @@
 apiVersion: v2
 name: heimdall
 description: Heimdall is a security results visualization tool that lets you view, store, and compare security scan results.
+icon: https://raw.githubusercontent.com/mitre/heimdall2/master/apps/frontend/src/assets/logo.png
 
 type: application
-version: 3.3.5
+version: 4.0.0
 appVersion: "release-latest"
 
 annotations:

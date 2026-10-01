@@ -211,6 +211,10 @@ spec:
             - name: ONE_SESSION_PER_USER
               value: {{ .Values.oneSessionPerUser | quote }}
             {{- end }}
+            {{- if .Values.warningBanner }}
+            - name: WARNING_BANNER
+              value: {{ .Values.warningBanner | quote }}
+            {{- end }}
             {{- if .Values.classificationBannerText }}
             - name: CLASSIFICATION_BANNER_TEXT
               value: {{ .Values.classificationBannerText | quote }}
@@ -311,9 +315,9 @@ spec:
                   name: {{ include "heimdall.fullname" . }}
                   key: oktaClientSecret
             {{- end }}
-            {{- if .Values.oktaIssuer }}
-            - name: OKTA_ISSUER
-              value: {{ .Values.oktaIssuer | quote }}
+            {{- if .Values.oktaIssuerUrl }}
+            - name: OKTA_ISSUER_URL
+              value: {{ .Values.oktaIssuerUrl | quote }}
             {{- end }}
             {{- if .Values.oktaAuthorizationUrl }}
             - name: OKTA_AUTHORIZATION_URL
