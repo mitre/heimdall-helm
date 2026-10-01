@@ -269,12 +269,6 @@ spec:
                   key: gitlabClientId
             {{- end }}
             {{- if or .Values.gitlabClientSecret (and .Values.sops.enabled (has "GITLAB_CLIENTSECRET" .Values.sops.secrets)) }}
-            - name: GITLAB_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "heimdall.fullname" . }}
-                  key: gitlabClientSecret
-            {{/* TODO: Remove GITLAB_CLIENTSECRET after the legacy Helm pod environment-variable contract is retired. */}}
             - name: GITLAB_CLIENTSECRET
               valueFrom:
                 secretKeyRef:
@@ -323,9 +317,6 @@ spec:
             {{- end }}
             {{- if .Values.oktaIssuer }}
             - name: OKTA_ISSUER_URL
-              value: {{ .Values.oktaIssuer | quote }}
-            {{/* TODO: Remove OKTA_ISSUER after the legacy Helm pod environment-variable contract is retired. */}}
-            - name: OKTA_ISSUER
               value: {{ .Values.oktaIssuer | quote }}
             {{- end }}
             {{- if .Values.oktaAuthorizationUrl }}

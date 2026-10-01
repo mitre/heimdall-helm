@@ -1,3 +1,11 @@
+# 4.0.0
+Added support for the WARNING_BANNER environment variable
+Clarified service, ingress, liveness probe, and readiness probe port configuration
+Kept GITLAB_CLIENTSECRET as the GitLab client secret environment variable
+
+## BREAKING CHANGES
+Replaced the nonfunctional OKTA_ISSUER environment variable with OKTA_ISSUER_URL to match Heimdall2
+
 # 3.3.5
 Updated tenableHostUrl to reflect Heimdall implementation changes allowing multiple hosts separate by new-lines
 
