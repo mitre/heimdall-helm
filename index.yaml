@@ -18,6 +18,33 @@ entries:
           url: https://github.com/mitre/docs-mitre-inspec/raw/master/images/Heimdall_demo.gif
     apiVersion: v2
     appVersion: release-latest
+    created: "2026-10-01T18:49:11.654310675Z"
+    description: Heimdall is a security results visualization tool that lets you view,
+      store, and compare security scan results.
+    digest: 6e01b022a40c2bd28623d1054cb2742a1fbcf5c7129ce8a4cd58a5fcaeabac8e
+    icon: https://raw.githubusercontent.com/mitre/heimdall2/master/apps/frontend/src/assets/logo.png
+    name: heimdall
+    type: application
+    urls:
+    - https://github.com/mitre/heimdall-helm/releases/download/heimdall-4.0.0/heimdall-4.0.0.tgz
+    version: 4.0.0
+  - annotations:
+      artifacthub.io/category: security
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: support
+          url: https://github.com/mitre/heimdall2-helm/issues
+        - name: Additional Security Automation Framework Resources
+          url: https://saf.mitre.org
+      artifacthub.io/maintainers: |
+        - name: MITRE SAF Team
+          email: saf@mitre.org
+      artifacthub.io/prerelease: "false"
+      artifacthub.io/screenshots: |
+        - title: Heimdall Security Data Visualization
+          url: https://github.com/mitre/docs-mitre-inspec/raw/master/images/Heimdall_demo.gif
+    apiVersion: v2
+    appVersion: release-latest
     created: "2026-09-10T20:25:45.549404622Z"
     description: Heimdall is a security results visualization tool that lets you view,
       store, and compare security scan results.
@@ -541,4 +568,4 @@ entries:
     urls:
     - https://github.com/mitre/heimdall2-helm/releases/download/heimdall-2.4.8/heimdall-2.4.8.tgz
     version: 2.4.8
-generated: "2026-09-10T20:25:45.54961371Z"
+generated: "2026-10-01T18:49:11.654491701Z"
