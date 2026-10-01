@@ -315,9 +315,9 @@ spec:
                   name: {{ include "heimdall.fullname" . }}
                   key: oktaClientSecret
             {{- end }}
-            {{- if .Values.oktaIssuer }}
+            {{- if .Values.oktaIssuerUrl }}
             - name: OKTA_ISSUER_URL
-              value: {{ .Values.oktaIssuer | quote }}
+              value: {{ .Values.oktaIssuerUrl | quote }}
             {{- end }}
             {{- if .Values.oktaAuthorizationUrl }}
             - name: OKTA_AUTHORIZATION_URL

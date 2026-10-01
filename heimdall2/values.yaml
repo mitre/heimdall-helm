@@ -79,7 +79,7 @@ databaseUsername: postgres
 # oktaDomain: yourdomain.okta.com # Your assigned Okta domain (No default, if using Okta login either this variable or OKTA_ISSUER_URL, OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, and OKTA_USER_INFO_URL must be set)
 # oktaClientId: value-from-okta # No default, must be set if using Okta login
 # oktaClientSecret: value-from-okta # Your application's client secret (No default, must be set if using Okta login)
-# oktaIssuer: okta-base-url # example: https://domain.okta.com No default, if using Okta login either OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set. Rendered as OKTA_ISSUER_URL.
+# oktaIssuerUrl: okta-base-url # example: https://domain.okta.com No default, if using Okta login either OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set. Rendered as OKTA_ISSUER_URL.
 # oktaAuthorizationUrl: okta-authorization-endpoint # example: https://domain.okta.com/oauth2/v1/authorize No default, if using Okta login either OKTA_ISSUER_URL, OKTA_TOKEN_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
 # oktaTokenUrl: okta-token-endpoint # No default, if using Okta login either OKTA_ISSUER_URL, OKTA_AUTHORIZATION_URL, OKTA_USER_INFO_URL, and this variable or OKTA_DOMAIN must be set
 # oktaUserInfoUrl: value-from-okta # No default, if using Okta login either OKTA_ISSUER_URL, OKTA_AUTHORIZATION_URL, OKTA_TOKEN_URL, and this variable or OKTA_DOMAIN must be set
