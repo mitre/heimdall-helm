@@ -15,6 +15,7 @@ nodeEnv: production
 
 # localLoginDisabled: default false
 # registrationDisabled: default false
+# upgradeInsecureRequestsDisabled: default false
 # oneSessionPerUser: default false
 ## Generate the following via `openssl rand -hex 64` and set
 # jwtSecret: long-random-string-of-text
