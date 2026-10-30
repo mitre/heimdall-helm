@@ -99,6 +99,10 @@ spec:
             {{- end }}
             - name: NODE_ENV
               value: {{ .Values.nodeEnv | quote }}
+            {{- if .Values.upgradeInsecureRequestsDisabled }}
+            - name: UPGRADE_INSECURE_REQUESTS_DISABLED
+              value: {{ .Values.upgradeInsecureRequestsDisabled | quote }}
+            {{- end }}
             {{- if .Values.maxFileUploadSize }}
             - name: MAX_FILE_UPLOAD_SIZE
               value: {{ .Values.maxFileUploadSize | quote }}
