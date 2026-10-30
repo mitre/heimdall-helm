@@ -6,6 +6,33 @@ runtime scenario scripts under `tests/lifecycle/`.
 
 Run the following commands from the repository root.
 
+## Workflow linting and dependency updates
+
+The `Lint GitHub Workflows` workflow runs on every pull request to `main` and push to `main`.
+It checks `.github/` with zizmor and all workflows with actionlint, including ShellCheck and
+pyflakes checks for embedded scripts. Both checks report failures through GitHub annotations.
+
+To run the checks locally, install zizmor, actionlint from `kjanat/actionlint`, ShellCheck, and
+pyflakes, then run:
+
+```bash
+zizmor .github
+actionlint
+```
+
+Dependabot checks GitHub Actions daily at 8 p.m. Eastern time and waits seven days after a
+release before opening version updates. Action references are pinned to commit hashes, with
+version comments for Dependabot to maintain.
+
+The `Auto approve and Merge Dependabot PRs` workflow verifies Dependabot commits, approves
+updates, and enables auto-merge once required checks and branch protection rules are satisfied.
+Major GitHub Actions updates require manual review and approval; the workflow leaves a comment
+explaining this exception. Updates from other ecosystems remain eligible if added to Dependabot.
+The workflow uses `pull_request` with explicit `contents: write` and `pull-requests: write`
+permissions and never checks out pull request code.
+Repository settings must enable auto-merge and allow GitHub Actions to create and approve pull
+requests.
+
 ## Coverage
 
 | Stage | CI job | Coverage |
