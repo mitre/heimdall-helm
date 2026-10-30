@@ -1,0 +1,18 @@
+# New ecosystems default to auto-merge; review auto-approve-and-merge.yml when adding one.
+version: 2
+updates:
+  # GH Actions are set to automerge minor/patch but require manual review for major versions.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    groups:
+      actions-deps:
+        group-by: dependency-name
+        patterns:
+          - "*"
+    schedule:
+      interval: daily
+      time: "20:00"
+      timezone: America/New_York
+    cooldown:
+      default-days: 7
+    open-pull-requests-limit: 99
