@@ -1,5 +1,6 @@
 # 4.1.0
 Added upgradeInsecureRequestsDisabled to configure the UPGRADE_INSECURE_REQUESTS_DISABLED environment variable for HTTP-only deployments
+Created and updated github workflows for testing/linting/dependabot/etc purposes
 
 # 4.0.0
 Added support for the WARNING_BANNER environment variable
