@@ -41,7 +41,7 @@ requests.
 | 2 | `unit-test` | Secret template behavior |
 | 3 | `env-vars-validation` | Required environment variables and Secret references |
 | 4 | `schema-validation` | Strict Helm linting and values rendering |
-| 5 | `integration-test` | Installation into Kubernetes 1.30 and the Helm test hook |
+| 5 | `integration-test-matrix` | Installation and the Helm test hook against the three newest Kubernetes minor versions published for the latest stable kind release |
 | 6 | `template-test` | Embedded PostgreSQL, external PostgreSQL, and ingress rendering |
 | 7 | `lifecycle-test` | Runtime installation, PostgreSQL, SOPS, Vault-compatible Secrets, and certificates |
 
@@ -113,13 +113,22 @@ stage validates strict linting and rendering.
 
 ### 5. Kubernetes integration
 
+CI's `kubernetes-versions` job queries the latest stable
+[kind release](https://github.com/kubernetes-sigs/kind/releases/latest) and selects the highest
+published patch for each of the three newest Kubernetes minor versions. It passes the matching
+kind version, digest-pinned node image, and kubectl version to each matrix job. Version discovery
+fails if the release does not publish at least three minor versions.
+
+For a local run, use one of the `image` values reported by that job, with its `kind_version` and
+matching kubectl version installed:
+
 ```bash
-kind create cluster --name heimdall-ci-v130 \
-  --image kindest/node:v1.30.0@sha256:047357ac0cfea04663786a612ba1eaba9702bef25227a794b52890dd8bcd692e
+# Set NODE_IMAGE to a digest-pinned image from the kubernetes-versions job output.
+kind create cluster --name heimdall-ci --image "${NODE_IMAGE:?Set NODE_IMAGE from CI output}"
 ct install --config .github/ct.yaml --all \
   --helm-extra-set-args \
   '--set-string jwtSecret=integration-test-jwt --set-string databasePassword=integration-test-db --set-string apiKeySecret=integration-test-api --set-string externalUrl=http://localhost:3000 --set heimdall.ingress.enabled=false'
-kind delete cluster --name heimdall-ci-v130
+kind delete cluster --name heimdall-ci
 ```
 
 ### 6. Template rendering

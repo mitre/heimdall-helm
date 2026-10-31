@@ -4,21 +4,9 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - 'heimdall2/**'
-      - 'tests/lifecycle/**'
-      - 'tests/unit/**'
-      - '.github/workflows/test.yml'
-      - '.github/ct.yaml'
   push:
     branches:
       - main
-    paths:
-      - 'heimdall2/**'
-      - 'tests/lifecycle/**'
-      - 'tests/unit/**'
-      - '.github/workflows/test.yml'
-      - '.github/ct.yaml'
   workflow_dispatch:
 
 concurrency:
@@ -29,6 +17,33 @@ permissions:
   contents: read
 
 jobs:
+  kubernetes-versions:
+    runs-on: ubuntu-latest
+    outputs:
+      kind_version: ${{ steps.versions.outputs.kind_version }}
+      kubernetes: ${{ steps.versions.outputs.kubernetes }}
+    steps:
+      - name: Discover Kubernetes versions
+        id: versions
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release=$(gh api repos/kubernetes-sigs/kind/releases/latest)
+          kind_version=$(jq -r '.tag_name' <<< "$release")
+          kubernetes=$(jq -ce '
+            [.body
+             | scan("kindest/node:(v[0-9]+\\.[0-9]+\\.[0-9]+)@sha256:([a-f0-9]{64})")
+             | {version: .[0], image: ("kindest/node:" + .[0] + "@sha256:" + .[1]),
+                sort: (.[0] | ltrimstr("v") | split(".") | map(tonumber))}]
+            | group_by(.sort[0:2])
+            | map(max_by(.sort))
+            | sort_by(.sort) | reverse | .[:3]
+            | map(del(.sort))
+            | if length == 3 then . else error("kind release must provide three Kubernetes minor versions") end
+          ' <<< "$release")
+
+          printf 'kind_version=%s\nkubernetes=%s\n' "$kind_version" "$kubernetes" | tee -a "$GITHUB_OUTPUT"
+
   # Stage 1: Lint
   lint:
     runs-on: ubuntu-latest
@@ -184,13 +199,13 @@ jobs:
           fi
 
   # Stage 5: Integration Tests
-  integration-test:
+  integration-test-matrix:
+    name: integration-test-matrix (${{ matrix.kubernetes.version }})
     runs-on: ubuntu-latest
-    needs: [unit-test, env-vars-validation, schema-validation]
+    needs: [unit-test, env-vars-validation, schema-validation, kubernetes-versions]
     strategy:
       matrix:
-        k8s-version:
-          - v1.30.0
+        kubernetes: ${{ fromJSON(needs.kubernetes-versions.outputs.kubernetes) }}
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -206,34 +221,31 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@6ec842c01de15ebb84c8627d2744a0c2f2755c9f # v2.8.0
 
-      - name: Create kind cluster (Kubernetes ${{ matrix.k8s-version }})
+      - name: Create kind cluster (Kubernetes ${{ matrix.kubernetes.version }})
         uses: helm/kind-action@06c1ae10762d3b9c1644e7fe69596ae519e015a2 # v1.15.0
         with:
-          kubectl_version: ${{ matrix.k8s-version }}
-          node_image: kindest/node:${{ matrix.k8s-version }}@sha256:047357ac0cfea04663786a612ba1eaba9702bef25227a794b52890dd8bcd692e
+          version: ${{ needs.kubernetes-versions.outputs.kind_version }}
+          kubectl_version: ${{ matrix.kubernetes.version }}
+          node_image: ${{ matrix.kubernetes.image }}
           cluster_name: heimdall-test
           wait: 120s
 
-      - name: List changed charts
-        id: list-changed
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          TARGET_BRANCH: ${{ github.event.repository.default_branch }}
-        run: |
-          if [[ "$EVENT_NAME" == pull_request ]]; then
-            changed=$(ct list-changed --config .github/ct.yaml --target-branch "$TARGET_BRANCH")
-            if [[ -n "$changed" ]]; then
-              echo 'changed=true' >> "$GITHUB_OUTPUT"
-            fi
-          else
-            echo 'changed=true' >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Run chart-testing install
-        if: steps.list-changed.outputs.changed == 'true'
         run: |
           ct install --config .github/ct.yaml --all \
             --helm-extra-set-args '--set-string jwtSecret=integration-test-jwt --set-string databasePassword=integration-test-db --set-string apiKeySecret=integration-test-api --set-string externalUrl=http://localhost:3000 --set heimdall.ingress.enabled=false'
+
+  # Stable check for branch protection, independent of matrix versions.
+  integration-test:
+    runs-on: ubuntu-latest
+    permissions: {}
+    needs: integration-test-matrix
+    if: ${{ always() }}
+    steps:
+      - name: Require all integration tests to pass
+        env:
+          RESULT: ${{ needs.integration-test-matrix.result }}
+        run: test "$RESULT" = success
 
   # Stage 6: Template Rendering Tests
   template-test:
