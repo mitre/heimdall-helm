@@ -103,9 +103,17 @@ spec:
             - name: UPGRADE_INSECURE_REQUESTS_DISABLED
               value: {{ .Values.upgradeInsecureRequestsDisabled | quote }}
             {{- end }}
-            {{- if .Values.maxFileUploadSize }}
+            {{- if hasKey .Values "maxFileUploadSize" }}
             - name: MAX_FILE_UPLOAD_SIZE
               value: {{ .Values.maxFileUploadSize | quote }}
+            {{- end }}
+            {{- if hasKey .Values "maxFilesPerUpload" }}
+            - name: MAX_FILES_PER_UPLOAD
+              value: {{ .Values.maxFilesPerUpload | quote }}
+            {{- end }}
+            {{- if hasKey .Values "maxUploadFieldSize" }}
+            - name: MAX_UPLOAD_FIELD_SIZE
+              value: {{ .Values.maxUploadFieldSize | quote }}
             {{- end }}
             {{- if or .Values.postgresql.enabled .Values.databaseHost }}
             - name: DATABASE_HOST
