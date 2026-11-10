@@ -1,6 +1,5 @@
 # 4.2.0
-Added maxFilesPerUpload and maxUploadFieldSize
-Added support for maxFileUploadSize: 0 to disable the limit
+Added maxFilesPerUpload and maxUploadFieldSize and support for maxFileUploadSize: 0 to disable the limit
 
 # 4.1.0
 Added upgradeInsecureRequestsDisabled to configure the UPGRADE_INSECURE_REQUESTS_DISABLED environment variable for HTTP-only deployments
