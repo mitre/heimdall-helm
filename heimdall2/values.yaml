@@ -24,7 +24,9 @@ nodeEnv: production
 
 ## Generate the following via `openssl rand -hex 33` and set
 # apiKeySecret: different-long-random-string-of-text
-# maxFileUploadSize: size-in-megabytes (default 50)
+# maxFileUploadSize: per-file size in MiB (default 50; 0 disables)
+# maxFilesPerUpload: files per request (default 100; 0 disables)
+# maxUploadFieldSize: per-field size in MiB (default 1; 0 disables)
 
 ## Set FDQN for external database host or set `postgresql.enabled` equal to `true`
 # databaseHost: postgresql.example.com
